@@ -1,0 +1,10 @@
+{
+    "f9a3e4ae-b517-4731-944c-ac480a009ae5":{
+        "domain":"fastmail.com",
+        "connection":{ 
+            "auth":"JBC",
+            "bauth_location":"/auth/login",
+            "cauth_location":"/auth/sessions"
+        }
+    }
+}

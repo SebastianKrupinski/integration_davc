@@ -1,0 +1,50 @@
+{
+  "name": "integration_davc",
+  "version": "1.0.0",
+  "description": "Nextcloud DAV Connector",
+  "license": "AGPL-3.0-or-later",
+  "author": "Sebastian Krupinski <krupinski01@gmail.com>",
+  "scripts": {
+    "build": "rspack build --env production",
+    "dev": "rspack build --env development",
+    "watch": "rspack build --env development --watch",
+    "analyze": "RSDOCTOR=true rspack build --env production",
+    "stats": "rspack build --env production --json js/stats.json",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "stylelint": "stylelint \"src/**/*.scss\" \"src/**/*.vue\"",
+    "stylelint:fix": "stylelint \"src/**/*.scss\" \"src/**/*.vue\" --fix",
+    "ts:check": "vue-tsc --noEmit"
+  },
+  "engines": {
+    "node": "^24.0.0",
+    "npm": "^11.3.0"
+  },
+  "browserslist": [
+    "extends @nextcloud/browserslist-config"
+  ],
+  "dependencies": {
+    "@nextcloud/auth": "^2.6.0",
+    "@nextcloud/axios": "^2.6.0",
+    "@nextcloud/initial-state": "^3.0.0",
+    "@nextcloud/l10n": "^3.4.1",
+    "@nextcloud/vue": "^9.8.0"
+  },
+  "devDependencies": {
+    "@nextcloud/browserslist-config": "^3.1.2",
+    "@nextcloud/eslint-config": "^9.0.0-rc.9",
+    "@nextcloud/stylelint-config": "^3.2.2",
+    "@rsdoctor/rspack-plugin": "^1.5.10",
+    "@rspack/cli": "^2.0.2",
+    "@rspack/core": "^2.0.2",
+    "@vue/tsconfig": "^0.9.1",
+    "css-loader": "^7.1.4",
+    "path-browserify": "^1.0.1",
+    "sass": "^1.99.0",
+    "sass-loader": "^16.0.8",
+    "style-loader": "^4.0.0",
+    "typescript": "^6.0.3",
+    "vue-loader": "^17.4.2",
+    "vue-tsc": "^3.2.8"
+  }
+}

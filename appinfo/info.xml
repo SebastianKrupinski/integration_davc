@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>integration_davc</id>
+    <name>DAV Connector</name>
+    <summary>Connect Nextcloud to a DAV service</summary>
+    <description><![CDATA[DAV Connector allows you connect any compatible DAV service to Nextcloud]]></description>
+    <version>0.1.0-dev</version>
+    <licence>agpl</licence>
+    <author mail="krupinski01@gmail.com">Sebastian Krupinski</author>
+    <namespace>DAVC</namespace>
+    <types>
+        <dav/>
+    </types>
+    <documentation>
+        <developer>https://github.com/nextcloud/integration_davc</developer>
+    </documentation>
+    <category>integration</category>
+    <website>https://github.com/nextcloud/integration_davc</website>
+    <discussion>https://github.com/nextcloud/integration_davc/issues</discussion>
+    <bugs>https://github.com/nextcloud/integration_davc/issues</bugs>
+    <repository>https://github.com/nextcloud/integration_davc</repository>
+    <screenshot>https://github.com/nextcloud/integration_davc</screenshot>
+    <dependencies>
+        <php min-version="8.2" max-version="8.5"  min-int-size="64" />
+        <nextcloud min-version="32" max-version="35"/>
+    </dependencies>
+    <commands>
+		<command>OCA\DAVC\Commands\Connect</command>
+		<command>OCA\DAVC\Commands\Disconnect</command>
+		<command>OCA\DAVC\Commands\Harmonize</command>
+        <command>OCA\DAVC\Commands\Show</command>
+	</commands>
+    <settings>
+        <admin>OCA\DAVC\Settings\AdminSettings</admin>
+        <admin-section>OCA\DAVC\Settings\AdminSection</admin-section>
+        <personal>OCA\DAVC\Settings\UserSettings</personal>
+        <personal-section>OCA\DAVC\Settings\UserSection</personal-section>
+    </settings>
+    <sabre>
+        <address-book-plugins>
+			<plugin>OCA\DAVC\Providers\DAV\Contacts\Cached\Provider</plugin>
+            <plugin>OCA\DAVC\Providers\DAV\Contacts\Live\Provider</plugin>
+		</address-book-plugins>
+		<calendar-plugins>
+			<plugin>OCA\DAVC\Providers\DAV\Calendar\Cached\Provider</plugin>
+			<plugin>OCA\DAVC\Providers\DAV\Calendar\Live\Provider</plugin>
+		</calendar-plugins>
+	</sabre>
+</info>
