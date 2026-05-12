@@ -24,12 +24,12 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Contacts\Cached;
+namespace OCA\DAVC\Providers\DAV\Contacts\Cached;
 
-use OCA\JMAPC\Store\Common\Filters\FilterComparisonOperator;
-use OCA\JMAPC\Store\Local\CollectionEntity as CollectionEntityData;
-use OCA\JMAPC\Store\Local\ContactEntity as ContactEntityData;
-use OCA\JMAPC\Store\Local\ContactStore;
+use OCA\DAVC\Store\Common\Filters\FilterComparisonOperator;
+use OCA\DAVC\Store\Local\CollectionEntity as CollectionEntityData;
+use OCA\DAVC\Store\Local\ContactEntity as ContactEntityData;
+use OCA\DAVC\Store\Local\ContactStore;
 use Sabre\CardDAV\IAddressBook;
 use Sabre\DAV\IMultiGet;
 use Sabre\DAV\IProperties;

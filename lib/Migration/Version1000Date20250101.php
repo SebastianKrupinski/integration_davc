@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Migration;
+namespace OCA\DAVC\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;

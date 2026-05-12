@@ -24,14 +24,14 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Contacts\Live;
+namespace OCA\DAVC\Providers\DAV\Contacts\Live;
 
 use OCA\DAV\CardDAV\Integration\ExternalAddressBook;
 use OCA\DAV\CardDAV\Integration\IAddressBookProvider;
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Service\Remote\RemoteService;
-use OCA\JMAPC\Service\ServicesService;
-use OCA\JMAPC\Store\Local\ServiceEntity;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Service\Remote\RemoteService;
+use OCA\DAVC\Service\ServicesService;
+use OCA\DAVC\Store\Local\ServiceEntity;
 
 class Provider implements IAddressBookProvider {
 

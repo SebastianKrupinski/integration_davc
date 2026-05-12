@@ -24,9 +24,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service;
+namespace OCA\DAVC\Service;
 
-use OCA\JMAPC\AppInfo\Application;
+use OCA\DAVC\AppInfo\Application;
 use OCP\IConfig;
 use OCP\Security\ICrypto;
 

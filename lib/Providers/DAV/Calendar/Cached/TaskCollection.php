@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Calendar\Cached;
+namespace OCA\DAVC\Providers\DAV\Calendar\Cached;
 
 use DateTime;
 use DateTimeInterface;
@@ -32,13 +32,13 @@ use DateTimeZone;
 use OCA\DAV\CalDAV\EventReader;
 use OCA\DAV\CalDAV\Integration\ExternalCalendar;
 use OCA\DAV\CalDAV\Plugin;
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Store\Common\Filters\FilterComparisonOperator;
-use OCA\JMAPC\Store\Common\Range\RangeDate;
-use OCA\JMAPC\Store\Local\CollectionEntity as CollectionEntityData;
-use OCA\JMAPC\Store\Local\TaskEntity as TaskEntityData;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Store\Common\Filters\FilterComparisonOperator;
+use OCA\DAVC\Store\Common\Range\RangeDate;
+use OCA\DAVC\Store\Local\CollectionEntity as CollectionEntityData;
+use OCA\DAVC\Store\Local\TaskEntity as TaskEntityData;
 
-use OCA\JMAPC\Store\Local\TaskStore;
+use OCA\DAVC\Store\Local\TaskStore;
 use Sabre\CalDAV\ICalendar;
 use Sabre\CalDAV\Xml\Property\SupportedCalendarComponentSet;
 use Sabre\DAV\IMultiGet;

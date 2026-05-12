@@ -23,7 +23,7 @@ declare(strict_types=1);
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-namespace OCA\JMAPC\Store\Common\Filters;
+namespace OCA\DAVC\Store\Common\Filters;
 
 enum FilterComparisonOperator: string {
 	case EQ = '=';

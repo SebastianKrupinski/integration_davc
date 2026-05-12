@@ -24,14 +24,14 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Calendar\Live;
+namespace OCA\DAVC\Providers\DAV\Calendar\Live;
 
 use OCA\DAV\CalDAV\Integration\ExternalCalendar;
 use OCA\DAV\CalDAV\Integration\ICalendarProvider as ICalendarProvider2;
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Service\Remote\RemoteService;
-use OCA\JMAPC\Service\ServicesService;
-use OCA\JMAPC\Store\Local\ServiceEntity;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Service\Remote\RemoteService;
+use OCA\DAVC\Service\ServicesService;
+use OCA\DAVC\Store\Local\ServiceEntity;
 use OCP\Calendar\ICalendarProvider as ICalendarProvider1;
 
 class Provider implements ICalendarProvider1, ICalendarProvider2 {

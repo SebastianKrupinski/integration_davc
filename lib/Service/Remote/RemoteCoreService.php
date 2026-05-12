@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service\Remote;
+namespace OCA\DAVC\Service\Remote;
 
 use Exception;
 
@@ -35,7 +35,7 @@ use JmapClient\Requests\Core\SubscriptionParameters as SubscriptionParametersReq
 use JmapClient\Requests\Core\SubscriptionSet;
 use JmapClient\Responses\Core\SubscriptionParameters as SubscriptionParametersResponse;
 use JmapClient\Responses\ResponseException;
-use OCA\JMAPC\Exceptions\JmapUnknownMethod;
+use OCA\DAVC\Exceptions\JmapUnknownMethod;
 
 class RemoteCoreService {
 	protected Client $dataStore;

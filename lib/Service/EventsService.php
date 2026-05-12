@@ -24,21 +24,21 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service;
+namespace OCA\DAVC\Service;
 
 use JmapClient\Client as JmapClient;
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Exceptions\JmapUnknownMethod;
-use OCA\JMAPC\Objects\DeltaObject;
-use OCA\JMAPC\Objects\Event\EventObject;
-use OCA\JMAPC\Objects\HarmonizationStatisticsObject;
-use OCA\JMAPC\Service\Local\LocalEventsService;
-use OCA\JMAPC\Service\Local\LocalService;
-use OCA\JMAPC\Service\Remote\RemoteEventsService;
-use OCA\JMAPC\Service\Remote\RemoteService;
-use OCA\JMAPC\Store\Local\CollectionEntity;
-use OCA\JMAPC\Store\Local\EventStore;
-use OCA\JMAPC\Store\Local\ServiceEntity;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Exceptions\JmapUnknownMethod;
+use OCA\DAVC\Objects\DeltaObject;
+use OCA\DAVC\Objects\Event\EventObject;
+use OCA\DAVC\Objects\HarmonizationStatisticsObject;
+use OCA\DAVC\Service\Local\LocalEventsService;
+use OCA\DAVC\Service\Local\LocalService;
+use OCA\DAVC\Service\Remote\RemoteEventsService;
+use OCA\DAVC\Service\Remote\RemoteService;
+use OCA\DAVC\Store\Local\CollectionEntity;
+use OCA\DAVC\Store\Local\EventStore;
+use OCA\DAVC\Store\Local\ServiceEntity;
 use OCP\Files\IRootFolder;
 use Psr\Log\LoggerInterface;
 

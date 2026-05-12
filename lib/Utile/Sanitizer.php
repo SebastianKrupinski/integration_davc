@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Utile;
+namespace OCA\DAVC\Utile;
 
 class Sanitizer {
 

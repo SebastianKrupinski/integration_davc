@@ -23,9 +23,9 @@ declare(strict_types=1);
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-namespace OCA\JMAPC\Store\Local\Sort;
+namespace OCA\DAVC\Store\Local\Sort;
 
-use OCA\JMAPC\Store\Common\Sort\SortBase;
+use OCA\DAVC\Store\Common\Sort\SortBase;
 
 class ContactSort extends SortBase {
 	

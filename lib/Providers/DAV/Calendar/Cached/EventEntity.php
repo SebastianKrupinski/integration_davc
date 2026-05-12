@@ -24,9 +24,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Calendar\Cached;
+namespace OCA\DAVC\Providers\DAV\Calendar\Cached;
 
-use OCA\JMAPC\Store\Local\EventEntity as EventEntityData;
+use OCA\DAVC\Store\Local\EventEntity as EventEntityData;
 
 class EventEntity implements \Sabre\CalDAV\ICalendarObject, \Sabre\DAVACL\IACL {
 	private EventCollection $_collection;

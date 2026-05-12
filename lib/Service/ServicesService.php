@@ -24,12 +24,12 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service;
+namespace OCA\DAVC\Service;
 
-use OCA\JMAPC\Store\Common\Filters\IFilter;
-use OCA\JMAPC\Store\Common\Sort\ISort;
-use OCA\JMAPC\Store\Local\ServiceEntity;
-use OCA\JMAPC\Store\Local\ServicesStore;
+use OCA\DAVC\Store\Common\Filters\IFilter;
+use OCA\DAVC\Store\Common\Sort\ISort;
+use OCA\DAVC\Store\Local\ServiceEntity;
+use OCA\DAVC\Store\Local\ServicesStore;
 
 class ServicesService {
 	private ServicesStore $_Store;

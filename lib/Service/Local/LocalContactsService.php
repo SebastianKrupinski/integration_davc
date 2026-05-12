@@ -24,30 +24,30 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service\Local;
+namespace OCA\DAVC\Service\Local;
 
 use DateTimeImmutable;
 use DateTimeZone;
 use OC\Files\Node\LazyUserFolder;
-use OCA\JMAPC\Objects\Contact\ContactAliasObject;
-use OCA\JMAPC\Objects\Contact\ContactAnniversaryObject;
-use OCA\JMAPC\Objects\Contact\ContactAnniversaryTypes;
-use OCA\JMAPC\Objects\Contact\ContactCollectionObject;
-use OCA\JMAPC\Objects\Contact\ContactCryptoObject;
-use OCA\JMAPC\Objects\Contact\ContactEmailObject;
-use OCA\JMAPC\Objects\Contact\ContactNoteObject;
-use OCA\JMAPC\Objects\Contact\ContactObject;
-use OCA\JMAPC\Objects\Contact\ContactOrganizationObject;
-use OCA\JMAPC\Objects\Contact\ContactPhoneObject;
-use OCA\JMAPC\Objects\Contact\ContactPhysicalLocationObject;
-use OCA\JMAPC\Objects\Contact\ContactPronounObject;
-use OCA\JMAPC\Objects\Contact\ContactTagCollection;
-use OCA\JMAPC\Objects\Contact\ContactTitleObject;
-use OCA\JMAPC\Objects\Contact\ContactTitleTypes;
-use OCA\JMAPC\Objects\OriginTypes;
-use OCA\JMAPC\Store\Local\CollectionEntity;
-use OCA\JMAPC\Store\Local\ContactEntity;
-use OCA\JMAPC\Store\Local\ContactStore;
+use OCA\DAVC\Objects\Contact\ContactAliasObject;
+use OCA\DAVC\Objects\Contact\ContactAnniversaryObject;
+use OCA\DAVC\Objects\Contact\ContactAnniversaryTypes;
+use OCA\DAVC\Objects\Contact\ContactCollectionObject;
+use OCA\DAVC\Objects\Contact\ContactCryptoObject;
+use OCA\DAVC\Objects\Contact\ContactEmailObject;
+use OCA\DAVC\Objects\Contact\ContactNoteObject;
+use OCA\DAVC\Objects\Contact\ContactObject;
+use OCA\DAVC\Objects\Contact\ContactOrganizationObject;
+use OCA\DAVC\Objects\Contact\ContactPhoneObject;
+use OCA\DAVC\Objects\Contact\ContactPhysicalLocationObject;
+use OCA\DAVC\Objects\Contact\ContactPronounObject;
+use OCA\DAVC\Objects\Contact\ContactTagCollection;
+use OCA\DAVC\Objects\Contact\ContactTitleObject;
+use OCA\DAVC\Objects\Contact\ContactTitleTypes;
+use OCA\DAVC\Objects\OriginTypes;
+use OCA\DAVC\Store\Local\CollectionEntity;
+use OCA\DAVC\Store\Local\ContactEntity;
+use OCA\DAVC\Store\Local\ContactStore;
 
 use Sabre\VObject\Component\VCard;
 use Sabre\VObject\Reader;
@@ -640,7 +640,7 @@ class LocalContactsService {
 					$do->Photo->Data = $so->UID;
 					$do->addAttachment(
 						$so->UID,
-						$so->UID . '.' . \OCA\JMAPC\Utile\MIME::toExtension($p[0][1]),
+						$so->UID . '.' . \OCA\DAVC\Utile\MIME::toExtension($p[0][1]),
 						$p[0][1],
 						'B64',
 						'CP',

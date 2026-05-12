@@ -24,12 +24,12 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Store\Local;
+namespace OCA\DAVC\Store\Local;
 
-use OCA\JMAPC\Store\Common\Filters\IFilter;
-use OCA\JMAPC\Store\Common\Range\IRange;
-use OCA\JMAPC\Store\Common\Range\IRangeDate;
-use OCA\JMAPC\Store\Common\Sort\ISort;
+use OCA\DAVC\Store\Common\Filters\IFilter;
+use OCA\DAVC\Store\Common\Range\IRange;
+use OCA\DAVC\Store\Common\Range\IRangeDate;
+use OCA\DAVC\Store\Common\Sort\ISort;
 use OCP\IDBConnection;
 
 class EventStore extends BaseStore {
@@ -38,10 +38,10 @@ class EventStore extends BaseStore {
 		$this->_Store = $store;
 		$this->_CollectionTable = 'jmapc_collections';
 		$this->_CollectionIdentifier = 'EC';
-		$this->_CollectionClass = 'OCA\JMAPC\Store\Local\CollectionEntity';
+		$this->_CollectionClass = 'OCA\DAVC\Store\Local\CollectionEntity';
 		$this->_EntityTable = 'jmapc_entities_event';
 		$this->_EntityIdentifier = 'EE';
-		$this->_EntityClass = 'OCA\JMAPC\Store\Local\EventEntity';
+		$this->_EntityClass = 'OCA\DAVC\Store\Local\EventEntity';
 		$this->_ChronicleTable = 'jmapc_chronicle';
 	}
 

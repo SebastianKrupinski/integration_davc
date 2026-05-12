@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Store\Local;
+namespace OCA\DAVC\Store\Local;
 
 use OCP\IDBConnection;
 
@@ -35,10 +35,10 @@ class ContactStore extends BaseStore {
 		$this->_Store = $store;
 		$this->_CollectionTable = 'jmapc_collections';
 		$this->_CollectionIdentifier = 'CC';
-		$this->_CollectionClass = 'OCA\JMAPC\Store\Local\CollectionEntity';
+		$this->_CollectionClass = 'OCA\DAVC\Store\Local\CollectionEntity';
 		$this->_EntityTable = 'jmapc_entities_contact';
 		$this->_EntityIdentifier = 'CE';
-		$this->_EntityClass = 'OCA\JMAPC\Store\Local\ContactEntity';
+		$this->_EntityClass = 'OCA\DAVC\Store\Local\ContactEntity';
 		$this->_ChronicleTable = 'jmapc_chronicle';
 
 	}

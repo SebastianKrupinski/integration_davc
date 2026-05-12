@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service;
+namespace OCA\DAVC\Service;
 
 use Psr\Log\LoggerInterface;
 

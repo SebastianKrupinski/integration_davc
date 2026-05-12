@@ -23,9 +23,9 @@ declare(strict_types=1);
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-namespace OCA\JMAPC\Store\Remote\Filters;
+namespace OCA\DAVC\Store\Remote\Filters;
 
-use OCA\JMAPC\Store\Common\Filters\FilterBase;
+use OCA\DAVC\Store\Common\Filters\FilterBase;
 
 class MailCollectionFilter extends FilterBase {
 

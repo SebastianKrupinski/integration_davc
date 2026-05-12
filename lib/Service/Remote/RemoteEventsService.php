@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service\Remote;
+namespace OCA\DAVC\Service\Remote;
 
 use Datetime;
 use DateTimeImmutable;
@@ -47,34 +47,34 @@ use JmapClient\Responses\Calendar\CalendarParameters as CalendarParametersRespon
 use JmapClient\Responses\Calendar\EventMutationParameters as EventMutationParametersResponse;
 use JmapClient\Responses\Calendar\EventParameters as EventParametersResponse;
 use JmapClient\Responses\ResponseException;
-use OCA\JMAPC\Exceptions\JmapUnknownMethod;
-use OCA\JMAPC\Objects\BaseStringCollection;
-use OCA\JMAPC\Objects\DeltaObject;
-use OCA\JMAPC\Objects\Event\EventAvailabilityTypes;
-use OCA\JMAPC\Objects\Event\EventCollectionObject;
-use OCA\JMAPC\Objects\Event\EventLocationPhysicalObject;
-use OCA\JMAPC\Objects\Event\EventLocationVirtualObject;
-use OCA\JMAPC\Objects\Event\EventMutationObject;
-use OCA\JMAPC\Objects\Event\EventNotificationAnchorTypes;
-use OCA\JMAPC\Objects\Event\EventNotificationObject;
-use OCA\JMAPC\Objects\Event\EventNotificationPatterns;
-use OCA\JMAPC\Objects\Event\EventNotificationTypes;
-use OCA\JMAPC\Objects\Event\EventObject;
-use OCA\JMAPC\Objects\Event\EventOccurrenceObject;
-use OCA\JMAPC\Objects\Event\EventOccurrencePatternTypes;
-use OCA\JMAPC\Objects\Event\EventOccurrencePrecisionTypes;
-use OCA\JMAPC\Objects\Event\EventParticipantObject;
-use OCA\JMAPC\Objects\Event\EventParticipantRoleTypes;
-use OCA\JMAPC\Objects\Event\EventParticipantStatusTypes;
-use OCA\JMAPC\Objects\Event\EventParticipantTypes;
-use OCA\JMAPC\Objects\Event\EventSensitivityTypes;
-use OCA\JMAPC\Objects\OriginTypes;
-use OCA\JMAPC\Store\Common\Filters\IFilter;
-use OCA\JMAPC\Store\Common\Range\IRangeTally;
-use OCA\JMAPC\Store\Common\Range\RangeAnchorType;
-use OCA\JMAPC\Store\Common\Sort\ISort;
-use OCA\JMAPC\Store\Remote\Filters\EventFilter;
-use OCA\JMAPC\Store\Remote\Sort\EventSort;
+use OCA\DAVC\Exceptions\JmapUnknownMethod;
+use OCA\DAVC\Objects\BaseStringCollection;
+use OCA\DAVC\Objects\DeltaObject;
+use OCA\DAVC\Objects\Event\EventAvailabilityTypes;
+use OCA\DAVC\Objects\Event\EventCollectionObject;
+use OCA\DAVC\Objects\Event\EventLocationPhysicalObject;
+use OCA\DAVC\Objects\Event\EventLocationVirtualObject;
+use OCA\DAVC\Objects\Event\EventMutationObject;
+use OCA\DAVC\Objects\Event\EventNotificationAnchorTypes;
+use OCA\DAVC\Objects\Event\EventNotificationObject;
+use OCA\DAVC\Objects\Event\EventNotificationPatterns;
+use OCA\DAVC\Objects\Event\EventNotificationTypes;
+use OCA\DAVC\Objects\Event\EventObject;
+use OCA\DAVC\Objects\Event\EventOccurrenceObject;
+use OCA\DAVC\Objects\Event\EventOccurrencePatternTypes;
+use OCA\DAVC\Objects\Event\EventOccurrencePrecisionTypes;
+use OCA\DAVC\Objects\Event\EventParticipantObject;
+use OCA\DAVC\Objects\Event\EventParticipantRoleTypes;
+use OCA\DAVC\Objects\Event\EventParticipantStatusTypes;
+use OCA\DAVC\Objects\Event\EventParticipantTypes;
+use OCA\DAVC\Objects\Event\EventSensitivityTypes;
+use OCA\DAVC\Objects\OriginTypes;
+use OCA\DAVC\Store\Common\Filters\IFilter;
+use OCA\DAVC\Store\Common\Range\IRangeTally;
+use OCA\DAVC\Store\Common\Range\RangeAnchorType;
+use OCA\DAVC\Store\Common\Sort\ISort;
+use OCA\DAVC\Store\Remote\Filters\EventFilter;
+use OCA\DAVC\Store\Remote\Sort\EventSort;
 
 class RemoteEventsService {
 	public ?DateTimeZone $SystemTimeZone = null;

@@ -24,9 +24,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Contacts\Live;
+namespace OCA\DAVC\Providers\DAV\Contacts\Live;
 
-use OCA\JMAPC\Objects\Contact\ContactObject;
+use OCA\DAVC\Objects\Contact\ContactObject;
 
 class ContactEntity implements \Sabre\CardDAV\ICard, \Sabre\DAVACL\IACL {
 

@@ -24,14 +24,14 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Store\Local;
+namespace OCA\DAVC\Store\Local;
 
-use OCA\JMAPC\Store\Common\Filters\FilterBase;
-use OCA\JMAPC\Store\Common\Filters\FilterComparisonOperator;
-use OCA\JMAPC\Store\Common\Filters\FilterConjunctionOperator;
-use OCA\JMAPC\Store\Common\Filters\IFilter;
-use OCA\JMAPC\Store\Common\Sort\ISort;
-use OCA\JMAPC\Store\Common\Sort\SortBase;
+use OCA\DAVC\Store\Common\Filters\FilterBase;
+use OCA\DAVC\Store\Common\Filters\FilterComparisonOperator;
+use OCA\DAVC\Store\Common\Filters\FilterConjunctionOperator;
+use OCA\DAVC\Store\Common\Filters\IFilter;
+use OCA\DAVC\Store\Common\Sort\ISort;
+use OCA\DAVC\Store\Common\Sort\SortBase;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
@@ -39,7 +39,7 @@ class ServicesStore {
 
 	protected IDBConnection $_Store;
 	protected string $_EntityTable = 'jmapc_services';
-	protected string $_EntityClass = 'OCA\JMAPC\Store\Local\ServiceEntity';
+	protected string $_EntityClass = 'OCA\DAVC\Store\Local\ServiceEntity';
 
 	public function __construct(IDBConnection $store) {
 		$this->_Store = $store;

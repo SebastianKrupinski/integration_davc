@@ -24,10 +24,10 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service;
+namespace OCA\DAVC\Service;
 
-use OCA\JMAPC\Service\Remote\RemoteService;
-use OCA\JMAPC\Store\Local\ServiceEntity;
+use OCA\DAVC\Service\Remote\RemoteService;
+use OCA\DAVC\Store\Local\ServiceEntity;
 use Psr\Log\LoggerInterface;
 
 class HarmonizationService {

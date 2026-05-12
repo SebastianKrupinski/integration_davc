@@ -24,9 +24,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service;
+namespace OCA\DAVC\Service;
 
-use OCA\JMAPC\Store\Local\ServicesTemplateStore;
+use OCA\DAVC\Store\Local\ServicesTemplateStore;
 
 class ServicesTemplateService {
 	private ServicesTemplateStore $_Store;

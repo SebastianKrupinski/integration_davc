@@ -31,7 +31,6 @@ use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 use OCP\EventDispatcher\IEventDispatcher;
-use OCP\Notification\IManager as INotificationManager;
 
 use OCP\User\Events\UserDeletedEvent;
 

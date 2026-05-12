@@ -24,13 +24,13 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Contacts\Live;
+namespace OCA\DAVC\Providers\DAV\Contacts\Live;
 
-use OCA\JMAPC\Objects\Contact\ContactCollectionObject;
-use OCA\JMAPC\Objects\Contact\ContactObject;
-use OCA\JMAPC\Service\Local\LocalContactsService;
-use OCA\JMAPC\Service\Remote\RemoteContactsService;
-use OCA\JMAPC\Store\Common\Filters\FilterComparisonOperator;
+use OCA\DAVC\Objects\Contact\ContactCollectionObject;
+use OCA\DAVC\Objects\Contact\ContactObject;
+use OCA\DAVC\Service\Local\LocalContactsService;
+use OCA\DAVC\Service\Remote\RemoteContactsService;
+use OCA\DAVC\Store\Common\Filters\FilterComparisonOperator;
 use Sabre\CardDAV\IAddressBook;
 use Sabre\DAV\IMultiGet;
 use Sabre\DAV\IProperties;

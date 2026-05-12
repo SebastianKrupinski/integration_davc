@@ -7,9 +7,9 @@ declare(strict_types=1);
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-namespace OCA\JMAPC\Migration;
+namespace OCA\DAVC\Migration;
 
-use OCA\JMAPC\Store\Local\ServicesTemplateStore;
+use OCA\DAVC\Store\Local\ServicesTemplateStore;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 

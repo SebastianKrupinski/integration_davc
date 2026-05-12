@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Store\Local;
+namespace OCA\DAVC\Store\Local;
 
 use OC\Files\Node\Folder;
 use OCP\Files\IRootFolder;

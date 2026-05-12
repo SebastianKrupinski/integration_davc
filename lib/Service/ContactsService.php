@@ -24,21 +24,21 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service;
+namespace OCA\DAVC\Service;
 
 use JmapClient\Client as JmapClient;
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Exceptions\JmapUnknownMethod;
-use OCA\JMAPC\Objects\Contact\ContactObject;
-use OCA\JMAPC\Objects\DeltaObject;
-use OCA\JMAPC\Objects\HarmonizationStatisticsObject;
-use OCA\JMAPC\Service\Local\LocalContactsService;
-use OCA\JMAPC\Service\Local\LocalService;
-use OCA\JMAPC\Service\Remote\RemoteContactsService;
-use OCA\JMAPC\Service\Remote\RemoteService;
-use OCA\JMAPC\Store\Local\CollectionEntity;
-use OCA\JMAPC\Store\Local\ContactStore;
-use OCA\JMAPC\Store\Local\ServiceEntity;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Exceptions\JmapUnknownMethod;
+use OCA\DAVC\Objects\Contact\ContactObject;
+use OCA\DAVC\Objects\DeltaObject;
+use OCA\DAVC\Objects\HarmonizationStatisticsObject;
+use OCA\DAVC\Service\Local\LocalContactsService;
+use OCA\DAVC\Service\Local\LocalService;
+use OCA\DAVC\Service\Remote\RemoteContactsService;
+use OCA\DAVC\Service\Remote\RemoteService;
+use OCA\DAVC\Store\Local\CollectionEntity;
+use OCA\DAVC\Store\Local\ContactStore;
+use OCA\DAVC\Store\Local\ServiceEntity;
 use Psr\Log\LoggerInterface;
 
 class ContactsService {

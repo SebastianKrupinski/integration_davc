@@ -7,7 +7,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-namespace OCA\JMAPC\Settings;
+namespace OCA\DAVC\Settings;
 
 use OCP\IL10N;
 use OCP\IURLGenerator;

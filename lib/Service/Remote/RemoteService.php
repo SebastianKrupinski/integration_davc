@@ -24,17 +24,17 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service\Remote;
+namespace OCA\DAVC\Service\Remote;
 
 use JmapClient\Authentication\Basic;
 use JmapClient\Authentication\Bearer;
 use JmapClient\Authentication\JsonBasic;
 use JmapClient\Authentication\JsonBasicCookie;
 use JmapClient\Client as JmapClient;
-use OCA\JMAPC\Service\Remote\FM\RemoteContactsServiceFM;
-use OCA\JMAPC\Service\Remote\FM\RemoteCoreServiceFM;
-use OCA\JMAPC\Service\Remote\FM\RemoteEventsServiceFM;
-use OCA\JMAPC\Store\Local\ServiceEntity;
+use OCA\DAVC\Service\Remote\FM\RemoteContactsServiceFM;
+use OCA\DAVC\Service\Remote\FM\RemoteCoreServiceFM;
+use OCA\DAVC\Service\Remote\FM\RemoteEventsServiceFM;
+use OCA\DAVC\Store\Local\ServiceEntity;
 
 class RemoteService {
 	static string $clientTransportAgent = 'NextcloudJMAP/1.0 (1.0; x64)';

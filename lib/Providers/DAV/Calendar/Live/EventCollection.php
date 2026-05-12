@@ -24,16 +24,16 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Calendar\Live;
+namespace OCA\DAVC\Providers\DAV\Calendar\Live;
 
 use DateTimeInterface;
 use OCA\DAV\CalDAV\Integration\ExternalCalendar;
 use OCA\DAV\CalDAV\Plugin;
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Objects\Event\EventCollectionObject;
-use OCA\JMAPC\Objects\Event\EventObject;
-use OCA\JMAPC\Service\Local\LocalEventsService;
-use OCA\JMAPC\Service\Remote\RemoteEventsService;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Objects\Event\EventCollectionObject;
+use OCA\DAVC\Objects\Event\EventObject;
+use OCA\DAVC\Service\Local\LocalEventsService;
+use OCA\DAVC\Service\Remote\RemoteEventsService;
 use Sabre\CalDAV\ICalendar;
 use Sabre\CalDAV\Xml\Property\SupportedCalendarComponentSet;
 use Sabre\DAV\IMultiGet;

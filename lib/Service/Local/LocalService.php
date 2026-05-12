@@ -24,11 +24,11 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service\Local;
+namespace OCA\DAVC\Service\Local;
 
-use OCA\JMAPC\Store\Local\ContactStore;
-use OCA\JMAPC\Store\Local\EventStore;
-use OCA\JMAPC\Store\Local\TaskStore;
+use OCA\DAVC\Store\Local\ContactStore;
+use OCA\DAVC\Store\Local\EventStore;
+use OCA\DAVC\Store\Local\TaskStore;
 use OCP\Server;
 
 class LocalService {

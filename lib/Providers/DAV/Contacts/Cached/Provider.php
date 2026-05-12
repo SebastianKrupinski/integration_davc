@@ -24,14 +24,14 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Contacts\Cached;
+namespace OCA\DAVC\Providers\DAV\Contacts\Cached;
 
 use OCA\DAV\CardDAV\Integration\ExternalAddressBook;
 use OCA\DAV\CardDAV\Integration\IAddressBookProvider;
 
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Store\Local\CollectionEntity;
-use OCA\JMAPC\Store\Local\ContactStore;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Store\Local\CollectionEntity;
+use OCA\DAVC\Store\Local\ContactStore;
 
 class Provider implements IAddressBookProvider {
 	protected array $_CollectionCache = [];

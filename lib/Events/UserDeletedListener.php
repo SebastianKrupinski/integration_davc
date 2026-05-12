@@ -24,11 +24,11 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Events;
+namespace OCA\DAVC\Events;
 
 use Exception;
-use OCA\JMAPC\Service\CoreService;
-use OCA\JMAPC\Service\ServicesService;
+use OCA\DAVC\Service\CoreService;
+use OCA\DAVC\Service\ServicesService;
 use OCP\EventDispatcher\Event;
 
 use OCP\EventDispatcher\IEventListener;

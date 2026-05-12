@@ -24,23 +24,23 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Store\Local;
+namespace OCA\DAVC\Store\Local;
 
 use OC\DB\QueryBuilder\Literal;
-use OCA\JMAPC\Store\Common\Filters\FilterBase;
-use OCA\JMAPC\Store\Common\Filters\FilterComparisonOperator;
-use OCA\JMAPC\Store\Common\Filters\FilterConjunctionOperator;
-use OCA\JMAPC\Store\Common\Filters\IFilter;
-use OCA\JMAPC\Store\Common\Range\IRange;
-use OCA\JMAPC\Store\Common\Range\RangeAnchorType;
-use OCA\JMAPC\Store\Common\Range\RangeDate;
-use OCA\JMAPC\Store\Common\Range\RangeTallyAbsolute;
-use OCA\JMAPC\Store\Common\Range\RangeTallyRelative;
-use OCA\JMAPC\Store\Common\Range\RangeType;
-use OCA\JMAPC\Store\Common\Sort\ISort;
-use OCA\JMAPC\Store\Common\Sort\SortBase;
-use OCA\JMAPC\Store\Local\Filters\CollectionFilter;
-use OCA\JMAPC\Store\Local\Sort\CollectionSort;
+use OCA\DAVC\Store\Common\Filters\FilterBase;
+use OCA\DAVC\Store\Common\Filters\FilterComparisonOperator;
+use OCA\DAVC\Store\Common\Filters\FilterConjunctionOperator;
+use OCA\DAVC\Store\Common\Filters\IFilter;
+use OCA\DAVC\Store\Common\Range\IRange;
+use OCA\DAVC\Store\Common\Range\RangeAnchorType;
+use OCA\DAVC\Store\Common\Range\RangeDate;
+use OCA\DAVC\Store\Common\Range\RangeTallyAbsolute;
+use OCA\DAVC\Store\Common\Range\RangeTallyRelative;
+use OCA\DAVC\Store\Common\Range\RangeType;
+use OCA\DAVC\Store\Common\Sort\ISort;
+use OCA\DAVC\Store\Common\Sort\SortBase;
+use OCA\DAVC\Store\Local\Filters\CollectionFilter;
+use OCA\DAVC\Store\Local\Sort\CollectionSort;
 use OCP\AppFramework\Db\Entity;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;

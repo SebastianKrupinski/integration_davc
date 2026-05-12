@@ -24,12 +24,12 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Controller;
+namespace OCA\DAVC\Controller;
 
-use OCA\JMAPC\Service\ConfigurationService;
-use OCA\JMAPC\Service\CoreService;
-use OCA\JMAPC\Service\HarmonizationService;
-use OCA\JMAPC\Service\ServicesService;
+use OCA\DAVC\Service\ConfigurationService;
+use OCA\DAVC\Service\CoreService;
+use OCA\DAVC\Service\HarmonizationService;
+use OCA\DAVC\Service\ServicesService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 

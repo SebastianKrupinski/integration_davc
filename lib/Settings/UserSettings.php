@@ -7,10 +7,10 @@ declare(strict_types=1);
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-namespace OCA\JMAPC\Settings;
+namespace OCA\DAVC\Settings;
 
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Service\ConfigurationService;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Service\ConfigurationService;
 use OCP\AppFramework\Http\TemplateResponse;
 
 use OCP\AppFramework\Services\IInitialState;

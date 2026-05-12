@@ -24,17 +24,17 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service\Local;
+namespace OCA\DAVC\Service\Local;
 
 use DateTimeZone;
 use OC\Files\Node\LazyUserFolder;
 use OCA\DAV\CalDAV\EventReader;
-use OCA\JMAPC\Objects\OriginTypes;
-use OCA\JMAPC\Objects\Task\TaskCollectionObject;
-use OCA\JMAPC\Objects\Task\TaskObject;
-use OCA\JMAPC\Store\Local\CollectionEntity;
-use OCA\JMAPC\Store\Local\TaskEntity;
-use OCA\JMAPC\Store\Local\TaskStore;
+use OCA\DAVC\Objects\OriginTypes;
+use OCA\DAVC\Objects\Task\TaskCollectionObject;
+use OCA\DAVC\Objects\Task\TaskObject;
+use OCA\DAVC\Store\Local\CollectionEntity;
+use OCA\DAVC\Store\Local\TaskEntity;
+use OCA\DAVC\Store\Local\TaskStore;
 use Sabre\VObject\Component\VTodo;
 use Sabre\VObject\Reader;
 

@@ -24,9 +24,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Calendar\Cached;
+namespace OCA\DAVC\Providers\DAV\Calendar\Cached;
 
-use OCA\JMAPC\Store\Local\TaskEntity as TaskEntityData;
+use OCA\DAVC\Store\Local\TaskEntity as TaskEntityData;
 
 class TaskEntity implements \Sabre\CalDAV\ICalendarObject, \Sabre\DAVACL\IACL {
 	private TaskCollection $_collection;

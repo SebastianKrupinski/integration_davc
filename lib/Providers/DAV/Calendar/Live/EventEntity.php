@@ -24,9 +24,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Calendar\Live;
+namespace OCA\DAVC\Providers\DAV\Calendar\Live;
 
-use OCA\JMAPC\Objects\Event\EventObject;
+use OCA\DAVC\Objects\Event\EventObject;
 
 class EventEntity implements \Sabre\CalDAV\ICalendarObject, \Sabre\DAVACL\IACL {
 

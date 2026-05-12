@@ -24,21 +24,21 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service;
+namespace OCA\DAVC\Service;
 
 use DateTime;
-use OCA\JMAPC\AppInfo\Application;
-use OCA\JMAPC\Exceptions\JmapUnknownMethod;
-use OCA\JMAPC\Objects\AuthenticationTypes;
-use OCA\JMAPC\Service\Local\LocalService;
-use OCA\JMAPC\Service\Remote\RemoteService;
-use OCA\JMAPC\Store\Local\ServiceEntity;
+use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Exceptions\JmapUnknownMethod;
+use OCA\DAVC\Objects\AuthenticationTypes;
+use OCA\DAVC\Service\Local\LocalService;
+use OCA\DAVC\Service\Remote\RemoteService;
+use OCA\DAVC\Store\Local\ServiceEntity;
 use OCP\BackgroundJob\IJobList;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
 
 /*
-use OCA\JMAPC\Tasks\HarmonizationLauncher;
+use OCA\DAVC\Tasks\HarmonizationLauncher;
 */
 
 class CoreService {
@@ -123,7 +123,7 @@ class CoreService {
 	public function connectAccount(string $uid, array $configuration, array $flags = []): bool {
 
 		// validate service configuration
-		if (!empty($configuration['location_host']) && !\OCA\JMAPC\Utile\Validator::host($configuration['location_host'])) {
+		if (!empty($configuration['location_host']) && !\OCA\DAVC\Utile\Validator::host($configuration['location_host'])) {
 			return false;
 		}
 
@@ -132,7 +132,7 @@ class CoreService {
 			$configuration['auth'] === AuthenticationTypes::JsonBasicCookie->value
 		) {
 			// validate id
-			//if (!\OCA\JMAPC\Utile\Validator::username($configuration['bauth_id'])) {
+			//if (!\OCA\DAVC\Utile\Validator::username($configuration['bauth_id'])) {
 			//	return false;
 			//}
 			// validate secret
@@ -141,7 +141,7 @@ class CoreService {
 			}
 		} elseif ($configuration['auth'] === AuthenticationTypes::Bearer->value) {
 			// validate id
-			if (!\OCA\JMAPC\Utile\Validator::username($configuration['oauth_id'])) {
+			if (!\OCA\DAVC\Utile\Validator::username($configuration['oauth_id'])) {
 				return false;
 			}
 			// validate secret
@@ -161,7 +161,7 @@ class CoreService {
 		if (isset($configuration['id'])) {
 			unset($configuration['id']);
 		}
-		$service->setUuid(\OCA\JMAPC\Utile\UUID::v4());
+		$service->setUuid(\OCA\DAVC\Utile\UUID::v4());
 		$service->setLabel($configuration['label'] ?? 'Unknown');
 		$service->setLocationProtocol($configuration['location_protocol'] ?? 'https');
 		$service->setLocationHost($configuration['location_host']);
@@ -207,7 +207,7 @@ class CoreService {
 		$this->ServicesService->deposit($uid, $service);
 
 		// register harmonization task
-		$this->TaskService->add(\OCA\JMAPC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $service->getId()]);
+		$this->TaskService->add(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $service->getId()]);
 
 		return true;
 
@@ -232,7 +232,7 @@ class CoreService {
 			return;
 		}
 		// deregister task
-		$this->TaskService->remove(\OCA\JMAPC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $sid]);
+		$this->TaskService->remove(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $sid]);
 		// terminate harmonization thread
 		$this->HarmonizationThreadService->terminate($uid);
 		// initialize contacts data store
@@ -433,7 +433,7 @@ class CoreService {
 							$collection->setUid($uid);
 							$collection->setSid($sid);
 							$collection->setCcid($entry['ccid']);
-							$collection->setUuid(\OCA\JMAPC\Utile\UUID::v4());
+							$collection->setUuid(\OCA\DAVC\Utile\UUID::v4());
 							$collection->setLabel('JMAP: ' . ($entry['label'] ?? 'Unknown'));
 							$collection->setColor($entry['color'] ?? '#0055aa');
 							$collection->setVisible(true);
@@ -468,7 +468,7 @@ class CoreService {
 							$collection->setUid($uid);
 							$collection->setSid($sid);
 							$collection->setCcid($entry['ccid']);
-							$collection->setUuid(\OCA\JMAPC\Utile\UUID::v4());
+							$collection->setUuid(\OCA\DAVC\Utile\UUID::v4());
 							$collection->setLabel('JMAP: ' . ($entry['label'] ?? 'Unknown'));
 							$collection->setColor($entry['color'] ?? '#0055aa');
 							$collection->setVisible(true);
@@ -503,7 +503,7 @@ class CoreService {
 							$collection->setUid($uid);
 							$collection->setSid($sid);
 							$collection->setCcid($entry['ccid']);
-							$collection->setUuid(\OCA\JMAPC\Utile\UUID::v4());
+							$collection->setUuid(\OCA\DAVC\Utile\UUID::v4());
 							$collection->setLabel('JMAP: ' . ($entry['label'] ?? 'Unknown'));
 							$collection->setColor($entry['color'] ?? '#0055aa');
 							$collection->setVisible(true);

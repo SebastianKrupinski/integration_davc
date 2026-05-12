@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Service\Remote;
+namespace OCA\DAVC\Service\Remote;
 
 use DateTimeImmutable;
 use DateTimeZone;
@@ -44,28 +44,28 @@ use JmapClient\Responses\Contacts\AddressBookParameters as AddressBookParameters
 use JmapClient\Responses\Contacts\ContactParameters as ContactParametersResponse;
 use JmapClient\Responses\ResponseException;
 use JmapClient\Session\Account;
-use OCA\JMAPC\Exceptions\JmapUnknownMethod;
-use OCA\JMAPC\Objects\BaseStringCollection;
-use OCA\JMAPC\Objects\Contact\ContactAliasObject;
-use OCA\JMAPC\Objects\Contact\ContactAnniversaryObject;
-use OCA\JMAPC\Objects\Contact\ContactCollectionObject;
-use OCA\JMAPC\Objects\Contact\ContactCryptoObject;
-use OCA\JMAPC\Objects\Contact\ContactEmailObject;
-use OCA\JMAPC\Objects\Contact\ContactNoteObject;
-use OCA\JMAPC\Objects\Contact\ContactObject as ContactObject;
-use OCA\JMAPC\Objects\Contact\ContactOrganizationObject;
-use OCA\JMAPC\Objects\Contact\ContactPhoneObject;
-use OCA\JMAPC\Objects\Contact\ContactPhysicalLocationObject;
-use OCA\JMAPC\Objects\Contact\ContactTitleObject;
-use OCA\JMAPC\Objects\Contact\ContactTitleTypes;
-use OCA\JMAPC\Objects\DeltaObject;
-use OCA\JMAPC\Objects\OriginTypes;
-use OCA\JMAPC\Store\Common\Filters\IFilter;
-use OCA\JMAPC\Store\Common\Range\IRangeTally;
-use OCA\JMAPC\Store\Common\Range\RangeAnchorType;
-use OCA\JMAPC\Store\Common\Sort\ISort;
-use OCA\JMAPC\Store\Remote\Filters\ContactFilter;
-use OCA\JMAPC\Store\Remote\Sort\ContactSort;
+use OCA\DAVC\Exceptions\JmapUnknownMethod;
+use OCA\DAVC\Objects\BaseStringCollection;
+use OCA\DAVC\Objects\Contact\ContactAliasObject;
+use OCA\DAVC\Objects\Contact\ContactAnniversaryObject;
+use OCA\DAVC\Objects\Contact\ContactCollectionObject;
+use OCA\DAVC\Objects\Contact\ContactCryptoObject;
+use OCA\DAVC\Objects\Contact\ContactEmailObject;
+use OCA\DAVC\Objects\Contact\ContactNoteObject;
+use OCA\DAVC\Objects\Contact\ContactObject as ContactObject;
+use OCA\DAVC\Objects\Contact\ContactOrganizationObject;
+use OCA\DAVC\Objects\Contact\ContactPhoneObject;
+use OCA\DAVC\Objects\Contact\ContactPhysicalLocationObject;
+use OCA\DAVC\Objects\Contact\ContactTitleObject;
+use OCA\DAVC\Objects\Contact\ContactTitleTypes;
+use OCA\DAVC\Objects\DeltaObject;
+use OCA\DAVC\Objects\OriginTypes;
+use OCA\DAVC\Store\Common\Filters\IFilter;
+use OCA\DAVC\Store\Common\Range\IRangeTally;
+use OCA\DAVC\Store\Common\Range\RangeAnchorType;
+use OCA\DAVC\Store\Common\Sort\ISort;
+use OCA\DAVC\Store\Remote\Filters\ContactFilter;
+use OCA\DAVC\Store\Remote\Sort\ContactSort;
 
 class RemoteContactsService {
 	protected Client $dataStore;

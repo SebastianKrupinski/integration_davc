@@ -24,9 +24,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\JMAPC\Providers\DAV\Contacts\Cached;
+namespace OCA\DAVC\Providers\DAV\Contacts\Cached;
 
-use OCA\JMAPC\Store\Local\ContactEntity as ContactEntityData;
+use OCA\DAVC\Store\Local\ContactEntity as ContactEntityData;
 
 class ContactEntity implements \Sabre\CardDAV\ICard, \Sabre\DAVACL\IACL {
 	private ContactCollection $_collection;
