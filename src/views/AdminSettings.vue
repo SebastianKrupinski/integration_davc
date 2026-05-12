@@ -23,7 +23,7 @@ const showError = (message: string) => {
 
 import { NcButton, NcSelect } from '@nextcloud/vue'
 
-import JmapIcon from '../icons/JmapIcon.vue'
+import DavIcon from '../icons/DavIcon.vue'
 import CheckIcon from 'vue-material-design-icons/Check.vue'
 
 // Types
@@ -49,7 +49,7 @@ interface SaveRequest {
 // Reactive data
 const readonly = ref<boolean>(true)
 const state = reactive<AdminConfigurationState>(
-	loadState('integration_jmapc', 'admin-configuration') as AdminConfigurationState
+	loadState('integration_davc', 'admin-configuration') as AdminConfigurationState
 )
 
 // Select options for synchronization mode
@@ -68,11 +68,11 @@ const onSaveClick = async (): Promise<void> => {
 		},
 	}
 	
-	const url = generateUrl('/apps/integration_jmapc/admin-configuration')
+	const url = generateUrl('/apps/integration_davc/admin-configuration')
 	
 	try {
 		const response: AxiosResponse = await axios.put(url, req)
-		showSuccess(t('integration_jmapc', 'JMAP admin configuration saved'))
+		showSuccess(t('integration_davc', 'DAV admin configuration saved'))
 	} catch (error) {
 		const axiosError = error as AxiosError
 		const errorMessage = axiosError.response?.data 
@@ -80,7 +80,7 @@ const onSaveClick = async (): Promise<void> => {
 			: axiosError.message || 'Unknown error occurred'
 		
 		showError(
-			t('integration_jmapc', 'Failed to save JMAP admin configuration') 
+			t('integration_davc', 'Failed to save DAV admin configuration') 
 			+ ': ' + errorMessage
 		)
 	}
@@ -88,18 +88,18 @@ const onSaveClick = async (): Promise<void> => {
 </script>
 
 <template>
-	<div id="jmapc_settings" class="section">
-		<div class="jmap-section-heading">
-			<JmapIcon :size="32" /><h2> {{ t('integration_jmapc', 'JMAP Connector') }}</h2>
+	<div id="davc_settings" class="section">
+		<div class="davc-section-heading">
+			<DavIcon :size="32" /><h2> {{ t('integration_davc', 'DAV Connector') }}</h2>
 		</div>
 		<p class="settings-hint">
-			{{ t('integration_jmapc', 'Select the system settings for JMAP Integration') }}
+			{{ t('integration_davc', 'Select the system settings for DAV Integration') }}
 		</p>
 		<div class="fields">
 			<div>
 				<div class="line">
 					<label>
-						{{ t('integration_jmapc', 'Synchronization Mode') }}
+						{{ t('integration_davc', 'Synchronization Mode') }}
 					</label>
 					<NcSelect v-model="state.harmonization_mode"
 						:reduce="item => item.id"
@@ -107,40 +107,40 @@ const onSaveClick = async (): Promise<void> => {
 				</div>
 				<div v-if="state.harmonization_mode === 'A'" class="line">
 					<label>
-						{{ t('integration_jmapc', 'Synchronization Thread Duration') }}
+						{{ t('integration_davc', 'Synchronization Thread Duration') }}
 					</label>
-					<input id="jmap-thread-duration"
+					<input id="davc-thread-duration"
 						v-model="state.harmonization_thread_duration"
 						type="number"
 						:autocomplete="'off'"
 						:autocorrect="'off'"
 						:autocapitalize="'none'">
 					<label>
-						{{ t('integration_jmapc', 'Seconds') }}
+						{{ t('integration_davc', 'Seconds') }}
 					</label>
 				</div>
 				<div v-if="state.harmonization_mode === 'A'" class="line">
 					<label>
-						{{ t('integration_jmapc', 'Synchronization Thread Pause') }}
+						{{ t('integration_davc', 'Synchronization Thread Pause') }}
 					</label>
-					<input id="jmap-thread-pause"
+					<input id="davc-thread-pause"
 						v-model="state.harmonization_thread_pause"
 						type="number"
 						autocomplete="off"
 						autocorrect="off"
 						autocapitalize="none">
 					<label>
-						{{ t('integration_jmapc', 'Seconds') }}
+						{{ t('integration_davc', 'Seconds') }}
 					</label>
 				</div>
 			</div>
 			<br>
-			<div class="jmap-actions">
+			<div class="davc-actions">
 				<NcButton @click="onSaveClick()">
 					<template #icon>
 						<CheckIcon />
 					</template>
-					{{ t('integration_jmapc', 'Save') }}
+					{{ t('integration_davc', 'Save') }}
 				</NcButton>
 			</div>
 		</div>
@@ -148,13 +148,13 @@ const onSaveClick = async (): Promise<void> => {
 </template>
 
 <style scoped lang="scss">
-#jmapc_settings {
-	.jmap-section-heading {
+#davc_settings {
+	.davc-section-heading {
 		display:inline-block;
 		vertical-align:middle;
 	}
 
-	.jmap-connected {
+	.davc-connected {
 		display: flex;
 		align-items: center;
 
@@ -164,7 +164,7 @@ const onSaveClick = async (): Promise<void> => {
 		}
 	}
 
-	.jmap-collectionlist-item {
+	.davc-collectionlist-item {
 		display: flex;
 		align-items: center;
 
@@ -174,7 +174,7 @@ const onSaveClick = async (): Promise<void> => {
 		}
 	}
 
-	.jmap-actions {
+	.davc-actions {
 		display: flex;
 		align-items: center;
 	}

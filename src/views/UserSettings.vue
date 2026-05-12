@@ -19,7 +19,7 @@ import NcColorPicker from '@nextcloud/vue/components/NcColorPicker'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 
-import JmapIcon from '../icons/JmapIcon.vue'
+import DavIcon from '../icons/DavIcon.vue'
 import AccountAddIcon from 'vue-material-design-icons/AccountPlus.vue'
 import AccountRemoveIcon from 'vue-material-design-icons/AccountMinus.vue'
 import CheckIcon from 'vue-material-design-icons/Check.vue'
@@ -68,7 +68,7 @@ interface Collection {
 // Reactive data
 const readonly = ref<boolean>(true)
 const systemConfiguration = reactive<SystemConfiguration>(
-	loadState('integration_jmapc', 'system-configuration') as SystemConfiguration
+	loadState('integration_davc', 'system-configuration') as SystemConfiguration
 )
 
 // Services
@@ -95,7 +95,6 @@ const tasksLocalCollections = ref<Collection[]>([])
 
 // UI State
 const configureManually = ref<boolean>(false)
-const configureMail = ref<boolean>(false)
 const selectedcolor = ref<string>('')
 
 // Computed
@@ -130,7 +129,7 @@ function freshService(): void {
 	selectedService.value = { label: 'New Connection' } as Service
 }
 async function connectService(): Promise<void> {
-	const uri = generateUrl('/apps/integration_jmapc/service/connect')
+	const uri = generateUrl('/apps/integration_davc/service/connect')
 	const data = {
 		service: selectedService.value,
 	}
@@ -147,14 +146,14 @@ async function connectService(): Promise<void> {
 		}
 	} catch (error: any) {
 		showError(
-			t('integration_jmapc', 'Failed to authenticate with server')
+			t('integration_davc', 'Failed to authenticate with server')
 			+ ': ' + error.response?.request?.responseText,
 		)
 	}
 }
 
 async function disconnectService(): Promise<void> {
-	const uri = generateUrl('/apps/integration_jmapc/service/disconnect')
+	const uri = generateUrl('/apps/integration_davc/service/disconnect')
 	const data = {
 		sid: selectedService.value?.id,
 	}
@@ -181,7 +180,7 @@ async function disconnectService(): Promise<void> {
 		serviceList()
 	} catch (error: any) {
 		showError(
-			t('integration_jmapc', 'Failed to disconnect from account')
+			t('integration_davc', 'Failed to disconnect from account')
 			+ ': ' + error.response?.request?.responseText,
 		)
 	}
@@ -192,7 +191,7 @@ function modifyService(): void {
 }
 
 async function harmonizeService(): Promise<void> {
-	const uri = generateUrl('/apps/integration_jmapc/service/harmonize')
+	const uri = generateUrl('/apps/integration_davc/service/harmonize')
 	const data = {
 		sid: selectedService.value?.id,
 	}
@@ -201,14 +200,14 @@ async function harmonizeService(): Promise<void> {
 		showSuccess('Synchronization Successful')
 	} catch (error: any) {
 		showError(
-			t('integration_jmapc', 'Synchronization Failed')
+			t('integration_davc', 'Synchronization Failed')
 			+ ': ' + error.response?.request?.responseText,
 		)
 	}
 }
 
 async function serviceList(): Promise<void> {
-	const uri = generateUrl('/apps/integration_jmapc/service/list')
+	const uri = generateUrl('/apps/integration_davc/service/list')
 	try {
 		const response = await axios.get(uri)
 		if (response.data) {
@@ -217,7 +216,7 @@ async function serviceList(): Promise<void> {
 		}
 	} catch (error: any) {
 		showError(
-			t('integration_jmapc', 'Failed to load service list')
+			t('integration_davc', 'Failed to load service list')
 			+ ': ' + error.response?.request?.responseText,
 		)
 	}
@@ -232,7 +231,7 @@ function serviceSelect(option: Service | null): void {
 	localCollectionsFetch()
 }
 async function remoteCollectionsFetch(): Promise<void> {
-	const uri = generateUrl('/apps/integration_jmapc/remote/collections/fetch')
+	const uri = generateUrl('/apps/integration_davc/remote/collections/fetch')
 	const params = {
 		sid: selectedService.value?.id,
 	}
@@ -259,14 +258,14 @@ async function remoteCollectionsFetch(): Promise<void> {
 		}
 	} catch (error: any) {
 		showError(
-			t('integration_jmapc', 'Failed to load remote collections')
+			t('integration_davc', 'Failed to load remote collections')
 			+ ': ' + error.response?.request?.responseText,
 		)
 	}
 }
 
 async function localCollectionsFetch(): Promise<void> {
-	const uri = generateUrl('/apps/integration_jmapc/local/collections/fetch')
+	const uri = generateUrl('/apps/integration_davc/local/collections/fetch')
 	const params = {
 		sid: selectedService.value?.id,
 	}
@@ -286,14 +285,14 @@ async function localCollectionsFetch(): Promise<void> {
 		}
 	} catch (error: any) {
 		showError(
-			t('integration_jmapc', 'Failed to load remote collections')
+			t('integration_davc', 'Failed to load remote collections')
 			+ ': ' + error.response?.request?.responseText,
 		)
 	}
 }
 
 async function localCollectionsDeposit(): Promise<void> {
-	const uri = generateUrl('/apps/integration_jmapc/local/collections/deposit')
+	const uri = generateUrl('/apps/integration_davc/local/collections/deposit')
 	const data = {
 		sid: selectedService.value?.id,
 		ContactCorrelations: contactsLocalCollections.value,
@@ -306,7 +305,7 @@ async function localCollectionsDeposit(): Promise<void> {
 		localCollectionsFetch()
 	} catch (error: any) {
 		showError(
-			t('integration_jmapc', 'Failed to save correlations')
+			t('integration_davc', 'Failed to save correlations')
 			+ ': ' + error.response?.request?.responseText,
 		)
 	}
@@ -472,16 +471,16 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 </script>
 
 <template>
-	<div class="jmapc-settings">
-		<div class="jmapc-section__title">
-			<JmapIcon class="logo" />
+	<div class="davc-settings">
+		<div class="davc-section__title">
+			<DavIcon class="logo" />
 			<span class="label">
-				{{ t('integration_jmapc', 'JMAP Connector') }}
+				{{ t('integration_davc', 'DAV Connector') }}
 			</span>
 		</div>
-		<div class="jmapc-section__selector">
+		<div class="davc-section__selector">
 			<label>
-				{{ t('integration_jmapc', 'Services') }}
+				{{ t('integration_davc', 'Services') }}
 			</label>
 			<NcSelect :clearable="false"
 				:searchable="false"
@@ -499,14 +498,14 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 				</template>
 			</NcButton>
 		</div>
-		<div v-if="selectedService === null" class="jmapc-section__empty">
+		<div v-if="selectedService === null" class="davc-section__empty">
 			<NcEmptyContent description="Please select a configured service or add a new service.">
 				<template #icon>
 					<AccountAddIcon />
 				</template>
 				<template #name>
 					<h2 class="empty-content__name">
-						{{ t('integration_jmapc', 'No service selected') }}
+						{{ t('integration_davc', 'No service selected') }}
 					</h2>
 				</template>
 				<template #action>
@@ -514,23 +513,23 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 						<template #icon>
 							<AccountAddIcon :size="20" />
 						</template>
-						{{ t('integration_jmapc', 'Add Service') }}
+						{{ t('integration_davc', 'Add Service') }}
 					</NcButton>
 				</template>
 			</NcEmptyContent>
 		</div>
-		<div v-if="selectedService !== null && !Boolean(selectedService.connected)" class="jmapc-section__fresh">
+		<div v-if="selectedService !== null && !Boolean(selectedService.connected)" class="davc-section__fresh">
 			<h3 class="title">
-				{{ t('integration_jmapc', 'Connection') }}
+				{{ t('integration_davc', 'Connection') }}
 			</h3>
 			<div class="description">
-				{{ t('integration_jmapc', 'Enter your server and account information then press connect.') }}
+				{{ t('integration_davc', 'Enter your server and account information then press connect.') }}
 			</div>
 			<div class="parameter">
-				<label for="jmapc-account-description">
-					{{ t('integration_jmapc', 'Account Description') }}
+				<label for="davc-account-description">
+					{{ t('integration_davc', 'Account Description') }}
 				</label>
-				<NcTextField id="jmapc-account-description"
+				<NcTextField id="davc-account-description"
 					type="text"
 					autocomplete="off"
 					autocorrect="off"
@@ -538,63 +537,63 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 					v-model="selectedService.label"
 					:label-outside="true"
 					:style="{ width: '48ch' }"
-					:placeholder="t('integration_jmapc', 'Description for this Account')" />
+					:placeholder="t('integration_davc', 'Description for this Account')" />
 			</div>
 			<div v-if="selectedService.auth === 'BA' || selectedService.auth === 'JB'" class="parameter">
-				<label for="jmapc-account-bauth-id">
-					{{ t('integration_jmapc', 'Account ID') }}
+				<label for="davc-account-bauth-id">
+					{{ t('integration_davc', 'Account ID') }}
 				</label>
-				<NcTextField id="jmapc-account-bauth-id"
+				<NcTextField id="davc-account-bauth-id"
 					type="text"
 					autocomplete="off"
 					autocorrect="off"
 					autocapitalize="none"
 					v-model="selectedService.bauth_id"
 					:style="{ width: '48ch' }"
-					:placeholder="t('integration_jmapc', 'Authentication ID for your Account')" />
+					:placeholder="t('integration_davc', 'Authentication ID for your Account')" />
 			</div>
 			<div v-if="selectedService.auth === 'BA' || selectedService.auth === 'JB'" class="parameter">
-				<label for="jmapc-account-bauth-secret">
-					{{ t('integration_jmapc', 'Account Secret') }}
+				<label for="davc-account-bauth-secret">
+					{{ t('integration_davc', 'Account Secret') }}
 				</label>
-				<NcPasswordField id="jmapc-account-bauth-secret"
+				<NcPasswordField id="davc-account-bauth-secret"
 					type="password"
 					autocomplete="off"
 					autocorrect="off"
 					autocapitalize="none"
 					v-model="selectedService.bauth_secret"
 					:style="{ width: '48ch' }"
-					:placeholder="t('integration_jmapc', 'Authentication secret for your Account')" />
+					:placeholder="t('integration_davc', 'Authentication secret for your Account')" />
 			</div>
 			<div v-if="selectedService.auth === 'OA'" class="parameter">
-				<label for="jmapc-account-oauth-id">
-					{{ t('integration_jmapc', 'Account ID') }}
+				<label for="davc-account-oauth-id">
+					{{ t('integration_davc', 'Account ID') }}
 				</label>
-				<NcTextField id="jmapc-account-oauth-id"
+				<NcTextField id="davc-account-oauth-id"
 					type="text"
 					autocomplete="off"
 					autocorrect="off"
 					autocapitalize="none"
 					v-model="selectedService.oauth_id"
 					:style="{ width: '48ch' }"
-					:placeholder="t('integration_jmapc', 'Authentication ID for your Account')" />
+					:placeholder="t('integration_davc', 'Authentication ID for your Account')" />
 			</div>
 			<div v-if="selectedService.auth === 'OA'" class="parameter">
-				<label for="jmapc-account-oauth-token">
-					{{ t('integration_jmapc', 'Account Token') }}
+				<label for="davc-account-oauth-token">
+					{{ t('integration_davc', 'Account Token') }}
 				</label>
-				<NcPasswordField id="jmapc-account-oauth-token"
+				<NcPasswordField id="davc-account-oauth-token"
 					type="password"
 					autocomplete="off"
 					autocorrect="off"
 					autocapitalize="none"
 					v-model="selectedService.oauth_access_token"
 					:style="{ width: '48ch' }"
-					:placeholder="t('integration_jmapc', 'Authentication secret for your Account')" />
+					:placeholder="t('integration_davc', 'Authentication secret for your Account')" />
 			</div>
 			<div class="parameter">
-				<label for="jmapc-service-authentication">
-					{{ t('integration_jmapc', 'Authentication Type') }}
+				<label for="davc-service-authentication">
+					{{ t('integration_davc', 'Authentication Type') }}
 				</label>
 				<div class="radio-group">
 					<NcCheckboxRadioSwitch name="service_auth"
@@ -603,7 +602,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 						button-variant-grouped="horizontal"
 						:button-variant="true"
 						v-model="selectedService.auth">
-						{{ t('integration_jmapc', 'Basic') }}
+						{{ t('integration_davc', 'Basic') }}
 					</NcCheckboxRadioSwitch>
 					<NcCheckboxRadioSwitch name="service_auth"
 						type="radio"
@@ -611,7 +610,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 						button-variant-grouped="horizontal"
 						:button-variant="true"
 						v-model="selectedService.auth">
-						{{ t('integration_jmapc', 'OAuth') }}
+						{{ t('integration_davc', 'OAuth') }}
 					</NcCheckboxRadioSwitch>
 					<NcCheckboxRadioSwitch name="service_auth"
 						type="radio"
@@ -619,26 +618,26 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 						button-variant-grouped="horizontal"
 						:button-variant="true"
 						v-model="selectedService.auth">
-						{{ t('integration_jmapc', 'Json Basic') }}
+						{{ t('integration_davc', 'Json Basic') }}
 					</NcCheckboxRadioSwitch>
 				</div>
 			</div>
 			<div v-if="configureManually" class="parameter">
-				<label for="jmapc-service-address">
-					{{ t('integration_jmapc', 'Service Address') }}
+				<label for="davc-service-address">
+					{{ t('integration_davc', 'Service Address') }}
 				</label>
-				<NcTextField id="jmapc-service-address"
+				<NcTextField id="davc-service-address"
 					type="text"
 					autocomplete="off"
 					autocorrect="off"
 					autocapitalize="none"
 					v-model="selectedService.location_host"
 					:style="{ width: '48ch' }"
-					:placeholder="t('integration_jmapc', 'Domain or IP Address')" />
+					:placeholder="t('integration_davc', 'Domain or IP Address')" />
 			</div>
 			<div v-if="configureManually" class="parameter">
-				<label for="jmapc-service-protocol">
-					{{ t('integration_jmapc', 'Service Protocol') }}
+				<label for="davc-service-protocol">
+					{{ t('integration_davc', 'Service Protocol') }}
 				</label>
 				<div class="radio-group">
 					<NcCheckboxRadioSwitch name="service_protocol"
@@ -647,7 +646,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 						button-variant-grouped="horizontal"
 						:button-variant="true"
 						v-model="selectedService.location_protocol">
-						{{ t('integration_jmapc', 'http') }}
+						{{ t('integration_davc', 'http') }}
 					</NcCheckboxRadioSwitch>
 					<NcCheckboxRadioSwitch name="service_protocol"
 						type="radio"
@@ -655,7 +654,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 						button-variant-grouped="horizontal"
 						:button-variant="true"
 						v-model="selectedService.location_protocol">
-						{{ t('integration_jmapc', 'https') }}
+						{{ t('integration_davc', 'https') }}
 					</NcCheckboxRadioSwitch>
 				</div>
 			</div>
@@ -665,34 +664,34 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 				</NcCheckboxRadioSwitch>
 			</div>
 			<div v-if="configureManually" class="parameter">
-				<label for="jmapc-service-port">
-					{{ t('integration_jmapc', 'Service Port') }}
+				<label for="davc-service-port">
+					{{ t('integration_davc', 'Service Port') }}
 				</label>
-				<NcTextField id="jmapc-service-port"
+				<NcTextField id="davc-service-port"
 					type="text"
 					autocomplete="off"
 					autocorrect="off"
 					autocapitalize="none"
 					v-model="selectedService.location_port"
 					:style="{ width: '48ch' }"
-					:placeholder="t('integration_jmapc', 'Leave empty for default. http (80) https (443)')" />
+					:placeholder="t('integration_davc', 'Leave empty for default. http (80) https (443)')" />
 			</div>
 			<div v-if="configureManually" class="parameter">
-				<label for="jmapc-service-path">
-					{{ t('integration_jmapc', 'Service Path') }}
+				<label for="davc-service-path">
+					{{ t('integration_davc', 'Service Path') }}
 				</label>
-				<NcTextField id="jmapc-service-path"
+				<NcTextField id="davc-service-path"
 					type="text"
 					autocomplete="off"
 					autocorrect="off"
 					autocapitalize="none"
 					v-model="selectedService.location_path"
 					:style="{ width: '48ch' }"
-					:placeholder="t('integration_jmapc', 'Leave empty for default path (/.well-known/jmap)')" />
+					:placeholder="t('integration_davc', 'Leave empty for default path (/.well-known/caldav)')" />
 			</div>
 			<div>
 				<NcCheckboxRadioSwitch v-model="configureManually" type="switch">
-					{{ t('integration_jmapc', 'Configure server manually') }}
+					{{ t('integration_davc', 'Configure server manually') }}
 				</NcCheckboxRadioSwitch>
 			</div>
 			<div class="actions">
@@ -700,48 +699,48 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 					<template #icon>
 						<CheckIcon />
 					</template>
-					{{ t('integration_jmapc', 'Connect') }}
+					{{ t('integration_davc', 'Connect') }}
 				</NcButton>
 			</div>
 		</div>
-		<div v-if="selectedService !== null && Boolean(selectedService.connected)" class="jmapc-section__connected">
+		<div v-if="selectedService !== null && Boolean(selectedService.connected)" class="davc-section__connected">
 			<div class="connection-status">
 				<h3 class="connection-status__title">
-					{{ t('integration_jmapc', 'Connection') }}
+					{{ t('integration_davc', 'Connection') }}
 				</h3>
 				<div class="connection-status__overview">
-					<JmapIcon />
-					<span>{{ t('integration_jmapc', 'Connected as {0} to {1}', {0:selectedService.address_primary || '', 1:selectedService.location_host || ''}) }}</span>
+					<DavIcon />
+					<span>{{ t('integration_davc', 'Connected as {0} to {1}', {0:selectedService.address_primary || '', 1:selectedService.location_host || ''}) }}</span>
 				</div>
 				<div class="connection-status__harmonization">
-					{{ t('integration_jmapc', 'Synchronization was last started on ') }} {{ formatDate(selectedService.harmonization_start) }}
-					{{ t('integration_jmapc', 'and finished on ') }} {{ formatDate(selectedService.harmonization_end) }}
+					{{ t('integration_davc', 'Synchronization was last started on ') }} {{ formatDate(selectedService.harmonization_start) }}
+					{{ t('integration_davc', 'and finished on ') }} {{ formatDate(selectedService.harmonization_end) }}
 				</div>
 			</div>
 			<div class="connection-correlations-mail">
-				<h3>{{ t('integration_jmapc', 'Mail') }}</h3>
+				<h3>{{ t('integration_davc', 'Mail') }}</h3>
 				<div v-if="!systemConfiguration.system_mail" class="warning-message">
-					{{ t('integration_jmapc', 'The mail app is either disabled or not installed. Please contact your administrator to install or enable the app') }}
+					{{ t('integration_davc', 'The mail app is either disabled or not installed. Please contact your administrator to install or enable the app') }}
 				</div>
 				<div v-if="!mailRemoteSupported" class="warning-message">
-					{{ t('integration_jmapc', 'The connected service does not support mail') }}
+					{{ t('integration_davc', 'The connected service does not support mail') }}
 				</div>
 				<div v-if="systemConfiguration.system_mail && mailRemoteSupported" class="info-message">
 					<div>
-						{{ t('integration_jmapc', 'The connected service supports mail, but mail integration is currently limited') }}
+						{{ t('integration_davc', 'The connected service supports mail, but mail integration is currently limited') }}
 					</div>
 				</div>
 			</div>
 			<div class="connection-correlations-contacts">
-				<h3>{{ t('integration_jmapc', 'Contacts') }}</h3>
+				<h3>{{ t('integration_davc', 'Contacts') }}</h3>
 				<div v-if="systemConfiguration.system_contacts && contactsRemoteSupported" class="instruction-message">
-					{{ t('integration_jmapc', 'Select the contacts collection(s) you wish to synchronize by using the toggle') }}
+					{{ t('integration_davc', 'Select the contacts collection(s) you wish to synchronize by using the toggle') }}
 				</div>
 				<div v-if="!systemConfiguration.system_contacts" class="warning-message">
-					{{ t('integration_jmapc', 'The contacts app is either disabled or not installed. Please contact your administrator to install or enable the app') }}
+					{{ t('integration_davc', 'The contacts app is either disabled or not installed. Please contact your administrator to install or enable the app') }}
 				</div>
 				<div v-if="!contactsRemoteSupported" class="warning-message">
-					{{ t('integration_jmapc', 'The connected service does not support contacts') }}
+					{{ t('integration_davc', 'The connected service does not support contacts') }}
 				</div>
 				<div v-if="systemConfiguration.system_contacts && contactsRemoteSupported" class="collections-list">
 					<ul v-if="contactsRemoteCollections.length > 0">
@@ -754,34 +753,34 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 								{{ ritem.label }}
 							</label>
 							<label v-if="ritem.count && ritem.count > 0">
-								({{ ritem.count }} {{ t('integration_jmapc', 'Contacts') }})
+								({{ ritem.count }} {{ t('integration_davc', 'Contacts') }})
 							</label>
 							<label v-if="establishedContactCorrelationHarmonized(ritem.id) > 0">
-								{{ t('integration_jmapc', 'Last Harmonized') }} {{ formatDate(establishedContactCorrelationHarmonized(ritem.id)) }}
+								{{ t('integration_davc', 'Last Harmonized') }} {{ formatDate(establishedContactCorrelationHarmonized(ritem.id)) }}
 							</label>
 							<label v-else>
-								{{ t('integration_jmapc', 'Last Harmonized never') }}
+								{{ t('integration_davc', 'Last Harmonized never') }}
 							</label>
 						</li>
 					</ul>
 					<div v-else-if="contactsRemoteCollections.length == 0" class="empty-message">
-						{{ t('integration_jmapc', 'No contacts collections where found in the connected account') }}
+						{{ t('integration_davc', 'No contacts collections where found in the connected account') }}
 					</div>
 					<div v-else class="loading-message">
-						{{ t('integration_jmapc', 'Loading contacts collections from the connected account') }}
+						{{ t('integration_davc', 'Loading contacts collections from the connected account') }}
 					</div>
 				</div>
 			</div>
 			<div class="connection-correlations-events">
-				<h3>{{ t('integration_jmapc', 'Calendars') }}</h3>
+				<h3>{{ t('integration_davc', 'Calendars') }}</h3>
 				<div v-if="systemConfiguration.system_events && eventsRemoteSupported" class="instruction-message">
-					{{ t('integration_jmapc', 'Select the events collection(s) you wish to synchronize by using the toggle') }}
+					{{ t('integration_davc', 'Select the events collection(s) you wish to synchronize by using the toggle') }}
 				</div>
 				<div v-if="!systemConfiguration.system_events" class="warning-message">
-					{{ t('integration_jmapc', 'The calendar app is either disabled or not installed. Please contact your administrator to install or enable the app') }}
+					{{ t('integration_davc', 'The calendar app is either disabled or not installed. Please contact your administrator to install or enable the app') }}
 				</div>
 				<div v-if="!eventsRemoteSupported" class="warning-message">
-					{{ t('integration_jmapc', 'The connected service does not support events') }}
+					{{ t('integration_davc', 'The connected service does not support events') }}
 				</div>
 				<div v-if="systemConfiguration.system_events && eventsRemoteSupported" class="collections-list">
 					<ul v-if="eventsRemoteCollections.length > 0">
@@ -796,34 +795,34 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 								{{ ritem.label }}
 							</label>
 							<label v-if="ritem.count && ritem.count > 0">
-								({{ ritem.count }} {{ t('integration_jmapc', 'Events') }})
+								({{ ritem.count }} {{ t('integration_davc', 'Events') }})
 							</label>
 							<label v-if="establishedEventCorrelationHarmonized(ritem.id) > 0">
-								{{ t('integration_jmapc', 'Last Harmonized') }} {{ formatDate(establishedEventCorrelationHarmonized(ritem.id)) }}
+								{{ t('integration_davc', 'Last Harmonized') }} {{ formatDate(establishedEventCorrelationHarmonized(ritem.id)) }}
 							</label>
 							<label v-else>
-								{{ t('integration_jmapc', 'Last Harmonized never') }}
+								{{ t('integration_davc', 'Last Harmonized never') }}
 							</label>
 						</li>
 					</ul>
 					<div v-else-if="eventsRemoteCollections.length == 0" class="empty-message">
-						{{ t('integration_jmapc', 'No events collections where found in the connected account') }}
+						{{ t('integration_davc', 'No events collections where found in the connected account') }}
 					</div>
 					<div v-else class="loading-message">
-						{{ t('integration_jmapc', 'Loading events collections from the connected account') }}
+						{{ t('integration_davc', 'Loading events collections from the connected account') }}
 					</div>
 				</div>
 			</div>
 			<div class="connection-correlations-tasks">
-				<h3>{{ t('integration_jmapc', 'Tasks') }}</h3>
+				<h3>{{ t('integration_davc', 'Tasks') }}</h3>
 				<div v-if="systemConfiguration.system_tasks && tasksRemoteSupported" class="instruction-message">
-					{{ t('integration_jmapc', 'Select the task collection(s) you wish to synchronize by using the toggle') }}
+					{{ t('integration_davc', 'Select the task collection(s) you wish to synchronize by using the toggle') }}
 				</div>
 				<div v-if="!systemConfiguration.system_tasks" class="warning-message">
-					{{ t('integration_jmapc', 'The tasks app is either disabled or not installed. Please contact your administrator to install or enable the app.') }}
+					{{ t('integration_davc', 'The tasks app is either disabled or not installed. Please contact your administrator to install or enable the app.') }}
 				</div>
 				<div v-if="!tasksRemoteSupported" class="warning-message">
-					{{ t('integration_jmapc', 'The connected service does not support tasks.') }}
+					{{ t('integration_davc', 'The connected service does not support tasks.') }}
 				</div>
 				<div v-if="systemConfiguration.system_tasks && tasksRemoteSupported" class="collections-list">
 					<ul v-if="tasksRemoteCollections.length > 0">
@@ -838,21 +837,21 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 								{{ ritem.label }}
 							</label>
 							<label v-if="ritem.count && ritem.count > 0">
-								({{ ritem.count }} {{ t('integration_jmapc', 'Tasks') }})
+								({{ ritem.count }} {{ t('integration_davc', 'Tasks') }})
 							</label>
 							<label v-if="establishedTaskCorrelationHarmonized(ritem.id) > 0">
-								{{ t('integration_jmapc', 'Last Harmonized') }} {{ formatDate(establishedTaskCorrelationHarmonized(ritem.id)) }}
+								{{ t('integration_davc', 'Last Harmonized') }} {{ formatDate(establishedTaskCorrelationHarmonized(ritem.id)) }}
 							</label>
 							<label v-else>
-								{{ t('integration_jmapc', 'Last Harmonized never') }}
+								{{ t('integration_davc', 'Last Harmonized never') }}
 							</label>
 						</li>
 					</ul>
 					<div v-else-if="tasksRemoteCollections.length == 0" class="empty-message">
-						{{ t('integration_jmapc', 'No tasks collections where found in the connected account.') }}
+						{{ t('integration_davc', 'No tasks collections where found in the connected account.') }}
 					</div>
 					<div v-else class="loading-message">
-						{{ t('integration_jmapc', 'Loading tasks collections from the connected account.') }}
+						{{ t('integration_davc', 'Loading tasks collections from the connected account.') }}
 					</div>
 				</div>
 			</div>
@@ -861,19 +860,19 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 					<template #icon>
 						<CheckIcon />
 					</template>
-					{{ t('integration_jmapc', 'Save') }}
+					{{ t('integration_davc', 'Save') }}
 				</NcButton>
 				<NcButton @click="harmonizeService()">
 					<template #icon>
 						<LinkIcon />
 					</template>
-					{{ t('integration_jmapc', 'Harmonize') }}
+					{{ t('integration_davc', 'Harmonize') }}
 				</NcButton>
 				<NcButton @click="disconnectService()">
 					<template #icon>
 						<CloseIcon />
 					</template>
-					{{ t('integration_jmapc', 'Disconnect') }}
+					{{ t('integration_davc', 'Disconnect') }}
 				</NcButton>
 			</div>
 		</div>
@@ -881,13 +880,13 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 </template>
 
 <style scoped lang="scss">
-.jmapc-settings {
+.davc-settings {
 	padding: 30px;
 	max-width: 100%;
 	width: 100%;
 }
 
-.jmapc-section__title {
+.davc-section__title {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -909,7 +908,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 	}
 }
 
-.jmapc-section__selector {
+.davc-section__selector {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -921,7 +920,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 	}
 }
 
-.jmapc-section__empty {
+.davc-section__empty {
 	margin-top: 40px;
 	display: flex;
 	justify-content: center;
@@ -936,7 +935,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 	}
 }
 
-.jmapc-section__fresh {
+.davc-section__fresh {
 	.title {
 		margin-bottom: 16px;
 	}
@@ -970,7 +969,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 	}
 }
 
-.jmapc-section__connected {
+.davc-section__connected {
 	margin-top: 20px;
 	border-top: 1px solid var(--color-border);
 	border-bottom: 1px solid var(--color-border);
