@@ -30,7 +30,6 @@ import LinkIcon from 'vue-material-design-icons/Link.vue'
 
 // Types
 interface SystemConfiguration {
-	system_mail: boolean
 	system_contacts: boolean
 	system_events: boolean
 }
@@ -73,9 +72,6 @@ const systemConfiguration = reactive<SystemConfiguration>(
 // Services
 const configuredServices = ref<Service[]>([])
 const selectedService = ref<Service | null>(null)
-
-// Mail
-const mailRemoteSupported = ref<boolean>(false)
 
 // Contacts
 const contactsRemoteSupported = ref<boolean>(false)
@@ -156,8 +152,6 @@ async function disconnectService(): Promise<void> {
 		showSuccess('Successfully disconnected from account')
 		// Reset state
 		selectedService.value = null
-		// mail
-		mailRemoteSupported.value = false
 		// contacts
 		contactsRemoteSupported.value = false
 		contactsRemoteCollections.value = []
@@ -228,9 +222,6 @@ async function remoteCollectionsFetch(): Promise<void> {
 	try {
 		const response = await axios.get(uri, { params })
 		console.log('Remote collections response:', response)
-		if (response.data.MailSupported) {
-			mailRemoteSupported.value = response.data.MailSupported
-		}
 		if (response.data.ContactsSupported) {
 			contactsRemoteSupported.value = response.data.ContactsSupported
 			contactsRemoteCollections.value = response.data.ContactsCollections
@@ -644,20 +635,6 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 					{{ t('integration_davc', 'and finished on ') }} {{ formatDate(selectedService.harmonization_end) }}
 				</div>
 			</div>
-			<div class="connection-correlations-mail">
-				<h3>{{ t('integration_davc', 'Mail') }}</h3>
-				<div v-if="!systemConfiguration.system_mail" class="warning-message">
-					{{ t('integration_davc', 'The mail app is either disabled or not installed. Please contact your administrator to install or enable the app') }}
-				</div>
-				<div v-if="!mailRemoteSupported" class="warning-message">
-					{{ t('integration_davc', 'The connected service does not support mail') }}
-				</div>
-				<div v-if="systemConfiguration.system_mail && mailRemoteSupported" class="info-message">
-					<div>
-						{{ t('integration_davc', 'The connected service supports mail, but mail integration is currently limited') }}
-					</div>
-				</div>
-			</div>
 			<div class="connection-correlations-contacts">
 				<h3>{{ t('integration_davc', 'Contacts') }}</h3>
 				<div v-if="systemConfiguration.system_contacts && contactsRemoteSupported" class="instruction-message">
@@ -887,7 +864,6 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 		}
 	}
 	
-	.connection-correlations-mail,
 	.connection-correlations-contacts,
 	.connection-correlations-events {
 		margin-bottom: 24px;

@@ -254,7 +254,7 @@ class CoreService {
 	public function remoteCollectionsFetch(string $uid, int $sid): array {
 
 		// construct response object
-		$data = ['MailSupported' => false, 'ContactsSupported' => false, 'ContactsCollections' => [], 'EventsSupported' => false, 'EventsCollections' => []];
+		$data = ['ContactsSupported' => false, 'ContactsCollections' => [], 'EventsSupported' => false, 'EventsCollections' => []];
 		// retrieve service information
 		$service = $this->ServicesService->fetch($sid);
 		// determine if user is the service owner
@@ -264,19 +264,6 @@ class CoreService {
 		// create remote store client
 		$remoteStore = RemoteService::freshClient($service);
 		$remoteStore->connect();
-		// retrieve collections for mail module
-		if ($this->ConfigurationService->isMailAppAvailable() && $remoteStore->sessionCapable('mail')) {
-			$data['MailSupported'] = true;
-			$remoteMailService = RemoteService::mailService($remoteStore);
-			try {
-				$collections = $remoteMailService->collectionList();
-				$data['MailCollections'] = array_map(function ($collection) {
-					return ['id' => $collection->id(), 'label' => $collection->getLabel()];
-				}, $collections);
-			} catch (JmapUnknownMethod $e) {
-				// AddressBook name space is not supported fail silently
-			}
-		}
 		// retrieve collections for contacts module
 		if ($this->ConfigurationService->isContactsAppAvailable() && $remoteStore->sessionCapable('contacts')) {
 			$remoteContactsService = RemoteService::contactsService($remoteStore);

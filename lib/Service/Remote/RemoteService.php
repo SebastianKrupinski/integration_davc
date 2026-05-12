@@ -99,7 +99,7 @@ class RemoteService {
 	}
 
 	/**
-	 * Appropriate Mail Service for Connection
+	 * Appropriate Core Service for Connection
 	 *
 	 * @since Release 1.0.0
 	 */
@@ -114,21 +114,6 @@ class RemoteService {
 		} else {
 			$service = new RemoteCoreService();
 		}
-		$service->initialize($Client, $dataAccount);
-		return $service;
-	}
-
-	/**
-	 * Appropriate Mail Service for Connection
-	 *
-	 * @since Release 1.0.0
-	 */
-	public static function mailService(JmapClient $Client, ?string $dataAccount = null): RemoteMailService {
-		// determine if client is connected
-		if (!$Client->sessionStatus()) {
-			$Client->connect();
-		}
-		$service = new RemoteMailService();
 		$service->initialize($Client, $dataAccount);
 		return $service;
 	}

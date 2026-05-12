@@ -18,14 +18,7 @@ class ConfigurationService {
 	 * Default System Configuration
 	 * @var array
 	 * */
-	private const _SYSTEM = [
-		'mail_mode' => 'L',
-		'mail_meta_store' => 'DB',
-		'mail_contents_store' => 'FS',
-		'mail_harmonization_mode' => 'P',
-		'mail_harmonization_thread_duration' => '3600',
-		'mail_harmonization_thread_pause' => '15',
-	];
+	private const _SYSTEM = [];
 
 	/**
 	 * Default System Secure Parameters
@@ -534,26 +527,6 @@ class ConfigurationService {
 
 		// update harmonization thread id
 		$this->depositUserValue($uid, 'account_harmonization_thb', $thb);
-
-	}
-
-	/**
-	 * retrieve contacts app status
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @return bool
-	 */
-	public function isMailAppAvailable(): bool {
-
-		// retrieve contacts app status
-		$status = $this->_ds->getAppValue('mail', 'enabled');
-		// evaluate status
-		if ($status == 'yes') {
-			return true;
-		} else {
-			return false;
-		}
 
 	}
 

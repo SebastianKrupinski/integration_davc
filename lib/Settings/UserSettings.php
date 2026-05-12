@@ -32,7 +32,6 @@ class UserSettings implements ISettings {
 		Util::addScript(Application::APP_ID, Application::APP_ID . '-UserSettings');
 
 		// retrieve system configuration
-		$configuration['system_mail'] = $this->configurationService->isMailAppAvailable();
 		$configuration['system_contacts'] = $this->configurationService->isContactsAppAvailable();
 		$configuration['system_events'] = $this->configurationService->isCalendarAppAvailable();
 		
