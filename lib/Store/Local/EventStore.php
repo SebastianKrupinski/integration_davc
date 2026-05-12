@@ -19,13 +19,13 @@ class EventStore extends BaseStore {
 
 	public function __construct(IDBConnection $store) {
 		$this->_Store = $store;
-		$this->_CollectionTable = 'jmapc_collections';
+		$this->_CollectionTable = 'davc_collections';
 		$this->_CollectionIdentifier = 'EC';
-		$this->_CollectionClass = 'OCA\DAVC\Store\Local\CollectionEntity';
-		$this->_EntityTable = 'jmapc_entities_event';
+		$this->_CollectionClass = CollectionEntity::class;
+		$this->_EntityTable = 'davc_entities_events';
 		$this->_EntityIdentifier = 'EE';
-		$this->_EntityClass = 'OCA\DAVC\Store\Local\EventEntity';
-		$this->_ChronicleTable = 'jmapc_chronicle';
+		$this->_EntityClass = EventEntity::class;
+		$this->_ChronicleTable = 'davc_chronicle';
 	}
 
 	/**

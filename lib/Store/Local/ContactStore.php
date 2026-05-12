@@ -16,13 +16,13 @@ class ContactStore extends BaseStore {
 	public function __construct(IDBConnection $store) {
 		
 		$this->_Store = $store;
-		$this->_CollectionTable = 'jmapc_collections';
+		$this->_CollectionTable = 'davc_collections';
 		$this->_CollectionIdentifier = 'CC';
-		$this->_CollectionClass = 'OCA\DAVC\Store\Local\CollectionEntity';
-		$this->_EntityTable = 'jmapc_entities_contact';
+		$this->_CollectionClass = CollectionEntity::class;
+		$this->_EntityTable = 'davc_entities_contacts';
 		$this->_EntityIdentifier = 'CE';
-		$this->_EntityClass = 'OCA\DAVC\Store\Local\ContactEntity';
-		$this->_ChronicleTable = 'jmapc_chronicle';
+		$this->_EntityClass = ContactEntity::class;
+		$this->_ChronicleTable = 'davc_chronicle';
 
 	}
 

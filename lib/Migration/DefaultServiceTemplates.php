@@ -20,7 +20,7 @@ class DefaultServiceTemplates implements IRepairStep {
 	) {}
 
 	public function getName(): string {
-		return 'Create or update default Jmap Client service templates';
+		return 'Create or update default Dav Connector service templates';
 	}
 
 	/**

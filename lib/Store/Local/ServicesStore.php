@@ -21,8 +21,8 @@ use OCP\IDBConnection;
 class ServicesStore {
 
 	protected IDBConnection $_Store;
-	protected string $_EntityTable = 'jmapc_services';
-	protected string $_EntityClass = 'OCA\DAVC\Store\Local\ServiceEntity';
+	protected string $_EntityTable = 'davc_services';
+	protected string $_EntityClass = ServiceEntity::class;
 
 	public function __construct(IDBConnection $store) {
 		$this->_Store = $store;

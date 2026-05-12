@@ -50,14 +50,6 @@ use OCP\AppFramework\Db\Entity;
  * @method setOauthRefreshToken(string $value): void
  * @method getOauthRefreshLocation(): ?string
  * @method setOauthRefreshLocation(string $value): void
- * @method getCauthToken(): ?string
- * @method setCauthToken(string $value): void
- * @method getCauthLocation(): ?string
- * @method setCauthLocation(string $value): void
- * @method getAddressPrimary(): ?string
- * @method setAddressPrimary(string $value): void
- * @method getAddressAlternate(): ?string
- * @method setAddressAlternate(string $value): void
  * @method getEnabled(): bool
  * @method setEnabled(bool $value): void
  * @method getConnected(): bool
@@ -72,14 +64,10 @@ use OCP\AppFramework\Db\Entity;
  * @method setHarmonizationEnd(int $value): void
  * @method getSubscriptionCode(): ?string
  * @method setSubscriptionCode(string $value): void
- * @method getMailMode(): string
- * @method setMailMode(?string $value): void
  * @method getContactsMode(): ?string
  * @method setContactsMode(?string $value): void
  * @method getEventsMode(): ?string
  * @method setEventsMode(string $value): void
- * @method getTasksMode(): ?string
- * @method setTasksMode(string $value): void
  */
 class ServiceEntity extends Entity implements JsonSerializable {
 	protected ?string $uid = null;
@@ -100,10 +88,6 @@ class ServiceEntity extends Entity implements JsonSerializable {
 	protected ?int $oauthAccessExpiry = null;
 	protected ?string $oauthRefreshToken = null;
 	protected ?string $oauthRefreshLocation = null;
-	protected ?string $cauthToken = null;
-	protected ?string $cauthLocation = null;
-	protected ?string $addressPrimary = null;
-	protected ?string $addressAlternate = null;
 	protected ?bool $connected = null;
 	protected ?bool $enabled = null;
 	protected ?bool $debug = false;
@@ -111,10 +95,8 @@ class ServiceEntity extends Entity implements JsonSerializable {
 	protected ?int $harmonizationStart = 0;
 	protected ?int $harmonizationEnd = 0;
     protected ?string $subscriptionCode = null;
-	protected ?string $mailMode = null;
 	protected ?string $contactsMode = null;
 	protected ?string $eventsMode = null;
-	protected ?string $tasksMode = null;
 	
 	public function jsonSerialize(): array {
         return [
@@ -137,10 +119,6 @@ class ServiceEntity extends Entity implements JsonSerializable {
             'oauth_access_expiry' => $this->oauthAccessExpiry,
             'oauth_refresh_token' => $this->oauthRefreshToken,
             'oauth_refresh_location' => $this->oauthRefreshLocation,
-            'cauth_token' => $this->cauthToken,
-            'cauth_location' => $this->cauthLocation,
-            'address_primary' => $this->addressPrimary,
-            'address_alternate' => $this->addressAlternate,
             'enabled' => $this->enabled,
             'connected' => $this->connected,
             'debug' => $this->debug,
@@ -148,10 +126,8 @@ class ServiceEntity extends Entity implements JsonSerializable {
             'harmonization_start' => $this->harmonizationStart,
             'harmonization_end' => $this->harmonizationEnd,
             'subscription_code' => $this->subscriptionCode,
-            'mail_mode' => $this->mailMode,
             'contacts_mode' => $this->contactsMode,
             'events_mode' => $this->eventsMode,
-            'tasks_mode' => $this->tasksMode,
         ];
     }
 }
