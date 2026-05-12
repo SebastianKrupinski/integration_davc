@@ -457,7 +457,7 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 					:style="{ width: '48ch' }"
 					:placeholder="t('integration_davc', 'Description for this Account')" />
 			</div>
-			<div v-if="selectedService.auth === 'BA' || selectedService.auth === 'JB'" class="parameter">
+			<div v-if="selectedService.auth === 'BA'" class="parameter">
 				<label for="davc-account-bauth-id">
 					{{ t('integration_davc', 'Account ID') }}
 				</label>
@@ -470,7 +470,7 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 					:style="{ width: '48ch' }"
 					:placeholder="t('integration_davc', 'Authentication ID for your Account')" />
 			</div>
-			<div v-if="selectedService.auth === 'BA' || selectedService.auth === 'JB'" class="parameter">
+			<div v-if="selectedService.auth === 'BA'" class="parameter">
 				<label for="davc-account-bauth-secret">
 					{{ t('integration_davc', 'Account Secret') }}
 				</label>
@@ -529,14 +529,6 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 						:button-variant="true"
 						v-model="selectedService.auth">
 						{{ t('integration_davc', 'OAuth') }}
-					</NcCheckboxRadioSwitch>
-					<NcCheckboxRadioSwitch name="service_auth"
-						type="radio"
-						value="JB"
-						button-variant-grouped="horizontal"
-						:button-variant="true"
-						v-model="selectedService.auth">
-						{{ t('integration_davc', 'Json Basic') }}
 					</NcCheckboxRadioSwitch>
 				</div>
 			</div>
