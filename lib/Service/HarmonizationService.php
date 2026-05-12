@@ -21,7 +21,6 @@ class HarmonizationService {
 		private ServicesService $ServicesService,
 		private ContactsService $ContactsService,
 		private EventsService $EventsService,
-		private TasksService $TasksService,
 		private HarmonizationThreadService $HarmonizationThreadService,
 	) {
 	}
@@ -86,15 +85,6 @@ class HarmonizationService {
 			$this->EventsService->harmonize($service->getUid(), $service, $remoteStore);
 
 			$this->logger->info('Finished Harmonization of Events for ' . $service->getUid());
-		}
-
-		// tasks
-		if ($this->ConfigurationService->isTasksAppAvailable()) {
-			$this->logger->info('Started Harmonization of Tasks for ' . $service->getUid());
-			// assign configuration, data stores and harmonize
-			//$this->TasksService->harmonize($uid, $service, $remoteStore);
-
-			$this->logger->info('Finished Harmonization of Tasks for ' . $service->getUid());
 		}
 
 		// update harmonization state and end time

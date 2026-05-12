@@ -33,7 +33,6 @@ interface SystemConfiguration {
 	system_mail: boolean
 	system_contacts: boolean
 	system_events: boolean
-	system_tasks: boolean
 }
 
 interface Service {
@@ -87,11 +86,6 @@ const contactsLocalCollections = ref<Collection[]>([])
 const eventsRemoteSupported = ref<boolean>(false)
 const eventsRemoteCollections = ref<Collection[]>([])
 const eventsLocalCollections = ref<Collection[]>([])
-
-// Tasks
-const tasksRemoteSupported = ref<boolean>(false)
-const tasksRemoteCollections = ref<Collection[]>([])
-const tasksLocalCollections = ref<Collection[]>([])
 
 // UI State
 const configureManually = ref<boolean>(false)
@@ -172,10 +166,6 @@ async function disconnectService(): Promise<void> {
 		eventsRemoteSupported.value = false
 		eventsRemoteCollections.value = []
 		eventsLocalCollections.value = []
-		// tasks
-		tasksRemoteSupported.value = false
-		tasksRemoteCollections.value = []
-		tasksLocalCollections.value = []
 		// refresh service list
 		serviceList()
 	} catch (error: any) {
@@ -251,11 +241,6 @@ async function remoteCollectionsFetch(): Promise<void> {
 			eventsRemoteCollections.value = response.data.EventsCollections
 			showSuccess('Found ' + eventsRemoteCollections.value.length + ' Remote Events Collections')
 		}
-		if (response.data.TasksSupported) {
-			tasksRemoteSupported.value = response.data.TasksSupported
-			tasksRemoteCollections.value = response.data.TasksCollections
-			showSuccess('Found ' + tasksRemoteCollections.value.length + ' Remote Tasks Collections')
-		}
 	} catch (error: any) {
 		showError(
 			t('integration_davc', 'Failed to load remote collections')
@@ -279,10 +264,6 @@ async function localCollectionsFetch(): Promise<void> {
 			eventsLocalCollections.value = response.data.EventCollections
 			showSuccess('Found ' + eventsLocalCollections.value.length + ' Local Event Collections')
 		}
-		if (response.data.TaskCollections) {
-			tasksLocalCollections.value = response.data.TaskCollections
-			showSuccess('Found ' + tasksLocalCollections.value.length + ' Local Task Collections')
-		}
 	} catch (error: any) {
 		showError(
 			t('integration_davc', 'Failed to load remote collections')
@@ -297,7 +278,6 @@ async function localCollectionsDeposit(): Promise<void> {
 		sid: selectedService.value?.id,
 		ContactCorrelations: contactsLocalCollections.value,
 		EventCorrelations: eventsLocalCollections.value,
-		TaskCorrelations: tasksLocalCollections.value,
 	}
 	try {
 		await axios.post(uri, data)
@@ -348,25 +328,6 @@ function changeEventCorrelation(rcid: string | null, e: boolean): void {
 	}
 }
 
-function changeTaskCorrelation(rcid: string | null, e: boolean): void {
-	if (!rcid) return
-	const lCollection = tasksLocalCollections.value.find(i => String(i.ccid) === String(rcid))
-
-	if (lCollection === undefined) {
-		const rCollection = tasksRemoteCollections.value.find(i => String(i.id) === String(rcid))
-		if (rCollection && rCollection.id) {
-			tasksLocalCollections.value.push({
-				id: null,
-				ccid: rCollection.id,
-				label: rCollection.label,
-				enabled: e,
-			})
-		}
-	} else {
-		lCollection.enabled = e
-	}
-}
-
 const establishedContactCorrelation = computed(() => {
 	return (rcid: string | null): boolean => {
 		if (!rcid) return false
@@ -385,20 +346,6 @@ const establishedEventCorrelation = computed(() => {
 	return (rcid: string | null): boolean => {
 		if (!rcid) return false
 		const lCollection = eventsLocalCollections.value.find(i => String(i.ccid) === String(rcid))
-		if (typeof lCollection === 'undefined') {
-			return false
-		}
-		if (typeof lCollection.enabled === 'undefined') {
-			return true
-		}
-		return lCollection.enabled
-	}
-})
-
-const establishedTaskCorrelation = computed(() => {
-	return (rcid: string | null): boolean => {
-		if (!rcid) return false
-		const lCollection = tasksLocalCollections.value.find(i => String(i.ccid) === String(rcid))
 		if (typeof lCollection === 'undefined') {
 			return false
 		}
@@ -429,16 +376,6 @@ function establishedEventCorrelationColor(ccid: string | null): string {
 	}
 }
 
-function establishedTaskCorrelationColor(ccid: string | null): string {
-	if (!ccid) return randomColor()
-	const collection = tasksLocalCollections.value.find(i => String(i.ccid) === String(ccid))
-	if (typeof collection !== 'undefined') {
-		return collection.color || randomColor()
-	} else {
-		return randomColor()
-	}
-}
-
 function establishedContactCorrelationHarmonized(ccid: string | null): number {
 	if (!ccid) return 0
 	const collection = contactsLocalCollections.value.find(i => String(i.ccid) === String(ccid))
@@ -452,16 +389,6 @@ function establishedContactCorrelationHarmonized(ccid: string | null): number {
 function establishedEventCorrelationHarmonized(ccid: string | null): number {
 	if (!ccid) return 0
 	const collection = eventsLocalCollections.value.find(i => String(i.ccid) === String(ccid))
-	if (typeof collection !== 'undefined') {
-		return collection.hlockhb || 0
-	} else {
-		return 0
-	}
-}
-
-function establishedTaskCorrelationHarmonized(ccid: string | null): number {
-	if (!ccid) return 0
-	const collection = tasksLocalCollections.value.find(i => String(i.ccid) === String(ccid))
 	if (typeof collection !== 'undefined') {
 		return collection.hlockhb || 0
 	} else {
@@ -813,48 +740,6 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 					</div>
 				</div>
 			</div>
-			<div class="connection-correlations-tasks">
-				<h3>{{ t('integration_davc', 'Tasks') }}</h3>
-				<div v-if="systemConfiguration.system_tasks && tasksRemoteSupported" class="instruction-message">
-					{{ t('integration_davc', 'Select the task collection(s) you wish to synchronize by using the toggle') }}
-				</div>
-				<div v-if="!systemConfiguration.system_tasks" class="warning-message">
-					{{ t('integration_davc', 'The tasks app is either disabled or not installed. Please contact your administrator to install or enable the app.') }}
-				</div>
-				<div v-if="!tasksRemoteSupported" class="warning-message">
-					{{ t('integration_davc', 'The connected service does not support tasks.') }}
-				</div>
-				<div v-if="systemConfiguration.system_tasks && tasksRemoteSupported" class="collections-list">
-					<ul v-if="tasksRemoteCollections.length > 0">
-						<li v-for="ritem in tasksRemoteCollections" :key="ritem.id" class="collections-list-item">
-							<NcCheckboxRadioSwitch type="switch"
-								:modelValue="establishedTaskCorrelation(ritem.id)"
-								@update:modelValue="changeTaskCorrelation(ritem.id, $event)" />
-							<NcColorPicker v-model="color" :advanced-fields="true">
-								<CalendarIcon :inline="true" :style="{ color: establishedTaskCorrelationColor(ritem.id) }" />
-							</NcColorPicker>
-							<label>
-								{{ ritem.label }}
-							</label>
-							<label v-if="ritem.count && ritem.count > 0">
-								({{ ritem.count }} {{ t('integration_davc', 'Tasks') }})
-							</label>
-							<label v-if="establishedTaskCorrelationHarmonized(ritem.id) > 0">
-								{{ t('integration_davc', 'Last Harmonized') }} {{ formatDate(establishedTaskCorrelationHarmonized(ritem.id)) }}
-							</label>
-							<label v-else>
-								{{ t('integration_davc', 'Last Harmonized never') }}
-							</label>
-						</li>
-					</ul>
-					<div v-else-if="tasksRemoteCollections.length == 0" class="empty-message">
-						{{ t('integration_davc', 'No tasks collections where found in the connected account.') }}
-					</div>
-					<div v-else class="loading-message">
-						{{ t('integration_davc', 'Loading tasks collections from the connected account.') }}
-					</div>
-				</div>
-			</div>
 			<div class="actions">
 				<NcButton @click="modifyService()">
 					<template #icon>
@@ -1004,8 +889,7 @@ function establishedTaskCorrelationHarmonized(ccid: string | null): number {
 	
 	.connection-correlations-mail,
 	.connection-correlations-contacts,
-	.connection-correlations-events,
-	.connection-correlations-tasks {
+	.connection-correlations-events {
 		margin-bottom: 24px;
 		
 		h3 {

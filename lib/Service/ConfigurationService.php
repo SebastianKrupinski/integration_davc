@@ -41,7 +41,6 @@ class ConfigurationService {
 		'contacts_presentation' => '',
 		'events_timezone' => '',
 		'events_attachment_path' => '/Calendar',
-		'tasks_attachment_path' => '/Tasks',
 	];
 
 	/**
@@ -83,7 +82,6 @@ class ConfigurationService {
 			$parameters['system_timezone'] = date_default_timezone_get();
 			$parameters['system_contacts'] = $this->isContactsAppAvailable();
 			$parameters['system_events'] = $this->isCalendarAppAvailable();
-			$parameters['system_tasks'] = $this->isTasksAppAvailable();
 			$parameters['user_id'] = $uid;
 			// user default time zone
 			$v = $this->_ds->getUserValue($uid, 'core', 'timezone');
@@ -590,26 +588,6 @@ class ConfigurationService {
 
 		// retrieve calendar app status
 		$status = $this->_ds->getAppValue('calendar', 'enabled');
-		// evaluate status
-		if ($status == 'yes') {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	/**
-	 * retrieve task app status
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @return bool
-	 */
-	public function isTasksAppAvailable(): bool {
-
-		// retrieve calendar app status
-		$status = $this->_ds->getAppValue('tasks', 'enabled');
 		// evaluate status
 		if ($status == 'yes') {
 			return true;

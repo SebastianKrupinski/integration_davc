@@ -11,7 +11,6 @@ namespace OCA\DAVC\Service\Local;
 
 use OCA\DAVC\Store\Local\ContactStore;
 use OCA\DAVC\Store\Local\EventStore;
-use OCA\DAVC\Store\Local\TaskStore;
 use OCP\Server;
 
 class LocalService {
@@ -38,17 +37,6 @@ class LocalService {
 	}
 
 	/**
-	 * instance of the local task service
-	 *
-	 * @since Release 1.0.0
-	 */
-	public static function tasksService(string $userId): LocalTasksService {
-		$service = new LocalTasksService();
-		$service->initialize(self::tasksStore());
-		return $service;
-	}
-
-	/**
 	 * instance of the local contact store
 	 *
 	 * @since Release 1.0.0
@@ -68,17 +56,6 @@ class LocalService {
 	 */
 	public static function eventsStore(): EventStore {
 		return Server::get(EventStore::class);
-	}
-
-	/**
-	 * instance of the local task store
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @return TaskStore
-	 */
-	public static function tasksStore(): TaskStore {
-		return Server::get(TaskStore::class);
 	}
 
 }

@@ -35,7 +35,6 @@ class UserSettings implements ISettings {
 		$configuration['system_mail'] = $this->configurationService->isMailAppAvailable();
 		$configuration['system_contacts'] = $this->configurationService->isContactsAppAvailable();
 		$configuration['system_events'] = $this->configurationService->isCalendarAppAvailable();
-		$configuration['system_tasks'] = $this->configurationService->isTasksAppAvailable();
 		
 		$this->initialStateService->provideInitialState('system-configuration', $configuration);
 

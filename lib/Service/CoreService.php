@@ -254,7 +254,7 @@ class CoreService {
 	public function remoteCollectionsFetch(string $uid, int $sid): array {
 
 		// construct response object
-		$data = ['MailSupported' => false, 'ContactsSupported' => false, 'ContactsCollections' => [], 'EventsSupported' => false, 'EventsCollections' => [], 'TasksSupported' => false, 'TasksCollections' => []];
+		$data = ['MailSupported' => false, 'ContactsSupported' => false, 'ContactsCollections' => [], 'EventsSupported' => false, 'EventsCollections' => []];
 		// retrieve service information
 		$service = $this->ServicesService->fetch($sid);
 		// determine if user is the service owner
@@ -302,7 +302,7 @@ class CoreService {
 			}
 		}
 		// retrieve collections for events module
-		if ($this->ConfigurationService->isContactsAppAvailable() && $remoteStore->sessionCapable('calendars')) {
+		if ($this->ConfigurationService->isCalendarAppAvailable() && $remoteStore->sessionCapable('calendars')) {
 			$remoteEventsService = RemoteService::eventsService($remoteStore);
 			try {
 				$collections = $remoteEventsService->collectionList();
@@ -343,7 +343,7 @@ class CoreService {
 	public function localCollectionsFetch(string $uid, int $sid): array {
 
 		// construct response object
-		$data = ['ContactCollections' => [], 'EventCollections' => [], 'TaskCollections' => []];
+		$data = ['ContactCollections' => [], 'EventCollections' => []];
 		// retrieve service information
 		$service = $this->ServicesService->fetch($sid);
 		// determine if user if the service owner
@@ -359,10 +359,6 @@ class CoreService {
 			$localStore = LocalService::eventsStore();
 			$data['EventCollections'] = $localStore->collectionListByService($sid);
 		}
-		if ($this->ConfigurationService->isTasksAppAvailable()) {
-			$localStore = LocalService::tasksStore();
-			$data['TaskCollections'] = $localStore->collectionListByService($sid);
-		}
 		// return response
 		return $data;
 
@@ -377,11 +373,10 @@ class CoreService {
 	 * @param int $sid service id
 	 * @param array $cc contacts collection(s) correlations
 	 * @param array $ec events collection(s) correlations
-	 * @param array $tc tasks collection(s) correlations
 	 *
 	 * @return array of collection correlation(s) and attributes
 	 */
-	public function localCollectionsDeposit(string $uid, int $sid, array $cc, array $ec, array $tc): void {
+	public function localCollectionsDeposit(string $uid, int $sid, array $cc, array $ec): void {
 
 		// terminate harmonization thread, in case the user changed any correlations
 		//$this->HarmonizationThreadService->terminate($uid);
@@ -432,41 +427,6 @@ class CoreService {
 			$localStore = LocalService::eventsStore();
 			// process entries
 			foreach ($ec as $entry) {
-				if (!isset($entry['enabled']) || !is_bool($entry['enabled'])) {
-					continue;
-				}
-				switch ((bool)$entry['enabled']) {
-					case false:
-						if (is_numeric($entry['id'])) {
-							$collection = $localStore->collectionFetch($entry['id']);
-							if ($collection->getUid() === $uid) {
-								$localStore->collectionDelete($collection);
-							}
-						}
-						break;
-					case true:
-						if (empty($entry['id'])) {
-							// create local collection
-							$collection = $localStore->collectionFresh();
-							$collection->setUid($uid);
-							$collection->setSid($sid);
-							$collection->setCcid($entry['ccid']);
-							$collection->setUuid(\OCA\DAVC\Utile\UUID::v4());
-							$collection->setLabel('JMAP: ' . ($entry['label'] ?? 'Unknown'));
-							$collection->setColor($entry['color'] ?? '#0055aa');
-							$collection->setVisible(true);
-							$id = $localStore->collectionCreate($collection);
-						}
-						break;
-				}
-			}
-		}
-		// deposit tasks correlations
-		if ($this->ConfigurationService->isTasksAppAvailable()) {
-			// initialize data store
-			$localStore = LocalService::tasksStore();
-			// process entries
-			foreach ($tc as $entry) {
 				if (!isset($entry['enabled']) || !is_bool($entry['enabled'])) {
 					continue;
 				}

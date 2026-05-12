@@ -14,7 +14,6 @@ use OCA\DAV\CalDAV\Integration\ICalendarProvider as ICalendarProvider2;
 use OCA\DAVC\AppInfo\Application;
 use OCA\DAVC\Store\Local\CollectionEntity;
 use OCA\DAVC\Store\Local\EventStore;
-use OCA\DAVC\Store\Local\TaskStore;
 use OCP\Calendar\ICalendarProvider as ICalendarProvider1;
 
 class Provider implements ICalendarProvider1, ICalendarProvider2 {
@@ -22,7 +21,6 @@ class Provider implements ICalendarProvider1, ICalendarProvider2 {
 
 	public function __construct(
 		private EventStore $_EventStore,
-		private TaskStore $_TaskStore,
 	) {
 	}
 
@@ -58,17 +56,6 @@ class Provider implements ICalendarProvider1, ICalendarProvider2 {
 			$this->cacheStoreCollection($userId, $entry->getUuid(), $collection);
 			$list[] = $collection;
 		}
-		// construct filter
-		$storeFilter = $this->_TaskStore->collectionListFilter();
-		$storeFilter->condition('uid', $userId);
-		// retrieve collection(s)
-		$collections = $this->_TaskStore->collectionList($storeFilter);
-		// add collections to list
-		foreach ($collections as $entry) {
-			$collection = $this->collectionFromDataEntity($entry);
-			$this->cacheStoreCollection($userId, $entry->getUuid(), $collection);
-			$list[] = $collection;
-		}
 		return $list;
 	}
 
@@ -93,18 +80,6 @@ class Provider implements ICalendarProvider1, ICalendarProvider2 {
 			$this->cacheStoreCollection($userId, $calendarUri, $collection);
 			return true;
 		}
-		// construct filter
-		$storeFilter = $this->_TaskStore->collectionListFilter();
-		$storeFilter->condition('uid', $userId);
-		$storeFilter->condition('uuid', $calendarUri);
-		// check if collection exists in tasks store
-		$collections = $this->_TaskStore->collectionList($storeFilter);
-		if (count($collections) > 0) {
-			$collection = $this->collectionFromDataEntity($collections[0]);
-			$this->cacheStoreCollection($userId, $calendarUri, $collection);
-			return true;
-		}
-		// collection not found
 		return false;
 	}
 
@@ -129,17 +104,6 @@ class Provider implements ICalendarProvider1, ICalendarProvider2 {
 			$this->cacheStoreCollection($userId, $calendarUri, $collection);
 			return $collection;
 		}
-		// construct filter
-		$storeFilter = $this->_TaskStore->collectionListFilter();
-		$storeFilter->condition('uid', $userId);
-		$storeFilter->condition('uuid', $calendarUri);
-		// check if collection exists in tasks store
-		$collections = $this->_TaskStore->collectionList($storeFilter);
-		if (count($collections) > 0) {
-			$collection = $this->collectionFromDataEntity($collections[0]);
-			$this->cacheStoreCollection($userId, $calendarUri, $collection);
-			return $collection;
-		}
 		// collection not found
 		return null;
 	}
@@ -148,25 +112,23 @@ class Provider implements ICalendarProvider1, ICalendarProvider2 {
 		return substr($principalUri, 17);
 	}
 
-	protected function cacheRetrieveCollection(string $uid, string $cid): EventCollection|TaskCollection|null {
+	protected function cacheRetrieveCollection(string $uid, string $cid): EventCollection|null {
 		if (isset($this->_CollectionCache[$uid][$cid])) {
 			return $this->_CollectionCache[$uid][$cid];
 		}
 		return null;
 	}
 
-	protected function cacheStoreCollection(string $uid, string $cid, EventCollection|TaskCollection $collection): void {
+	protected function cacheStoreCollection(string $uid, string $cid, EventCollection $collection): void {
 		if (!isset($this->_CollectionCache[$uid])) {
 			$this->_CollectionCache[$uid] = [];
 		}
 		$this->_CollectionCache[$uid][$cid] = $collection;
 	}
 
-	protected function collectionFromDataEntity(CollectionEntity $entity): EventCollection|TaskCollection|null {
+	protected function collectionFromDataEntity(CollectionEntity $entity): EventCollection|null {
 		if ($entity->getType() == 'EC') {
 			return new EventCollection($this->_EventStore, $entity);
-		} elseif ($entity->getType() == 'TC') {
-			return new TaskCollection($this->_TaskStore, $entity);
 		}
 		return null;
 	}
