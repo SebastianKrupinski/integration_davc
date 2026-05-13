@@ -28,6 +28,12 @@ use OCP\AppFramework\Db\Entity;
  * @method setLocationPort(int $value): void
  * @method getLocationPath(): ?string
  * @method setLocationPath(string $value): void
+ * @method getPrincipalUrl(): ?string
+ * @method setPrincipalUrl(string $value): void
+ * @method getCalendarsUrl(): ?string
+ * @method setCalendarsUrl(string $value): void
+ * @method getAddressbooksUrl(): ?string
+ * @method setAddressbooksUrl(string $value): void
  * @method getLocationSecurity(): bool
  * @method setLocationSecurity(bool $value): void
  * @method getAuth(): ?string
@@ -77,6 +83,9 @@ class ServiceEntity extends Entity implements JsonSerializable {
 	protected ?string $locationHost = null;
 	protected ?int $locationPort = null;
 	protected ?string $locationPath = null;
+    protected ?string $principalUrl = null;
+    protected ?string $calendarsUrl = null;
+    protected ?string $addressbooksUrl = null;
 	protected ?int $locationSecurity = 1;
 	protected ?string $auth = null;
 	protected ?string $bauthId = null;
@@ -108,6 +117,9 @@ class ServiceEntity extends Entity implements JsonSerializable {
             'location_host' => $this->locationHost,
             'location_port' => $this->locationPort,
             'location_path' => $this->locationPath,
+            'principal_url' => $this->principalUrl,
+            'calendars_url' => $this->calendarsUrl,
+            'addressbooks_url' => $this->addressbooksUrl,
             'location_security' => $this->locationSecurity,
             'auth' => $this->auth,
             'bauth_id' => $this->bauthId,

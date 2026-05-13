@@ -77,6 +77,18 @@ class Version0010Date20260501000001 extends SimpleMigrationStep {
 			'length' => 255,
 			'notnull' => false
 		]);
+		// dav principal url
+		$table->addColumn('principal_url', Types::TEXT, [
+			'notnull' => false
+		]);
+		// caldav home set
+		$table->addColumn('calendars_url', Types::TEXT, [
+			'notnull' => false
+		]);
+		// carddav home set
+		$table->addColumn('addressbooks_url', Types::TEXT, [
+			'notnull' => false
+		]);
 		// service location security
 		$table->addColumn('location_security', Types::BOOLEAN, [
 			'notnull' => true

@@ -11,14 +11,14 @@ namespace OCA\DAVC\Service;
 
 use DateTime;
 use OCA\DAVC\AppInfo\Application;
-use OCA\DAVC\Exceptions\JmapUnknownMethod;
-use OCA\DAVC\Objects\AuthenticationTypes;
 use OCA\DAVC\Service\Local\LocalService;
-use OCA\DAVC\Service\Remote\RemoteService;
+use OCA\DAVC\Service\Remote\RemoteFactory;
 use OCA\DAVC\Store\Local\ServiceEntity;
+use OCA\DAVC\Constants;
 use OCP\BackgroundJob\IJobList;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /*
 use OCA\DAVC\Tasks\HarmonizationLauncher;
@@ -32,6 +32,7 @@ class CoreService {
 		private ConfigurationService $ConfigurationService,
 		private ServicesService $ServicesService,
 		private ServicesTemplateService $ServicesTemplateService,
+		private RemoteFactory $remoteFactory,
 		private HarmonizationThreadService $HarmonizationThreadService,
 	) {
 	}
@@ -65,7 +66,7 @@ class CoreService {
 		}
 		// find dns service records
 		if (empty($configuration['location_host'])) {
-			$dns = dns_get_record('_jmap._tcp.' . $identityDomain, DNS_SRV);
+			$dns = dns_get_record('_caldav._tcp.' . $identityDomain, DNS_SRV);
 			if ($dns[0]['type'] === 'SRV') {
 				$dnsTarget = $dns[0]['target'];
 				$dnsPort = $dns[0]['port'];
@@ -86,7 +87,7 @@ class CoreService {
 
 		if (empty($configuration['location_host'])) {
 			$configuration['location_host'] = $identityDomain;
-			$configuration['location_path'] = '/.well-known/jmap';
+			$configuration['location_path'] = '/.well-known/caldav';
 		}
 
 		return $configuration;
@@ -110,19 +111,16 @@ class CoreService {
 			return false;
 		}
 
-		if ($configuration['auth'] === AuthenticationTypes::Basic->value ||
-			$configuration['auth'] === AuthenticationTypes::JsonBasic->value ||
-			$configuration['auth'] === AuthenticationTypes::JsonBasicCookie->value
-		) {
+		if ($configuration['auth'] === Constants::AUTHENTICATION_TYPE_BASIC) {
 			// validate id
-			//if (!\OCA\DAVC\Utile\Validator::username($configuration['bauth_id'])) {
-			//	return false;
-			//}
+			if (!\OCA\DAVC\Utile\Validator::username($configuration['bauth_id'])) {
+				return false;
+			}
 			// validate secret
 			if (empty($configuration['bauth_secret'])) {
 				return false;
 			}
-		} elseif ($configuration['auth'] === AuthenticationTypes::Bearer->value) {
+		} elseif ($configuration['auth'] === Constants::AUTHENTICATION_TYPE_TOKEN) {
 			// validate id
 			if (!\OCA\DAVC\Utile\Validator::username($configuration['oauth_id'])) {
 				return false;
@@ -152,45 +150,51 @@ class CoreService {
 		$service->setLocationPath($configuration['location_path'] ?? null);
 		$service->setLocationSecurity((bool)($configuration['location_security'] ?? 1));
 		$service->setAuth($configuration['auth']);
-		if ($configuration['auth'] === AuthenticationTypes::Basic->value ||
-			$configuration['auth'] === AuthenticationTypes::JsonBasic->value ||
-			$configuration['auth'] === AuthenticationTypes::JsonBasicCookie->value
-		) {
+		if ($configuration['auth'] === Constants::AUTHENTICATION_TYPE_BASIC) {
 			$service->setBauthId($configuration['bauth_id']);
 			$service->setBauthSecret($configuration['bauth_secret']);
 			$service->setBauthLocation($configuration['bauth_location'] ?? null);
-			$service->setAddressPrimary($configuration['bauth_id']);
 		}
-		if ($configuration['auth'] === AuthenticationTypes::JsonBasicCookie->value) {
-			$service->setCauthLocation($configuration['cauth_location'] ?? null);
-		}
-		if ($configuration['auth'] === AuthenticationTypes::Bearer->value) {
+		if ($configuration['auth'] === Constants::AUTHENTICATION_TYPE_TOKEN) {
 			$service->setOauthId($configuration['oauth_id']);
 			$service->setOauthAccessToken($configuration['oauth_access_token']);
-			$service->setOauthLocation($configuration['oauth_location'] ?? null);
-			$service->setAddressPrimary($configuration['oauth_id']);
+			$service->setOauthAccessLocation($configuration['oauth_location'] ?? null);
 		}
 
 		// construct remote data store client
-		$remoteStore = RemoteService::freshClient($service);
+		$remoteStore = $this->remoteFactory->freshClient($service);
 
 		// connect client
-		$remoteStore->connect();
-
-		// determine if connection was established
-		if ($remoteStore->sessionStatus() === false) {
+		try {
+			$info = $remoteStore->discover();
+		} catch (Throwable $e) {
+			$this->logger->error('Connection failed:', ['app' => 'davc', 'exception' => $e]);
 			return false;
 		}
 
-		// TODO: retrieve capabilities
+		// determine if connection was established
+		if ($info['connected'] === false) {
+			return false;
+		}
+
+		if ($info['principalUrl'] !== null) {
+			$service->setPrincipalUrl($info['principalUrl']);
+		}
+		if ($info['calendarHomeSet'] !== null) {
+			$service->setCalendarsUrl($info['calendarHomeSet']);
+		}
+		if ($info['addressbookHomeSet'] !== null) {
+			$service->setAddressbooksUrl($info['addressbookHomeSet']);
+		}
 
 		$service->setEnabled(true);
 		$service->setConnected(true);
 
 		$this->ServicesService->deposit($uid, $service);
 
+		// TODO: Should this be implemented?
 		// register harmonization task
-		$this->TaskService->add(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $service->getId()]);
+		//$this->TaskService->add(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $service->getId()]);
 
 		return true;
 
@@ -262,18 +266,17 @@ class CoreService {
 			return $data;
 		}
 		// create remote store client
-		$remoteStore = RemoteService::freshClient($service);
-		$remoteStore->connect();
+		$remoteStore = $this->remoteFactory->freshClient($service);
 		// retrieve collections for contacts module
 		if ($this->ConfigurationService->isContactsAppAvailable() && $remoteStore->sessionCapable('contacts')) {
-			$remoteContactsService = RemoteService::contactsService($remoteStore);
 			try {
+				$remoteContactsService = $this->remoteFactory->contactsService($remoteStore);
 				$collections = $remoteContactsService->collectionList();
 				$data['ContactsSupported'] = true;
 				$data['ContactsCollections'] = array_map(function ($collection) {
 					return ['id' => $collection->Id, 'label' => 'Personal - ' . $collection->Label];
 				}, $collections);
-			} catch (JmapUnknownMethod $e) {
+			} catch (Throwable $e) {
 				// AddressBook name space is not supported fail silently
 			}
 			// if AddressBook name space is not supported see if Contacts name space works
@@ -282,7 +285,7 @@ class CoreService {
 					$list = $remoteContactsService->entityList('', 'B');
 					$data['ContactsSupported'] = true;
 					$data['ContactsCollections'][] = ['id' => 'Default', 'label' => 'Personal - Contacts', 'count' => $list['total']];
-				} catch (\Throwable $e) {
+				} catch (Throwable $e) {
 					// ContactCard name space is not supported fail silently
 				}
 
@@ -290,14 +293,14 @@ class CoreService {
 		}
 		// retrieve collections for events module
 		if ($this->ConfigurationService->isCalendarAppAvailable() && $remoteStore->sessionCapable('calendars')) {
-			$remoteEventsService = RemoteService::eventsService($remoteStore);
 			try {
+				$remoteEventsService = $this->remoteFactory->eventsService($remoteStore);
 				$collections = $remoteEventsService->collectionList();
 				$data['EventsSupported'] = true;
 				$data['EventsCollections'] = array_map(function ($collection) {
 					return ['id' => $collection->Id, 'label' => 'Personal - ' . $collection->Label];
 				}, $collections);
-			} catch (JmapUnknownMethod $e) {
+			} catch (Throwable $e) {
 				// AddressBook name space is not supported fail silently
 			}
 			// if AddressBook name space is not supported see if Contacts name space works
@@ -306,7 +309,7 @@ class CoreService {
 					$list = $remoteEventsService->entityList('', 'B');
 					$data['EventsSupported'] = true;
 					$data['EventsCollections'][] = ['id' => 'Default', 'label' => 'Personal - Calendar', 'count' => $list['total']];
-				} catch (\Throwable $e) {
+				} catch (Throwable $e) {
 					// ContactCard name space is not supported fail silently
 				}
 
