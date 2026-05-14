@@ -395,7 +395,7 @@ class CoreService {
 							$collection->setSid($sid);
 							$collection->setCcid($entry['ccid']);
 							$collection->setUuid(\OCA\DAVC\Utile\UUID::v4());
-							$collection->setLabel('JMAP: ' . ($entry['label'] ?? 'Unknown'));
+							$collection->setLabel('DavC: ' . ($entry['label'] ?? 'Unknown'));
 							$collection->setColor($entry['color'] ?? '#0055aa');
 							$collection->setVisible(true);
 							$id = $localStore->collectionCreate($collection);
@@ -430,7 +430,7 @@ class CoreService {
 							$collection->setSid($sid);
 							$collection->setCcid($entry['ccid']);
 							$collection->setUuid(\OCA\DAVC\Utile\UUID::v4());
-							$collection->setLabel('JMAP: ' . ($entry['label'] ?? 'Unknown'));
+							$collection->setLabel('DavC: ' . ($entry['label'] ?? 'Unknown'));
 							$collection->setColor($entry['color'] ?? '#0055aa');
 							$collection->setVisible(true);
 							$id = $localStore->collectionCreate($collection);

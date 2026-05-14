@@ -13,3 +13,7 @@ Users can add a new connection from the connected accounts settings page and pro
 ![DAV Connector configuration screen](docs/images/service-configuration.png)
 
 ![DAV Connector connected service screen](docs/images/service-connected.png)
+
+![DAV Connector connected calendar](docs/images/calendars-connected.png)
+
+![DAV Connector connected addressbook](docs/images/contacts-connected.png)
