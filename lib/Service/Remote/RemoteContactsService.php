@@ -73,6 +73,9 @@ class RemoteContactsService {
 
 		$this->dataStore = $dataStore;
 
+		// authenticate addressbook home
+		$this->dataStore->options($this->dataStore->getAddressbookHome());
+
 	}
 
 /**

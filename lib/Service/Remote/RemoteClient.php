@@ -171,12 +171,18 @@ class RemoteClient {
 		return $this->parseMultistatusProperties($response);
 	}
 
+	public function options(?string $path = null): IResponse {
+		$url = $this->constructUrl($path ?? $this->locationPath ?? '/');
+
+		return $this->getClient()->request('OPTIONS', $url, $this->buildOptionsRequestOptions());
+	}
+
 	public function discover(): array {
 		$url = $this->constructUrl($this->locationPath);
 		$this->capabilities['endpoint'] = $url;
 
 		try {
-			$optionsResponse = $this->getClient()->request('OPTIONS', $url, $this->buildOptionsRequestOptions());
+			$optionsResponse = $this->options($url);
 			$discoveryProperties = $this->propFind($url, 0, [
 				self::DAV_USER_PRINCIPAL => null,
 			]);
@@ -242,7 +248,9 @@ class RemoteClient {
 			$this->locationPort,
 		);
 		$host = rtrim($host, '/') . '/';
-		$path = rtrim($path, '/');
+		if ($path === '') {
+			$path = '/';
+		}
 
 		$uri = \GuzzleHttp\Psr7\UriResolver::resolve(
 			\GuzzleHttp\Psr7\Utils::uriFor($host),

@@ -97,6 +97,9 @@ class RemoteEventsService {
 
 		$this->dataStore = $dataStore;
 
+		// authenticate calendar home
+		$this->dataStore->options($this->dataStore->getCalendarHome());
+
 	}
 
 	/**
