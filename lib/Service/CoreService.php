@@ -268,7 +268,7 @@ class CoreService {
 		// create remote store client
 		$remoteStore = $this->remoteFactory->freshClient($service);
 		// retrieve collections for contacts module
-		if ($this->ConfigurationService->isContactsAppAvailable() && $remoteStore->sessionCapable('contacts')) {
+		if ($this->ConfigurationService->isContactsAppAvailable() && $remoteStore->getAddressbookHome() !== null) {
 			try {
 				$remoteContactsService = $this->remoteFactory->contactsService($remoteStore);
 				$collections = $remoteContactsService->collectionList();
@@ -292,27 +292,20 @@ class CoreService {
 			}
 		}
 		// retrieve collections for events module
-		if ($this->ConfigurationService->isCalendarAppAvailable() && $remoteStore->sessionCapable('calendars')) {
+		if ($this->ConfigurationService->isCalendarAppAvailable() && $remoteStore->getCalendarHome() !== null) {
+			$data['EventsSupported'] = true;
+			$data['EventsCollections'] = [];
+
 			try {
 				$remoteEventsService = $this->remoteFactory->eventsService($remoteStore);
 				$collections = $remoteEventsService->collectionList();
-				$data['EventsSupported'] = true;
 				$data['EventsCollections'] = array_map(function ($collection) {
 					return ['id' => $collection->Id, 'label' => 'Personal - ' . $collection->Label];
 				}, $collections);
 			} catch (Throwable $e) {
-				// AddressBook name space is not supported fail silently
-			}
-			// if AddressBook name space is not supported see if Contacts name space works
-			if (count($data['EventsCollections']) === 0) {
-				try {
-					$list = $remoteEventsService->entityList('', 'B');
-					$data['EventsSupported'] = true;
-					$data['EventsCollections'][] = ['id' => 'Default', 'label' => 'Personal - Calendar', 'count' => $list['total']];
-				} catch (Throwable $e) {
-					// ContactCard name space is not supported fail silently
-				}
-
+				$data['EventsSupported'] = false;
+				$data['EventsCollections'] = [];
+				$this->logger->error('Failed to retrieve remote events collections:', ['app' => 'davc', 'exception' => $e]);
 			}
 		}
 		// return response

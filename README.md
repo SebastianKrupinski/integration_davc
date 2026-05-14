@@ -11,3 +11,5 @@ Connected resources can be accessed directly from Nextcloud for reading and writ
 Users can add a new connection from the connected accounts settings page and provide the DAV service details manually when needed.
 
 ![DAV Connector configuration screen](docs/images/service-configuration.png)
+
+![DAV Connector connected service screen](docs/images/service-connected.png)

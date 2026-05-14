@@ -52,8 +52,8 @@ class RemoteFactory {
 		// This is does to short circuit the discovery process and avoid 
 		// unnecessary network calls when capabilities are already known from previous discovery
 		$client->setPrincipalUrl($service->getPrincipalUrl());
-		$client->setCalendarHomeSet($service->getCalendarsUrl());
-		$client->setAddressbookHomeSet($service->getAddressbooksUrl());
+		$client->setCalendarHome($service->getCalendarsUrl());
+		$client->setAddressbookHome($service->getAddressbooksUrl());
 
 		return $client;
 	}

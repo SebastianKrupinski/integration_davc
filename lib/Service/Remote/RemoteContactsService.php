@@ -24,6 +24,7 @@ use JmapClient\Responses\Contacts\AddressBookParameters as AddressBookParameters
 use JmapClient\Responses\Contacts\ContactParameters as ContactParametersResponse;
 use JmapClient\Responses\ResponseException;
 use OCA\DAVC\Exceptions\JmapUnknownMethod;
+use OCA\DAVC\Models\Contacts\Collection;
 use OCA\DAVC\Objects\BaseStringCollection;
 use OCA\DAVC\Objects\Contact\ContactCollectionObject;
 use OCA\DAVC\Objects\Contact\ContactObject as ContactObject;
@@ -38,14 +39,25 @@ use OCA\DAVC\Store\Remote\Sort\ContactSort;
 
 class RemoteContactsService {
 	protected RemoteClient $dataStore;
-	protected string $dataAccount;
 
-	protected ?string $resourceNamespace = null;
-	protected ?string $resourceCollectionLabel = null;
-	protected ?string $resourceEntityLabel = null;
-
-	protected array $collectionPropertiesDefault = [];
-	protected array $collectionPropertiesBasic = [];
+	protected array $collectionPropertiesDefault = [
+		RemoteClient::DAV_RESOURCE_TYPE,
+		RemoteClient::DAV_DISPLAYNAME,
+		RemoteClient::CARDDAV_ADDRESSBOOK_DESCRIPTION,
+		RemoteClient::CARDDAV_SUPPORTED_ADDRESS_DATA,
+		RemoteClient::CARDDAV_SUPPORTED_COLLATION_SET,
+		RemoteClient::CARDDAV_MAX_RESOURCE_SIZE,
+		RemoteClient::DAV_OWNER,
+		RemoteClient::DAV_ACL,
+		RemoteClient::CALENDARSERVER_GETCTAG,
+		RemoteClient::SABREDAV_SYNC_TOKEN,
+	];
+	protected array $collectionPropertiesBasic = [
+		RemoteClient::DAV_RESOURCE_TYPE,
+		RemoteClient::DAV_DISPLAYNAME,
+		RemoteClient::CALENDARSERVER_GETCTAG,
+		RemoteClient::SABREDAV_SYNC_TOKEN,
+	];
 	protected array $entityPropertiesDefault = [];
 	protected array $entityPropertiesBasic = [
 		'id', 'addressbookId', 'uid'
@@ -55,7 +67,7 @@ class RemoteContactsService {
 	}
 
 	public function initialize(RemoteClient $dataStore) {
-		if ($dataStore->getAddressbookHomeSet() === null) {
+		if ($dataStore->getAddressbookHome() === null) {
 			throw new RuntimeException('Remote addressbook home set is not configured.');
 		}
 
@@ -63,45 +75,36 @@ class RemoteContactsService {
 
 	}
 
-	/**
+/**
 	 * list of collections in remote storage
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param string|null $location Id of parent collection
-	 * @param string|null $granularity Amount of detail to return
-	 * @param int|null $depth Depth of sub collections to return
-	 *
-	 * @return array<string,ContactCollectionObject>
+	 * @return array<string,Collection>
 	 */
-	public function collectionList(?string $location = null, ?string $granularity = null, ?int $depth = null): array {
-		// construct request
-		$r0 = new AddressBookGet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		// set target to query request
-		if ($location !== null) {
-			$r0->target($location);
-		}
+	public function collectionList(string $granularity = 'basic'): array {
 		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
-			}
-		}
-		// convert jmap objects to collection objects
+		$data = $this->dataStore->propFind(
+			$this->dataStore->getAddressbookHome(),
+			1,
+			$granularity === 'basic' ? $this->collectionPropertiesBasic : $this->collectionPropertiesDefault
+		);		
+
+		// convert dav properties to collection objects
 		$list = [];
-		foreach ($response->objects() as $so) {
-			if (!$so instanceof AddressBookParametersResponse) {
+		foreach ($data as $id => $so) {
+			// extract only successful properties
+			$properties = $so[200] ?? [];
+			// validate addressbook collection
+			if (!isset($properties[RemoteClient::DAV_RESOURCE_TYPE])) {
 				continue;
 			}
-			$to = $this->toContactCollection($so);
-			$to->Signature = $response->state();
-			$list[] = $to;
+			if (!in_array(RemoteClient::CARDDAV_ADDRESSBOOK_TYPE, $properties[RemoteClient::DAV_RESOURCE_TYPE]->getValue(), true)) {
+				continue;
+			}
+
+			$list[] = $this->toCollection($id, $properties);
+			
 		}
 		// return collection of collections
 		return $list;
@@ -112,147 +115,21 @@ class RemoteContactsService {
 	 *
 	 * @since Release 1.0.0
 	 */
-	public function collectionFetch(string $identifier): ?ContactCollectionObject {
-		// construct request
-		$r0 = new AddressBookGet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		$r0->target($identifier);
-		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
-			}
-		}
-		// convert jmap object to collection object
-		$so = $response->object(0);
-		$to = null;
-		if ($so instanceof AddressBookParametersResponse) {
-			$to = $this->toContactCollection($so);
-			$to->Signature = $response->state();
-		}
-		return $to;
-	}
+	public function collectionFetch(string $identifier): ?Collection {
+		$data = $this->dataStore->propFind($identifier, 0, $this->collectionPropertiesDefault);
 
-	/**
-	 * create collection in remote storage
-	 *
-	 * @since Release 1.0.0
-	 */
-	public function collectionCreate(ContactCollectionObject $so): ?string {
-		// convert entity
-		$to = $this->fromContactCollection($so);
-		$id = uniqid();
-		// construct request
-		$r0 = new AddressBookSet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		$r0->create($id, $to);
-		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
+		foreach ($data as $id => $so) {
+			$properties = $so[200] ?? [];
+			if (!isset($properties[RemoteClient::DAV_RESOURCE_TYPE])) {
+				continue;
 			}
-		}
-		// check for success
-		$result = $response->createSuccess($id);
-		if ($result !== null) {
-			return (string)$result['id'];
-		}
-		// check for failure
-		$result = $response->createFailure($id);
-		if ($result !== null) {
-			$type = $result['type'] ?? 'unknownError';
-			$description = $result['description'] ?? 'An unknown error occurred during collection creation.';
-			throw new Exception("$type: $description", 1);
-		}
-		// return null if creation failed without failure reason
-		return null;
-	}
+			if (!in_array(RemoteClient::CARDDAV_ADDRESSBOOK_TYPE, $properties[RemoteClient::DAV_RESOURCE_TYPE]->getValue(), true)) {
+				continue;
+			}
 
-	/**
-	 * modify collection in remote storage
-	 *
-	 * @since Release 1.0.0
-	 */
-	public function collectionModify(string $identifier, ContactCollectionObject $so): ?string {
-		// convert entity
-		$to = $this->fromContactCollection($so);
-		// construct request
-		$r0 = new AddressBookSet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		$r0->update($identifier, $to);
-		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
-			}
+			return $this->toCollection($id, $properties);
 		}
-		// check for success
-		$result = $response->updateSuccess($identifier);
-		if ($result !== null) {
-			return (string)$result['id'];
-		}
-		// check for failure
-		$result = $response->updateFailure($identifier);
-		if ($result !== null) {
-			$type = $result['type'] ?? 'unknownError';
-			$description = $result['description'] ?? 'An unknown error occurred during collection modification.';
-			throw new Exception("$type: $description", 1);
-		}
-		// return null if modification failed without failure reason
-		return null;
-	}
 
-	/**
-	 * delete collection in remote storage
-	 *
-	 * @since Release 1.0.0
-	 *
-	 */
-	public function collectionDelete(string $identifier): ?string {
-		// construct request
-		$r0 = new AddressBookSet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		$r0->delete($identifier);
-		$r0->deleteContents(true);
-		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
-			}
-		}
-		// check for success
-		$result = $response->deleteSuccess($identifier);
-		if ($result !== null) {
-			return (string)$result['id'];
-		}
-		// check for failure
-		$result = $response->deleteFailure($identifier);
-		if ($result !== null) {
-			$type = $result['type'] ?? 'unknownError';
-			$description = $result['description'] ?? 'An unknown error occurred during collection deletion.';
-			throw new Exception("$type: $description", 1);
-		}
-		// return null if deletion failed without failure reason
 		return null;
 	}
 
@@ -710,6 +587,21 @@ class RemoteContactsService {
 		$response = $bundle->response(0);
 		// return collection information
 		return array_key_exists($identifier, $response->updated()) ? (string)$identifier : '';
+	}
+
+	/**
+	 * convert dav collection to contact collection
+	 *
+	 * @since Release 1.0.0
+	 */
+	private function toCollection(string $id, array $so): Collection {
+		$to = new Collection();
+		$to->Id = $id;
+		$to->Label = $so[RemoteClient::DAV_DISPLAYNAME] ?? null;
+		$to->Description = $so[RemoteClient::CARDDAV_ADDRESSBOOK_DESCRIPTION] ?? null;
+		$to->Priority = $so[RemoteClient::APPLE_ICAL_CALENDAR_ORDER] ?? null;
+		$to->Color = $so[RemoteClient::APPLE_ICAL_CALENDAR_COLOR] ?? null;
+		return $to;
 	}
 
 	public function generateSignature(ContactObject $eo): string {

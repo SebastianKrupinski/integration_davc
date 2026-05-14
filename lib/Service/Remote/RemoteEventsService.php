@@ -31,6 +31,7 @@ use JmapClient\Responses\Calendar\EventMutationParameters as EventMutationParame
 use JmapClient\Responses\Calendar\EventParameters as EventParametersResponse;
 use JmapClient\Responses\ResponseException;
 use OCA\DAVC\Exceptions\JmapUnknownMethod;
+use OCA\DAVC\Models\Calendars\Collection;
 use OCA\DAVC\Objects\BaseStringCollection;
 use OCA\DAVC\Objects\DeltaObject;
 use OCA\DAVC\Objects\Event\EventAvailabilityTypes;
@@ -60,29 +61,37 @@ use OCA\DAVC\Store\Remote\Filters\EventFilter;
 use OCA\DAVC\Store\Remote\Sort\EventSort;
 
 class RemoteEventsService {
-	public ?DateTimeZone $SystemTimeZone = null;
-	public ?DateTimeZone $UserTimeZone = null;
 
 	protected RemoteClient $dataStore;
-	protected string $dataAccount;
 
-	protected ?string $resourceNamespace = null;
-	protected ?string $resourceCollectionLabel = null;
-	protected ?string $resourceEntityLabel = null;
-
-	protected array $collectionPropertiesDefault = [];
-	protected array $collectionPropertiesBasic = [];
+	protected array $collectionPropertiesDefault = [
+		RemoteClient::DAV_RESOURCE_TYPE,
+		RemoteClient::DAV_DISPLAYNAME,
+		RemoteClient::CALDAV_CALENDAR_DESCRIPTION,
+		RemoteClient::CALDAV_SUPPORTED_CALENDAR_COMPONENT_SET,
+		RemoteClient::APPLE_ICAL_CALENDAR_COLOR,
+		RemoteClient::APPLE_ICAL_CALENDAR_ORDER,
+		RemoteClient::DAV_OWNER,
+		RemoteClient::DAV_ACL,
+		RemoteClient::CALENDARSERVER_GETCTAG,
+		RemoteClient::SABREDAV_SYNC_TOKEN,
+	];
+	protected array $collectionPropertiesBasic = [
+		RemoteClient::DAV_RESOURCE_TYPE,
+		RemoteClient::DAV_DISPLAYNAME,
+		RemoteClient::CALENDARSERVER_GETCTAG,
+		RemoteClient::SABREDAV_SYNC_TOKEN,
+	];
 	protected array $entityPropertiesDefault = [];
 	protected array $entityPropertiesBasic = [
 		'id', 'calendarIds', 'uid', 'created', 'updated'
 	];
 
 	public function __construct() {
-
 	}
 
 	public function initialize(RemoteClient $dataStore) {
-		if ($dataStore->getCalendarHomeSet() === null) {
+		if ($dataStore->getCalendarHome() === null) {
 			throw new RuntimeException('Remote calendar home set is not configured.');
 		}
 
@@ -95,40 +104,31 @@ class RemoteEventsService {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param string|null $location Id of parent collection
-	 * @param string|null $granularity Amount of detail to return
-	 * @param int|null $depth Depth of sub collections to return
-	 *
-	 * @return array<string,EventCollectionObject>
+	 * @return array<string,Collection>
 	 */
-	public function collectionList(?string $location = null, ?string $granularity = null, ?int $depth = null): array {
-		// construct request
-		$r0 = new CalendarGet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		// define location
-		if ($location !== null) {
-			$r0->target($location);
-		}
+	public function collectionList(string $granularity = 'basic'): array {
 		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
-			}
-		}
-		// convert jmap objects to collection objects
+		$data = $this->dataStore->propFind(
+			$this->dataStore->getCalendarHome(),
+			1,
+			$granularity === 'basic' ? $this->collectionPropertiesBasic : $this->collectionPropertiesDefault
+		);		
+
+		// convert dav properties to collection objects
 		$list = [];
-		foreach ($response->objects() as $id => $so) {
-			if (!$so instanceof CalendarParametersResponse) {
+		foreach ($data as $id => $so) {
+			// extract only successful properties
+			$properties = $so[200] ?? [];
+			// validate calendar collection
+			if (!isset($properties[RemoteClient::DAV_RESOURCE_TYPE])) {
 				continue;
 			}
-			$to = $this->toEventCollection($so);
-			$to->Signature = $response->state();
-			$list[$id] = $to;
+			if (!in_array(RemoteClient::CALDAV_CALENDAR_TYPE, $properties[RemoteClient::DAV_RESOURCE_TYPE]->getValue(), true)) {
+				continue;
+			}
+
+			$list[] = $this->toCollection($id, $properties);
+			
 		}
 		// return collection of collections
 		return $list;
@@ -139,148 +139,21 @@ class RemoteEventsService {
 	 *
 	 * @since Release 1.0.0
 	 */
-	public function collectionFetch(string $identifier): ?EventCollectionObject {
-		// construct request
-		$r0 = new CalendarGet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		$r0->target($identifier);
-		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
-			}
-		}
-		// convert jmap object to collection object
-		$so = $response->object(0);
-		$to = null;
-		if ($so instanceof CalendarParametersResponse) {
-			$to = $this->toEventCollection($so);
-			$to->Signature = $response->state();
-		}
-		return $to;
-	}
+	public function collectionFetch(string $identifier): ?Collection {
+		$data = $this->dataStore->propFind($identifier, 0, $this->collectionPropertiesDefault);
 
-	/**
-	 * create collection in remote storage
-	 *
-	 * @since Release 1.0.0
-	 */
-	public function collectionCreate(EventCollectionObject $so): ?string {
-		// convert entity
-		$to = $this->fromEventCollection($so);
-		$id = uniqid();
-		// construct request
-		$r0 = new CalendarSet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		$r0->create($id, $to);
-		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
+		foreach ($data as $id => $so) {
+			$properties = $so[200] ?? [];
+			if (!isset($properties[RemoteClient::DAV_RESOURCE_TYPE])) {
+				continue;
 			}
-		}
-		// check for success
-		$result = $response->createSuccess($id);
-		if ($result !== null) {
-			return (string)$result['id'];
-		}
-		// check for failure
-		$result = $response->createFailure($id);
-		if ($result !== null) {
-			$type = $result['type'] ?? 'unknownError';
-			$description = $result['description'] ?? 'An unknown error occurred during collection creation.';
-			throw new Exception("$type: $description", 1);
-		}
-		// return null if creation failed without failure reason
-		return null;
-	}
+			if (!in_array(RemoteClient::CALDAV_CALENDAR_TYPE, $properties[RemoteClient::DAV_RESOURCE_TYPE]->getValue(), true)) {
+				continue;
+			}
 
-	/**
-	 * modify collection in remote storage
-	 *
-	 * @since Release 1.0.0
-	 *
-	 */
-	public function collectionModify(string $identifier, EventCollectionObject $so): ?string {
-		// convert entity
-		$to = $this->fromEventCollection($so);
-		// construct request
-		$r0 = new CalendarSet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		$r0->update($identifier, $to);
-		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
-			}
+			return $this->toCollection($id, $properties);
 		}
-		// check for success
-		$result = $response->updateSuccess($identifier);
-		if ($result !== null) {
-			return (string)$result['id'];
-		}
-		// check for failure
-		$result = $response->updateFailure($identifier);
-		if ($result !== null) {
-			$type = $result['type'] ?? 'unknownError';
-			$description = $result['description'] ?? 'An unknown error occurred during collection modification.';
-			throw new Exception("$type: $description", 1);
-		}
-		// return null if modification failed without failure reason
-		return null;
-	}
 
-	/**
-	 * delete collection in remote storage
-	 *
-	 * @since Release 1.0.0
-	 *
-	 */
-	public function collectionDelete(string $identifier): ?string {
-		// construct request
-		$r0 = new CalendarSet($this->dataAccount, null, $this->resourceNamespace, $this->resourceCollectionLabel);
-		$r0->delete($identifier);
-		$r0->deleteContents(true);
-		// transceive
-		$bundle = $this->dataStore->perform([$r0]);
-		// extract response
-		$response = $bundle->response(0);
-		// check for command error
-		if ($response instanceof ResponseException) {
-			if ($response->type() === 'unknownMethod') {
-				throw new JmapUnknownMethod($response->description(), 1);
-			} else {
-				throw new Exception($response->type() . ': ' . $response->description(), 1);
-			}
-		}
-		// check for success
-		$result = $response->deleteSuccess($identifier);
-		if ($result !== null) {
-			return (string)$result['id'];
-		}
-		// check for failure
-		$result = $response->deleteFailure($identifier);
-		if ($result !== null) {
-			$type = $result['type'] ?? 'unknownError';
-			$description = $result['description'] ?? 'An unknown error occurred during collection deletion.';
-			throw new Exception("$type: $description", 1);
-		}
-		// return null if deletion failed without failure reason
 		return null;
 	}
 
@@ -729,6 +602,21 @@ class RemoteEventsService {
 		$response = $bundle->response(0);
 		// return collection information
 		return array_key_exists($identifier, $response->updated()) ? (string)$identifier : '';
+	}
+
+	/**
+	 * convert dav collection to event collection
+	 *
+	 * @since Release 1.0.0
+	 */
+	private function toCollection(string $id, array $so): Collection {
+		$to = new Collection();
+		$to->Id = $id;
+		$to->Label = $so[RemoteClient::DAV_DISPLAYNAME] ?? null;
+		$to->Description = $so[RemoteClient::CALDAV_CALENDAR_DESCRIPTION] ?? null;
+		$to->Priority = $so[RemoteClient::APPLE_ICAL_CALENDAR_ORDER] ?? null;
+		$to->Color = $so[RemoteClient::APPLE_ICAL_CALENDAR_COLOR] ?? null;
+		return $to;
 	}
 
 	/**
