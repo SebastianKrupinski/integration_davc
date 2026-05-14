@@ -28,11 +28,11 @@ class Version0010Date20260501000005 extends SimpleMigrationStep {
 		$schema = $schemaClosure();
 
 		// check if the table already exists
-		if ($schema->hasTable('davc_entities_calendar')) {
+		if ($schema->hasTable('davc_entities_calendars')) {
 			return;
 		}
 		// create the table
-		$table = $schema->createTable('davc_entities_calendar');
+		$table = $schema->createTable('davc_entities_calendars');
 		// id
 		$table->addColumn('id', Types::BIGINT, [
 			'autoincrement' => true,

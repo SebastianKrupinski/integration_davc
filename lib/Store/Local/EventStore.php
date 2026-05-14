@@ -22,7 +22,7 @@ class EventStore extends BaseStore {
 		$this->_CollectionTable = 'davc_collections';
 		$this->_CollectionIdentifier = 'EC';
 		$this->_CollectionClass = CollectionEntity::class;
-		$this->_EntityTable = 'davc_entities_events';
+		$this->_EntityTable = 'davc_entities_calendars';
 		$this->_EntityIdentifier = 'EE';
 		$this->_EntityClass = EventEntity::class;
 		$this->_ChronicleTable = 'davc_chronicle';
