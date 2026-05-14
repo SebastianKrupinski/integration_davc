@@ -144,7 +144,7 @@ class RemoteClient {
 	 * @param array<int|string, string|null> $properties The properties to request.
 	 * @return array The response properties.
 	 */
-	public function propFind(string $uri, int $depth, array $properties): array {
+	public function propFind(string $path, int $depth, array $properties): array {
 		$normalizedProperties = [];
 		foreach ($properties as $name => $value) {
 			if (is_int($name)) {
@@ -163,14 +163,16 @@ class RemoteClient {
 			['Depth' => (string)$depth],
 			['body' => $request],
 		);
+
+		$url = $this->constructUrl($path);
 		
-		$response = $this->getClient()->request('PROPFIND', $uri, $options);
+		$response = $this->getClient()->request('PROPFIND', $url, $options);
 
 		return $this->parseMultistatusProperties($response);
 	}
 
 	public function discover(): array {
-		$url = $this->buildUrl();
+		$url = $this->constructUrl($this->locationPath);
 		$this->capabilities['endpoint'] = $url;
 
 		try {
@@ -232,7 +234,7 @@ class RemoteClient {
 		return $this->client;
 	}
 
-	private function buildUrl(): string {
+	private function constructUrl(string $path = '/'): string {
 		$host = sprintf(
 			'%s://%s:%d',
 			$this->locationProtocol,
@@ -240,7 +242,7 @@ class RemoteClient {
 			$this->locationPort,
 		);
 		$host = rtrim($host, '/') . '/';
-		$path = $this->locationPath ?? '/';
+		$path = rtrim($path, '/');
 
 		$uri = \GuzzleHttp\Psr7\UriResolver::resolve(
 			\GuzzleHttp\Psr7\Utils::uriFor($host),
@@ -307,16 +309,6 @@ class RemoteClient {
 		return $result;
 	}
 
-	private function resolveUrl(string $path, string $baseUrl): string {
-		$baseUrl = rtrim($baseUrl, '/') . '/';
-		$uri = \GuzzleHttp\Psr7\UriResolver::resolve(
-			\GuzzleHttp\Psr7\Utils::uriFor($baseUrl),
-			\GuzzleHttp\Psr7\Utils::uriFor($path),
-		);
-
-		return (string)$uri;
-	}
-
 	private function extractHrefProperty(array $properties, string $propertyName, string $baseUrl): ?string {
 		foreach ($properties as $responseProperties) {
 			if (!isset($responseProperties[200][$propertyName])) {
@@ -328,7 +320,7 @@ class RemoteClient {
 				continue;
 			}
 
-			return $this->resolveUrl((string)$propertyValue[0]['value'], $baseUrl);
+			return (string)$propertyValue[0]['value'];
 		}
 
 		return null;
