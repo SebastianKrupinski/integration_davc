@@ -73,11 +73,9 @@ class UserConfigurationController extends Controller {
 		if ($this->userId === null) {
 			return new DataResponse([], Http::STATUS_BAD_REQUEST);
 		}
-		// assign options
-		$options = ['VALIDATE'];
 		// execute command
 		try {
-			$rs = $this->CoreService->connectAccount($this->userId, $service, $options);
+			$rs = $this->CoreService->connectAccount($this->userId, $service);
 			return new DataResponse('success');
 		} catch (\Throwable $th) {
 			return new DataResponse($th->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);

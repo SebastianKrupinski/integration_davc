@@ -101,11 +101,12 @@ class CoreService {
 	 *
 	 * @param string $uid user id
 	 * @param array $configuration service connection data
-	 * @param array $flags
+	 * @param array $options
 	 *
 	 * @return bool
 	 */
-	public function connectAccount(string $uid, array $configuration, array $flags = []): bool {
+	public function connectAccount(string $uid, array $configuration, array $options = []): bool {
+		$forceAutoDiscovery = in_array('AUTO_DISCOVERY', $options, true);
 
 		// validate service configuration
 		if (!empty($configuration['location_host']) && !\OCA\DAVC\Utile\Validator::host($configuration['location_host'])) {
@@ -133,9 +134,12 @@ class CoreService {
 		} else {
 			return false;
 		}
-		// if host was not provided, attempt to locate it
-		if (empty($configuration['location_host'])) {
-			$configuration = $this->locateAccount($configuration);
+		// if host was not provided, or auto-discovery was explicitly requested, attempt to locate it
+		if ($forceAutoDiscovery || empty($configuration['location_host'])) {
+			$configuration = $this->locateAccount($configuration) ?? [];
+			if (empty($configuration['location_host'])) {
+				return false;
+			}
 		}
 
 		// construct service entity
