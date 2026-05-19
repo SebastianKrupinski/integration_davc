@@ -44,7 +44,7 @@ class Version0010Date20260501000003 extends SimpleMigrationStep {
 			'notnull' => true
 		]);
 		// service id
-		$table->addColumn('sid', Types::INTEGER, [
+		$table->addColumn('sid', Types::BIGINT, [
 			'notnull' => true
 		]);
 		// type
@@ -73,7 +73,7 @@ class Version0010Date20260501000003 extends SimpleMigrationStep {
 			'notnull' => false
 		]);
 		// visible
-		$table->addColumn('visible', Types::INTEGER, [
+		$table->addColumn('visible', Types::BOOLEAN, [
 			'notnull' => true
 		]);
 		// hisn

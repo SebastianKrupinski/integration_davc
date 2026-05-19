@@ -19,7 +19,15 @@ use Sabre\Xml\ParseException;
 
 class RemoteClient {
 
+	
+    public const DAV_PROFIND = '{DAV:}propfind';
+    public const DAV_PROPERTY = '{DAV:}prop';
+	public const DAV_MULTISTATUS = '{DAV:}multistatus';
+	public const DAV_SYNC_COLLECTION = '{DAV:}sync-collection';
+	public const DAV_SYNC_LEVEL = '{DAV:}sync-level';
+	public const DAV_SYNC_TOKEN = '{DAV:}sync-token';
 	public const DAV_HREF = '{DAV:}href';
+	public const DAV_ETAG = '{DAV:}getetag';
 	public const DAV_USER_PRINCIPAL = '{DAV:}current-user-principal';
 	public const DAV_PRINCIPAL_URL = '{DAV:}principal-URL';
 	public const DAV_RESOURCE_TYPE = '{DAV:}resourcetype';
@@ -29,10 +37,14 @@ class RemoteClient {
 	public const CALDAV_CALENDAR_TYPE = '{urn:ietf:params:xml:ns:caldav}calendar';
 	public const CALDAV_CALENDAR_HOME_SET = '{urn:ietf:params:xml:ns:caldav}calendar-home-set';
 	public const CALDAV_CALENDAR_DESCRIPTION = '{urn:ietf:params:xml:ns:caldav}calendar-description';
+	public const CALDAV_CALENDAR_DATA = '{urn:ietf:params:xml:ns:caldav}calendar-data';
+	public const CALDAV_CALENDAR_MULTIGET = '{urn:ietf:params:xml:ns:caldav}calendar-multiget';
 	public const CALDAV_SUPPORTED_CALENDAR_COMPONENT_SET = '{urn:ietf:params:xml:ns:caldav}supported-calendar-component-set';
 	public const CARDDAV_ADDRESSBOOK_TYPE = '{urn:ietf:params:xml:ns:carddav}addressbook';
 	public const CARDDAV_ADDRESSBOOK_HOME_SET = '{urn:ietf:params:xml:ns:carddav}addressbook-home-set';
 	public const CARDDAV_ADDRESSBOOK_DESCRIPTION = '{urn:ietf:params:xml:ns:carddav}addressbook-description';
+	public const CARDDAV_ADDRESS_DATA = '{urn:ietf:params:xml:ns:carddav}address-data';
+	public const CARDDAV_ADDRESSBOOK_MULTIGET = '{urn:ietf:params:xml:ns:carddav}addressbook-multiget';
 	public const CARDDAV_SUPPORTED_ADDRESS_DATA = '{urn:ietf:params:xml:ns:carddav}supported-address-data';
 	public const CARDDAV_SUPPORTED_COLLATION_SET = '{urn:ietf:params:xml:ns:carddav}supported-collation-set';
 	public const CARDDAV_MAX_RESOURCE_SIZE = '{urn:ietf:params:xml:ns:carddav}max-resource-size';
@@ -40,11 +52,6 @@ class RemoteClient {
 	public const APPLE_ICAL_CALENDAR_ORDER = '{http://apple.com/ns/ical/}calendar-order';
 	public const CALENDARSERVER_GETCTAG = '{http://calendarserver.org/ns/}getctag';
 	public const SABREDAV_SYNC_TOKEN = '{http://sabredav.org/ns}sync-token';
-
-    private const DAV_PROFIND = '{DAV:}propfind';
-    private const DAV_PROPFIND_ALL = '{DAV:}allprop';
-    private const DAV_PROPFIND_ONE = '{DAV:}prop';
-    private const DAV_MULTISTATUS = '{DAV:}multistatus';
 
 	private ?IClient $client = null;
 
@@ -136,6 +143,13 @@ class RemoteClient {
 		$this->capabilities['addressbookHomeSet'] = $addressbookHomeSet;
 	}
 
+	public function capabilities(string|null $capability = null): array {
+		if ($capability !== null) {
+			return $this->capabilities[$capability] ?? [];
+		}
+		return $this->capabilities;
+	}
+
 	/**
 	 * Perform a PROPFIND request.
 	 *
@@ -156,7 +170,7 @@ class RemoteClient {
 		}
 
 		$request = (new SabreXmlService())->write(self::DAV_PROFIND, [
-			self::DAV_PROPFIND_ONE => $normalizedProperties,
+			self::DAV_PROPERTY => $normalizedProperties,
 		]);
 		
 		$options = $this->buildOptionsRequestOptions(
@@ -171,10 +185,81 @@ class RemoteClient {
 		return $this->parseMultistatusProperties($response);
 	}
 
+	/**
+	 * Perform a REPORT request.
+	 *
+	 * @param string $path The URI to perform the REPORT request on.
+	 * @param string $rootElement The root report XML element.
+	 * @param int $depth The depth of the REPORT request.
+	 * @param array<int, array{name: string, value?: mixed, attributes?: array<string, string>}> $elements The report body elements.
+	 * @return array The response properties.
+	 */
+	public function report(string $path, string $rootElement, int $depth, array $elements): array {
+		$request = (new SabreXmlService())->write($rootElement, $elements);
+
+		$options = $this->buildOptionsRequestOptions(
+			['Depth' => (string)$depth],
+			['body' => $request],
+		);
+
+		$url = $this->constructUrl($path);
+
+		$response = $this->getClient()->request('REPORT', $url, $options);
+
+		return $this->parseMultistatusProperties($response);
+	}
+
+	/**
+	 * @param array<int, string> $hrefs
+	 * @return array<string, array{href: string, status: int|null, etag: mixed, payload: mixed}>
+	 */
+	public function multiGet(string $collectionPath, array $hrefs, string $reportType, string $payloadProperty): array {
+		if ($hrefs === []) {
+			return [];
+		}
+
+		$elements = [
+			[
+				'name' => self::DAV_PROPERTY,
+				'value' => [
+					self::DAV_ETAG => null,
+					$payloadProperty => null,
+				],
+			],
+		];
+
+		foreach ($hrefs as $href) {
+			$elements[] = [
+				'name' => self::DAV_HREF,
+				'value' => $href,
+			];
+		}
+
+		$responses = $this->report($collectionPath, $reportType, 1, $elements);
+		$result = [];
+
+		foreach ($responses as $href => $responseProperties) {
+			$status = $this->extractResponseStatusCode($responseProperties);
+			$properties = $status !== null ? ($responseProperties[$status] ?? []) : [];
+			$result[$href] = [
+				'href' => $href,
+				'status' => $status,
+				'etag' => $this->normalizePropertyValue($properties[self::DAV_ETAG] ?? null),
+				'payload' => $this->normalizePropertyValue($properties[$payloadProperty] ?? null),
+			];
+		}
+
+		return $result;
+	}
+
 	public function options(?string $path = null): IResponse {
 		$url = $this->constructUrl($path ?? $this->locationPath ?? '/');
 
-		return $this->getClient()->request('OPTIONS', $url, $this->buildOptionsRequestOptions());
+		$response = $this->getClient()->request('OPTIONS', $url, $this->buildOptionsRequestOptions());
+		$this->capabilities['dav'] = $this->parseHeaderList($response->getHeader('DAV'));
+		$this->capabilities['allow'] = $this->parseHeaderList($response->getHeader('Allow'));
+
+		return $response;
 	}
 
 	public function discover(): array {
@@ -182,13 +267,12 @@ class RemoteClient {
 		$this->capabilities['endpoint'] = $url;
 
 		try {
-			$optionsResponse = $this->options($url);
+			$this->options($url);
+			
 			$discoveryProperties = $this->propFind($url, 0, [
 				self::DAV_USER_PRINCIPAL => null,
 			]);
 
-			$this->capabilities['dav'] = $this->parseHeaderList($optionsResponse->getHeader('DAV'));
-			$this->capabilities['allow'] = $this->parseHeaderList($optionsResponse->getHeader('Allow'));
 			$this->capabilities['principalUrl'] = $this->extractHrefProperty(
 				$discoveryProperties,
 				self::DAV_USER_PRINCIPAL,
@@ -315,6 +399,35 @@ class RemoteClient {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $responseProperties
+	 */
+	private function extractResponseStatusCode(array $responseProperties): ?int {
+		if (isset($responseProperties[200])) {
+			return 200;
+		}
+
+		foreach (array_keys($responseProperties) as $status) {
+			if (is_int($status)) {
+				return $status;
+			}
+		}
+
+		return null;
+	}
+
+	private function normalizePropertyValue(mixed $value): mixed {
+		if (is_scalar($value) || $value === null) {
+			return $value;
+		}
+
+		if (is_object($value) && method_exists($value, '__toString')) {
+			return (string)$value;
+		}
+
+		return $value;
 	}
 
 	private function extractHrefProperty(array $properties, string $propertyName, string $baseUrl): ?string {

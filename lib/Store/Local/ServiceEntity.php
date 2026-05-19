@@ -14,7 +14,7 @@ use OCP\AppFramework\Db\Entity;
 
 /**
  * @method getId(): int
- * @method getUid(): ?string
+ * @method getUid(): string
  * @method setUid(string $uid): void
  * @method getUuid(): ?string
  * @method setUuid(string $uuid): void

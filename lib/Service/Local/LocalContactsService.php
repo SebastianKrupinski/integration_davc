@@ -9,47 +9,19 @@ declare(strict_types=1);
 
 namespace OCA\DAVC\Service\Local;
 
-use DateTimeImmutable;
-use DateTimeZone;
-use OC\Files\Node\LazyUserFolder;
-use OCA\DAVC\Objects\Contact\ContactAliasObject;
-use OCA\DAVC\Objects\Contact\ContactAnniversaryObject;
-use OCA\DAVC\Objects\Contact\ContactAnniversaryTypes;
-use OCA\DAVC\Objects\Contact\ContactCollectionObject;
-use OCA\DAVC\Objects\Contact\ContactCryptoObject;
-use OCA\DAVC\Objects\Contact\ContactEmailObject;
-use OCA\DAVC\Objects\Contact\ContactNoteObject;
-use OCA\DAVC\Objects\Contact\ContactObject;
-use OCA\DAVC\Objects\Contact\ContactOrganizationObject;
-use OCA\DAVC\Objects\Contact\ContactPhoneObject;
-use OCA\DAVC\Objects\Contact\ContactPhysicalLocationObject;
-use OCA\DAVC\Objects\Contact\ContactPronounObject;
-use OCA\DAVC\Objects\Contact\ContactTagCollection;
-use OCA\DAVC\Objects\Contact\ContactTitleObject;
-use OCA\DAVC\Objects\Contact\ContactTitleTypes;
-use OCA\DAVC\Objects\OriginTypes;
+use OCA\DAVC\Models\Contacts\Collection;
+use OCA\DAVC\Models\Contacts\Entity;
+use OCA\DAVC\Models\OriginTypes;
 use OCA\DAVC\Store\Local\CollectionEntity;
 use OCA\DAVC\Store\Local\ContactEntity;
 use OCA\DAVC\Store\Local\ContactStore;
-
-use Sabre\VObject\Component\VCard;
 use Sabre\VObject\Reader;
 
 class LocalContactsService {
-	private const DATE_FORMAT_UTC = 'Ymd\THis\Z';
-	private const DATE_FORMAT_DATE_TIME = 'Ymd\THis';
-	private const DATE_FORMAT_DATE_ONLY = 'Ymd';
 	protected ContactStore $_Store;
-	protected string $UserAttachmentPath = '';
-	protected ?LazyUserFolder $_BlobStore = null;
-
-	public function __construct() {
-	}
 
 	public function initialize(ContactStore $Store) {
-
 		$this->_Store = $Store;
-
 	}
 
 	/**
@@ -57,16 +29,16 @@ class LocalContactsService {
 	 *
 	 * @param int $cid Collection ID
 	 *
-	 * @return ContactCollection|null
+	 * @return Collection|null
 	 */
-	public function collectionFetch(int $cid): ?ContactCollectionObject {
+	public function collectionFetch(int $cid): ?Collection {
 
 		// retrieve collection properties
 		$co = $this->_Store->collectionFetch($cid);
 		// evaluate if properties where retrieve
 		if ($co instanceof CollectionEntity) {
 			// construct object and return
-			return new ContactCollectionObject(
+			return new Collection(
 				(string)$co->getId(),
 				$co->getLabel(),
 				null,
@@ -82,15 +54,12 @@ class LocalContactsService {
 	/**
 	 * delete collection from local storage
 	 *
-	 * @since Release 1.0.0
-	 *
 	 * @param int $cid collection id
 	 *
 	 * @return void
 	 */
 	public function collectionDeleteById(int $cid): void {
 
-		// delete entities from data store
 		$this->_Store->entityDeleteByCollection($cid);
 		$this->_Store->collectionDeleteById($cid);
 
@@ -132,15 +101,15 @@ class LocalContactsService {
 	 *
 	 * @param int $id entity id
 	 *
-	 * @return ContactObject|null
+	 * @return Entity|null
 	 */
-	public function entityFetch(int $id): ?ContactObject {
+	public function entityFetch(int $id): ?Entity {
 
 		// retrieve entity object
 		$eo = $this->_Store->entityFetch($id);
 		// evaluate if entity was retrieved
 		if ($eo instanceof ContactEntity) {
-			return $this->fromContactEntity($eo);
+			return $this->fromStoreEntity($eo);
 		} else {
 			return null;
 		}
@@ -154,15 +123,15 @@ class LocalContactsService {
 	 * @param string $ccid correlation collection id
 	 * @param string $ceid correlation entity id
 	 *
-	 * @return ContactObject|null
+	 * @return Entity|null
 	 */
-	public function entityFetchByCorrelation(int $cid, string $ccid, string $ceid): ?ContactObject {
+	public function entityFetchByCorrelation(int $cid, string $ccid, string $ceid): ?Entity {
 
 		// retrieve entity object
 		$eo = $this->_Store->entityFetchByCorrelation($cid, $ccid, $ceid);
 		// evaluate if entity was retrieved
 		if ($eo instanceof ContactEntity) {
-			return $this->fromContactEntity($eo);
+			return $this->fromStoreEntity($eo);
 		} else {
 			return null;
 		}
@@ -175,14 +144,14 @@ class LocalContactsService {
 	 * @param string $uid user id
 	 * @param int $sid service id
 	 * @param int $cid collection id
-	 * @param ContactObject $so source object
+	 * @param Entity $so source object
 	 *
-	 * @return ContactObject Status Object - item id, item uuid, item state token / Null - failed to create
+	 * @return Entity Status Object - item id, item uuid, item state token / Null - failed to create
 	 */
-	public function entityCreate(string $uid, int $sid, int $cid, ContactObject $so): ?ContactObject {
+	public function entityCreate(string $uid, int $sid, int $cid, Entity $so): ?Entity {
 
 		// convert event object to data store entity
-		$eo = $this->toContactEntity(
+		$eo = $this->toStoreEntity(
 			$so,
 			[
 				'Uid' => $uid,
@@ -212,14 +181,14 @@ class LocalContactsService {
 	 * @param int $sid service id
 	 * @param int $cid collection id
 	 * @param int $eid entity id
-	 * @param ContactObject $so source object
+	 * @param Entity $so source object
 	 *
-	 * @return ContactObject Status Object - item id, item uuid, item state token / Null - failed to create
+	 * @return Entity Status Object - item id, item uuid, item state token / Null - failed to create
 	 */
-	public function entityModify(string $uid, int $sid, int $cid, int $eid, ContactObject $so): ?ContactObject {
+	public function entityModify(string $uid, int $sid, int $cid, int $eid, Entity $so): ?Entity {
 
 		// convert event object to data store entity
-		$eo = $this->toContactEntity(
+		$eo = $this->toStoreEntity(
 			$so,
 			[
 				'Id' => $eid,
@@ -287,742 +256,62 @@ class LocalContactsService {
 	}
 
 	/**
-	 * convert store entity to event object
-	 *
-	 * @since Release 1.0.0
+	 * convert store entity to contact object
 	 *
 	 * @param ContactEntity $so
 	 * @param array<string,mixed>
 	 *
-	 * @return ContactObject
+	 * @return Entity
 	 */
-	public function fromContactEntity(ContactEntity $so, array $additional = []): ContactObject {
+	public function fromStoreEntity(ContactEntity $so): Entity {
 
-		// prase vData
-		$vObject = Reader::read($so->getData());
-		// convert entity
-		$to = $this->toContactObject($vObject);
+		/** VCard $vo */
+		$vo = Reader::read($so->getData());
+
+		$to = new Entity();
+		$to->Origin = OriginTypes::Internal;
 		$to->ID = (string)$so->getId();
 		$to->CID = (string)$so->getCid();
 		$to->Signature = $so->getSignature();
 		$to->CCID = $so->getCcid();
 		$to->CEID = $so->getCeid();
 		$to->CESN = $so->getCesn();
-		$to->UUID = $so->getUuid();
-		// override / assign additional values
-		foreach ($additional as $label => $value) {
-			if (isset($to->$label)) {
-				$to->$label = $value;
-			}
-		}
+		$to->data = $vo;
 
 		return $to;
 	}
 
 	/**
-	 * convert event object to store entity
+	 * convert contact object to store entity
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param ContactObject $so
-	 * @param array<string,mixed>
+	 * @param Entity $so
+	 * @param array<string,mixed> $additional
 	 *
 	 * @return ContactEntity
 	 */
-	public function toContactEntity(ContactObject $so, array $additional = []): ContactEntity {
-
+	public function toStoreEntity(Entity $so, array $additional = []): ContactEntity {
 		// construct entity
 		$to = new ContactEntity();
 		// convert source object to entity
-		$to->setData($this->fromContactObject($so)->serialize());
-		$to->setUuid($so->UUID);
-		$to->setSignature($this->generateSignature($so));
+		$to->setData($so->data->serialize());
+		$to->setSignature($so->Signature);
 		$to->setCcid($so->CCID);
 		$to->setCeid($so->CEID);
 		$to->setCesn($so->CESN);
-		$to->setLabel($so->Label);
+
+		$vc = $so->data;
+
+		$to->setUuid($vc->UID->getValue());
+
 		// override / assign additional values
 		foreach ($additional as $key => $value) {
 			$method = 'set' . ucfirst($key);
 			$to->$method($value);
 		}
-
+		
 		return $to;
-	}
-
-	/**
-	 * convert vevent object to event object
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @param VCard $so
-	 *
-	 * @return ContactObject
-	 */
-	public function toContactObject(VCard $so): ContactObject {
-
-		// construct target object
-		$do = new ContactObject();
-		// Origin
-		$do->Origin = OriginTypes::Internal;
-		// universal id
-		if (isset($so->UID)) {
-			$do->UUID = trim($so->UID->getValue());
-		}
-		// creation date time
-		if (isset($so->CREATED)) {
-			$do->CreatedOn = $so->CREATED->getDateTime();
-		}
-		// modification date time
-		if (isset($so->REV)) {
-			$do->ModifiedOn = DateTimeImmutable::createFromFormat(self::DATE_FORMAT_UTC, $so->REV->getValue());
-		}
-		// language
-		if (isset($so->LANGUAGE)) {
-			$do->Language = $this->sanitizeString($so->LANGUAGE->getValue());
-		}
-		// time zone
-		if (isset($so->TZ)) {
-			$do->TimeZone = new DateTimeZone($so->TZ->getValue());
-		}
-		// label
-		if (isset($so->FN)) {
-			$do->Label = $this->sanitizeString($so->FN->getValue());
-		}
-		// name
-		if (isset($so->N)) {
-			$p = $so->N->getParts();
-			$do->Name->Last = $this->sanitizeString($p[0]);
-			$do->Name->First = $this->sanitizeString($p[1]);
-			$do->Name->Other = $this->sanitizeString($p[2]);
-			$do->Name->Prefix = $this->sanitizeString($p[3]);
-			$do->Name->Suffix = $this->sanitizeString($p[4]);
-			$do->Name->PhoneticLast = $this->sanitizeString($p[6]);
-			$do->Name->PhoneticFirst = $this->sanitizeString($p[7]);
-			unset($p);
-		}
-		// aliases
-		if (isset($so->NICKNAME)) {
-			foreach ($so->NICKNAME as $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactAliasObject();
-				$entity->Label = $this->sanitizeString($entry->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->Language = $this->sanitizeString($parameters['LANGUAGE']?->getValue());
-				$entity->URI = $this->sanitizeString($parameters['VALUE']?->getValue());
-				$do->Name->Aliases[] = $entity;
-			}
-		}
-		// birth day
-		if (isset($so->BDAY)) {
-			$entity = new ContactAnniversaryObject();
-			$entity->Type = ContactAnniversaryTypes::Birth;
-			$entity->When = $so->BDAY->getDatetime();
-			$do->Anniversaries[ContactAnniversaryTypes::Birth->value] = $entity;
-		}
-		// death day
-		if (isset($so->DEATHDAY)) {
-			$entity = new ContactAnniversaryObject();
-			$entity->Type = ContactAnniversaryTypes::Death;
-			$entity->When = $so->DEATHDAY->getDatetime();
-			$do->Anniversaries[ContactAnniversaryTypes::Death->value] = $entity;
-		}
-		// nuptial day
-		if (isset($so->ANNIVERSARY)) {
-			$entity = new ContactAnniversaryObject();
-			$entity->Type = ContactAnniversaryTypes::Nuptial;
-			$entity->When = $so->ANNIVERSARY->getDatetime();
-			$do->Anniversaries[ContactAnniversaryTypes::Nuptial->value] = $entity;
-		}
-		// birth place
-		if (isset($so->BIRTHPLACE)) {
-			if (isset($do->Anniversaries[ContactAnniversaryTypes::Birth->value])) {
-				$do->Anniversaries[ContactAnniversaryTypes::Birth->value] = new ContactAnniversaryObject();
-			}
-			$do->Anniversaries[ContactAnniversaryTypes::Birth->value]->Location = $this->sanitizeString($so->BIRTHPLACE->getValue());
-		}
-		// death place
-		if (isset($so->DEATHPLACE)) {
-			if (isset($do->Anniversaries[ContactAnniversaryTypes::Death->value])) {
-				$do->Anniversaries[ContactAnniversaryTypes::Death->value] = new ContactAnniversaryObject();
-			}
-			$do->Anniversaries[ContactAnniversaryTypes::Death->value]->Location = $this->sanitizeString($so->DEATHPLACE->getValue());
-		}
-		// pronouns
-		if (isset($so->PRONOUNS)) {
-			foreach ($so->PRONOUNS as $index => $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactPronounObject();
-				$entity->Pronoun = $this->sanitizeString($entry->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->Language = $this->sanitizeString($parameters['LANGUAGE']?->getValue());
-				$do->Pronouns[] = $entity;
-			}
-		}
-		// phone(s)
-		if (isset($so->TEL)) {
-			foreach ($so->TEL as $index => $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactPhoneObject();
-				$entity->Number = $this->sanitizeString($entry->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->URI = $this->sanitizeString($parameters['VALUE']?->getValue());
-				$do->Phone[] = $entity;
-				unset($primary, $secondary);
-			}
-		}
-		// email(s)
-		if (isset($so->EMAIL)) {
-			foreach ($so->EMAIL as $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactEmailObject();
-				$entity->Address = $this->sanitizeString($entry->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->URI = $this->sanitizeString($parameters['VALUE']?->getValue());
-				$do->Email[] = $entity;
-			}
-		}
-		// physical location(s)
-		if (isset($so->ADR)) {
-			foreach ($so->ADR as $index => $entry) {
-				[$pob, $unit, $street, $locality, $region, $code, $country] = $entry->getParts();
-				$parameters = $entry->parameters();
-				$entity = new ContactPhysicalLocationObject();
-				$entity->Box = $this->sanitizeString($pob);
-				$entity->Unit = $this->sanitizeString($unit);
-				$entity->Street = $this->sanitizeString($street);
-				$entity->Locality = $this->sanitizeString($locality);
-				$entity->Region = $this->sanitizeString($region);
-				$entity->Code = $this->sanitizeString($code);
-				$entity->Country = $this->sanitizeString($country);
-				$entity->Label = $this->sanitizeString($parameters['LABEL']?->getValue());
-				$entity->Coordinates = $this->sanitizeString($parameters['GEO']?->getValue());
-				$entity->TimeZone = $this->sanitizeString($parameters['TZ']?->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->Language = $this->sanitizeString($parameters['LANGUAGE']?->getValue());
-				$do->PhysicalLocations[] = $entity;
-				unset($type, $pob, $unit, $street, $locality, $region, $code, $country);
-			}
-		}
-		// organization(s)
-		if (isset($so->ORG)) {
-			foreach ($so->ORG as $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactOrganizationObject();
-				$entity->Label = $this->sanitizeString($entry->getValue());
-				$parts = $entry->getParts();
-				if (isset($parts[1])) {
-					$entity->Units[1] = $this->sanitizeString($parts[1]);
-				}
-				if (isset($parts[2])) {
-					$entity->Units[2] = $this->sanitizeString($parts[2]);
-				}
-				$entity->SortName = $this->sanitizeString($parameters['SORT-AS']?->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->Language = $this->sanitizeString($parameters['LANGUAGE']?->getValue());
-				$entity->URI = $this->sanitizeString($parameters['VALUE']?->getValue());
-				$do->Organizations[] = $entity;
-			}
-		}
-		// title(s)
-		if (isset($so->TITLE)) {
-			foreach ($so->TITLE as $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactTitleObject();
-				$entity->Kind = ContactTitleTypes::Title;
-				$entity->Label = $this->sanitizeString($entry->getValue());
-				$entity->Relation = $this->sanitizeString($parameters['X-ORG-ID']?->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->URI = $this->sanitizeString($parameters['VALUE']?->getValue());
-				$do->Titles[] = $entity;
-			}
-		}
-		// role(s)
-		if (isset($so->ROLE)) {
-			foreach ($so->ROLE as $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactTitleObject();
-				$entity->Kind = ContactTitleTypes::Role;
-				$entity->Label = $this->sanitizeString($entry->getValue());
-				$entity->Relation = $this->sanitizeString($parameters['X-ORG-ID']?->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->URI = $this->sanitizeString($parameters['VALUE']?->getValue());
-				$do->Titles[] = $entity;
-			}
-		}
-		// tag(s)
-		if (isset($so->CATEGORIES)) {
-			$do->Tags = new ContactTagCollection($so->CATEGORIES->getParts());
-		}
-		// note(s)
-		if (isset($so->NOTE)) {
-			foreach ($so->NOTE as $index => $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactNoteObject();
-				$entity->Content = $this->sanitizeString($entry->getValue());
-				$entity->Date = $parameters['CREATED'] ? new DateTimeImmutable($parameters['CREATED']) : null;
-				$entity->AuthorUri = $this->sanitizeString($parameters['AUTHOR']?->getValue());
-				$entity->AuthorName = $this->sanitizeString($parameters['AUTHOR-NAME']?->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$entity->Language = $this->sanitizeString($parameters['LANGUAGE']?->getValue());
-				$entity->URI = $this->sanitizeString($parameters['VALUE']?->getValue());
-				$do->Notes[] = $entity;
-			}
-		}
-		// crypto
-		if (isset($so->KEY)) {
-			foreach ($so->KEY as $entry) {
-				$parameters = $entry->parameters();
-				$entity = new ContactCryptoObject();
-				$entity->Data = $this->sanitizeString($entry->getValue());
-				$entity->Type = $this->sanitizeString($parameters['MEDIATYPE']?->getValue());
-				$entity->Id = $this->sanitizeString($parameters['X-ID']?->getValue());
-				$entity->Index = (int)$this->sanitizeNumeric($parameters['INDEX']?->getValue());
-				$entity->Priority = (int)$this->sanitizeNumeric($parameters['PREF']?->getValue());
-				$entity->Context = $this->sanitizeString($parameters['TYPE']?->getValue());
-				$do->Crypto[] = $entity;
-			}
-		}
-		// Photo
-		/*
-		if (isset($so->PHOTO)) {
-			$p = $so->PHOTO->getValue();
-			if (str_starts_with($p, 'data:')) {
-				$p = explode(';', $p);
-				if (count($p) == 2) {
-					$p[0] = explode(':', $p[0]);
-					$p[1] = explode(',', $p[1]);
-					$do->Photo->Type = 'data';
-					$do->Photo->Data = $so->UID;
-					$do->addAttachment(
-						$so->UID,
-						$so->UID . '.' . \OCA\DAVC\Utile\MIME::toExtension($p[0][1]),
-						$p[0][1],
-						'B64',
-						'CP',
-						null,
-						$p[1][1]
-					);
-				}
-			} elseif (str_starts_with($p, 'uri:')) {
-				$do->Photo->Type = 'uri';
-				$do->Photo->Data = $this->sanitizeString(substr($p,4));
-			}
-			unset($p);
-		}
-		*/
-
-		// return event object
-		return $do;
-
-	}
-
-	/**
-	 * Convert event object to VCard object
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @param ContactObject $so
-	 *
-	 * @return VCard
-	 */
-	public function fromContactObject(ContactObject $so): VCard {
-
-		// construct target object
-		$do = new VCard();
-		$do->VERSION->setValue('4.0');
-		// universal id
-		if ($do->UID) {
-			$do->UID->setValue($so->UUID);
-		} else {
-			$do->add('UID', $so->UUID);
-		}
-		// creation date time
-		if ($so->CreatedOn) {
-			$do->add('CREATED', $so->CreatedOn);
-		}
-		// modification date time
-		if ($so->ModifiedOn) {
-			$do->add('REV', $so->ModifiedOn->format(self::DATE_FORMAT_UTC));
-		}
-		// language
-		if ($so->Language) {
-			$do->add('LANGUAGE', $so->Language);
-		}
-		// time zone
-		if ($so->TimeZone) {
-			$do->add('TZ', $so->TimeZone->getName());
-		}
-		// label
-		if ($so->Label) {
-			$do->add('FN', $so->Label);
-		}
-		// name
-		if ($so->Name) {
-			$do->add(
-				'N',
-				[
-					$so->Name->Last,
-					$so->Name->First,
-					$so->Name->Other,
-					$so->Name->Prefix,
-					$so->Name->Suffix,
-					$so->Name->PhoneticLast,
-					$so->Name->PhoneticFirst
-				]
-			);
-		}
-		// aliases
-		foreach ($so->Name->Aliases as $index => $entry) {
-			/** @var \Sabre\VObject\Property $property */
-			$property = $do->add('NICKNAME', $entry->Label);
-			if ($entry->Id !== null) {
-				$property->add('X-ID', $entry->Id);
-			}
-			if ($entry->Index !== null) {
-				$property->add('INDEX', $entry->Index);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-			if ($entry->Language !== null) {
-				$property->add('LANGUAGE', $entry->Language);
-			}
-			if ($entry->URI !== null) {
-				$property->add('VALUE', $entry->URI);
-			}
-		}
-		unset($index, $entry, $property);
-		// anniversaries
-		foreach ($so->Anniversaries as $entry) {
-			switch ($entry->Type) {
-				case ContactAnniversaryTypes::Birth:
-					$do->add('BDAY', $entry->When);
-					if ($entry->Location !== null) {
-						$do->add('BIRTHPLACE', $entry->Location);
-					}
-					break;
-				case ContactAnniversaryTypes::Death:
-					$do->add('DEATHDAY', $entry->When);
-					if ($entry->Location !== null) {
-						$do->add('DEATHPLACE', $entry->Location);
-					}
-					break;
-				case ContactAnniversaryTypes::Nuptial:
-					$do->add('ANNIVERSARY', $entry->When);
-					break;
-			}
-		}
-		// pronouns
-		foreach ($so->Pronouns as $index => $entry) {
-			/** @var \Sabre\VObject\Property $property */
-			$property = $do->add('PRONOUNS', $entry->Pronoun);
-			if ($entry->Id !== null) {
-				$property->add('X-ID', $entry->Id);
-			}
-			if ($entry->Index !== null) {
-				$property->add('INDEX', $entry->Index);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-			if ($entry->Language !== null) {
-				$property->add('LANGUAGE', $entry->Language);
-			}
-		}
-		unset($index, $entry, $property);
-		// notes
-		foreach ($so->Notes as $index => $entry) {
-			/** @var \Sabre\VObject\Property $property */
-			$property = $do->add('NOTE', $entry->Content);
-			if ($entry->Date !== null) {
-				$property->add('CREATED', $entry->Date->format(self::DATE_FORMAT_UTC));
-			}
-			if ($entry->AuthorUri !== null) {
-				$property->add('AUTHOR', $entry->AuthorUri);
-			}
-			if ($entry->AuthorName !== null) {
-				$property->add('AUTHOR-NAME', $entry->AuthorName);
-			}
-			if ($entry->Id !== null) {
-				$property->add('X-ID', $entry->Id);
-			}
-			if ($entry->Index !== null) {
-				$property->add('INDEX', $entry->Index);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-			if ($entry->Language !== null) {
-				$property->add('LANGUAGE', $entry->Language);
-			}
-			if ($entry->URI !== null) {
-				$property->add('VALUE', $entry->URI);
-			}
-		}
-		unset($index, $entry, $property);
-		// phone(s)
-		foreach ($so->Phone as $index => $entry) {
-			/** @var \Sabre\VObject\Property $property */
-			$property = $do->add('TEL', $entry->Number);
-			if ($entry->Id !== null) {
-				$property->add('X-ID', $entry->Id);
-			}
-			if ($entry->Index !== null) {
-				$property->add('INDEX', $entry->Index);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-			if ($entry->URI !== null) {
-				$property->add('VALUE', $entry->URI);
-			}
-		}
-		unset($index, $entry, $property);
-		// email(s)
-		foreach ($so->Email as $index => $entry) {
-			/** @var \Sabre\VObject\Property $property */
-			$property = $do->add('EMAIL', $entry->Address);
-			if ($entry->Id !== null) {
-				$property->add('X-ID', $entry->Id);
-			}
-			if ($entry->Index !== null) {
-				$property->add('INDEX', $entry->Index);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-			if ($entry->URI !== null) {
-				$property->add('VALUE', $entry->URI);
-			}
-		}
-		unset($index, $entry, $property);
-		// physical location(s)
-		foreach ($so->PhysicalLocations as $index => $entry) {
-			/** @var \Sabre\VObject\Property $property */
-			$property = $do->add(
-				'ADR',
-				[
-					(string)$entry->Box,
-					(string)$entry->Unit,
-					(string)$entry->Street,
-					(string)$entry->Locality,
-					(string)$entry->Region,
-					(string)$entry->Code,
-					(string)$entry->Country,
-				]
-			);
-			if ($entry->Label !== null) {
-				$property->add('LABEL', $entry->Label);
-			}
-			if ($entry->Coordinates !== null) {
-				$property->add('GEO', $entry->Coordinates);
-			}
-			if ($entry->TimeZone !== null) {
-				$property->add('TZ', $entry->TimeZone);
-			}
-			if ($entry->Id !== null) {
-				$property->add('X-ID', $entry->Id);
-			}
-			if ($entry->Index !== null) {
-				$property->add('INDEX', $entry->Index);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-			if ($entry->Language !== null) {
-				$property->add('LANGUAGE', $entry->Language);
-			}
-		}
-		unset($index, $entry, $property);
-		// organization(s)
-		foreach ($so->Organizations as $index => $entry) {
-			/** @var \Sabre\VObject\Property $property */
-			$property = $do->add(
-				'ORG',
-				$entry->Label,
-				[
-					$entry->Units[0] ? $entry->Units[0] : null,
-					$entry->Units[1] ? $entry->Units[1] : null
-				]
-			);
-			if ($entry->SortName !== null) {
-				$property->add('SORT-AS', $entry->SortName);
-			}
-			if ($entry->Id !== null) {
-				$property->add('X-ID', $entry->Id);
-			}
-			if ($entry->Index !== null) {
-				$property->add('INDEX', $entry->Index);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-			if ($entry->Language !== null) {
-				$property->add('LANGUAGE', $entry->Language);
-			}
-			if ($entry->URI !== null) {
-				$property->add('VALUE', $entry->URI);
-			}
-		}
-		unset($index, $entry, $property);
-		// title(s)
-		foreach ($so->Titles as $index => $entry) {
-			switch ($entry->Kind) {
-				case ContactTitleTypes::Title:
-					/** @var \Sabre\VObject\Property $property */
-					$property = $do->add('TITLE', $entry->Label);
-					break;
-				case ContactTitleTypes::Role:
-					/** @var \Sabre\VObject\Property $property */
-					$property = $do->add('ROLE', $entry->Label);
-					break;
-			}
-			if ($entry->Relation !== null) {
-				$property->add('X-ORG-ID', $entry->Relation);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-			if ($entry->Language !== null) {
-				$property->add('LANGUAGE', $entry->Language);
-			}
-		}
-		unset($index, $entry, $property);
-		// crypto
-		foreach ($so->Crypto as $index => $entry) {
-			/** @var \Sabre\VObject\Property $property */
-			$property = $do->add('KEY', $entry->Data);
-			if ($entry->Type !== null) {
-				$property->add('MEDIATYPE', $entry->Type);
-			}
-			if ($entry->Id !== null) {
-				$property->add('X-ID', $entry->Id);
-			}
-			if ($entry->Index !== null) {
-				$property->add('INDEX', $entry->Index);
-			}
-			if ($entry->Priority !== null) {
-				$property->add('PREF', $entry->Priority);
-			}
-			if ($entry->Context !== null) {
-				$property->add('TYPE', $entry->Context);
-			}
-		}
-		unset($index, $entry, $property);
-		// Photo(s)
-		/*
-		if (isset($so->Photo)) {
-			if ($so->Photo->Type == 'uri') {
-				$do->add(
-					'PHOTO',
-					'uri:' . $so->Photo->Data
-				);
-			} elseif ($so->Photo->Type == 'data') {
-				$k = array_search($so->Photo->Data, array_column($so->Attachments, 'Id'));
-				if ($k !== false) {
-					switch ($so->Attachments[$k]->Encoding) {
-						case 'B':
-							$do->add(
-								'PHOTO',
-								'data:' . $so->Attachments[$k]->Type . ';base64,' . base64_encode($so->Attachments[$k]->Data)
-							);
-							break;
-						case 'B64':
-							$do->add(
-								'PHOTO',
-								'data:' . $so->Attachments[$k]->Type . ';base64,' . $so->Attachments[$k]->Data
-							);
-							break;
-					}
-				}
-			}
-		}
-		*/
-
-		return $do;
-
-	}
-
-	public function generateSignature(ContactObject $eo): string {
-
-		// clone self
-		$o = clone $eo;
-		// remove non needed values
-		unset(
-			$o->Origin,
-			$o->ID,
-			$o->CID,
-			$o->Signature,
-			$o->CCID,
-			$o->CEID,
-			$o->CESN,
-			$o->UUID,
-			$o->CreatedOn,
-			$o->ModifiedOn
-		);
-		// generate signature
-		return md5(json_encode($o, JSON_PARTIAL_OUTPUT_ON_ERROR));
-
-	}
-
-	public function sanitizeString(?string $value): ?string {
-		return $value === null || $value === '' ? null : trim($value);
-	}
-
-	public function sanitizeNumeric(?string $value): ?string {
-		return $value !== null && is_numeric($value) ? $value : null;
 	}
 
 }

@@ -9,19 +9,18 @@ declare(strict_types=1);
 
 namespace OCA\DAVC\Service;
 
-use OCA\DAVC\Service\Remote\RemoteService;
+use OCA\DAVC\Service\Remote\RemoteFactory;
 use OCA\DAVC\Store\Local\ServiceEntity;
 use Psr\Log\LoggerInterface;
 
 class HarmonizationService {
 	public function __construct(
 		private LoggerInterface $logger,
-		private ConfigurationService $ConfigurationService,
-		private CoreService $CoreService,
-		private ServicesService $ServicesService,
-		private ContactsService $ContactsService,
-		private EventsService $EventsService,
-		private HarmonizationThreadService $HarmonizationThreadService,
+		private ConfigurationService $configurationService,
+		private ServicesService $servicesService,
+		private ContactsService $contactsService,
+		private EventsService $eventsService,
+		private RemoteFactory $remoteFactory,
 	) {
 	}
 
@@ -39,10 +38,10 @@ class HarmonizationService {
 
 		if ($sid !== null) {
 			// retrieve service
-			$services[] = $this->ServicesService->fetchByUserIdAndServiceId($uid, $sid);
+			$services[] = $this->servicesService->fetchByUserIdAndServiceId($uid, $sid);
 		} else {
 			// retrieve all services
-			$services = $this->ServicesService->fetchByUserId($uid);
+			$services = $this->servicesService->fetchByUserId($uid);
 		}
 
 		foreach ($services as $service) {
@@ -65,32 +64,32 @@ class HarmonizationService {
 		// update harmonization state and start time
 		$service->setHarmonizationState(true);
 		$service->setHarmonizationStart(time());
-		$service = $this->ServicesService->deposit($service->getUid(), $service);
+		$service = $this->servicesService->deposit($service->getUid(), $service);
 		// initialize store(s)
-		$remoteStore = RemoteService::freshClient($service);
-
-		// contacts
-		if ($this->ConfigurationService->isContactsAppAvailable()) {
-			$this->logger->info('Started Harmonization of Contacts for ' . $service->getUid());
-			// assign configuration, data stores and harmonize
-			$this->ContactsService->harmonize($service->getUid(), $service, $remoteStore);
-
-			$this->logger->info('Finished Harmonization of Contacts for ' . $service->getUid());
-		}
+		$remoteStore = $this->remoteFactory->freshClient($service);
 
 		// events
-		if ($this->ConfigurationService->isCalendarAppAvailable()) {
+		if ($this->configurationService->isCalendarAppAvailable()) {
 			$this->logger->info('Started Harmonization of Events for ' . $service->getUid());
 			// assign configuration, data stores and harmonize
-			$this->EventsService->harmonize($service->getUid(), $service, $remoteStore);
+			$this->eventsService->harmonize($service->getUid(), $service, $remoteStore);
 
 			$this->logger->info('Finished Harmonization of Events for ' . $service->getUid());
+		}
+
+		// contacts
+		if ($this->configurationService->isContactsAppAvailable()) {
+			$this->logger->info('Started Harmonization of Contacts for ' . $service->getUid());
+			// assign configuration, data stores and harmonize
+			$this->contactsService->harmonize($service->getUid(), $service, $remoteStore);
+
+			$this->logger->info('Finished Harmonization of Contacts for ' . $service->getUid());
 		}
 
 		// update harmonization state and end time
 		$service->setHarmonizationState(false);
 		$service->setHarmonizationEnd(time());
-		$service = $this->ServicesService->deposit($service->getUid(), $service);
+		$service = $this->servicesService->deposit($service->getUid(), $service);
 
 		$this->logger->info('Finished Harmonization of Collections for ' . $service->getUid());
 

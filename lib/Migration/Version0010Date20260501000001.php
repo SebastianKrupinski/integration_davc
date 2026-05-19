@@ -39,7 +39,7 @@ class Version0010Date20260501000001 extends SimpleMigrationStep {
 		// create the table
 		$table = $schema->createTable('davc_services');
 		// id
-		$table->addColumn('id', Types::INTEGER, [
+		$table->addColumn('id', Types::BIGINT, [
 			'autoincrement' => true,
 			'notnull' => true
 		]);

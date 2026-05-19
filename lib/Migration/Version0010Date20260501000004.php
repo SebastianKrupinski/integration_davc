@@ -44,23 +44,22 @@ class Version0010Date20260501000004 extends SimpleMigrationStep {
 			'notnull' => true
 		]);
 		// service id
-		$table->addColumn('sid', Types::INTEGER, [
+		$table->addColumn('sid', Types::BIGINT, [
 			'notnull' => true
 		]);
 		// contact id
-		$table->addColumn('cid', Types::INTEGER, [
-			'unsigned' => true,
+		$table->addColumn('cid', Types::BIGINT, [
 			'notnull' => true,
 			'default' => 0
 		]);
 		// uuid
 		$table->addColumn('uuid', Types::STRING, [
-			'length' => 64,
+			'length' => 255,
 			'notnull' => true
 		]);
 		// signature
 		$table->addColumn('signature', Types::STRING, [
-			'length' => 50,
+			'length' => 255,
 			'notnull' => false
 		]);
 		// ccid

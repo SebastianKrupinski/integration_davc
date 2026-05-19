@@ -620,7 +620,7 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 				</h3>
 				<div class="connection-status__overview">
 					<DavIcon />
-					<span>{{ t('integration_davc', 'Connected as {0} to {1}', {0:selectedService.address_primary || '', 1:selectedService.location_host || ''}) }}</span>
+					<span>{{ t('integration_davc', 'Connected as {0} to {1}', {0:selectedService.bauth_id || '', 1:selectedService.location_host || ''}) }}</span>
 				</div>
 				<div class="connection-status__harmonization">
 					{{ t('integration_davc', 'Synchronization was last started on ') }} {{ formatDate(selectedService.harmonization_start) }}

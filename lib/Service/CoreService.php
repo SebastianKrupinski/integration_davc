@@ -11,10 +11,10 @@ namespace OCA\DAVC\Service;
 
 use DateTime;
 use OCA\DAVC\AppInfo\Application;
-use OCA\DAVC\Service\Local\LocalService;
 use OCA\DAVC\Service\Remote\RemoteFactory;
 use OCA\DAVC\Store\Local\ServiceEntity;
 use OCA\DAVC\Constants;
+use OCA\DAVC\Service\Local\LocalFactory;
 use OCP\BackgroundJob\IJobList;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
@@ -33,6 +33,7 @@ class CoreService {
 		private ServicesService $ServicesService,
 		private ServicesTemplateService $ServicesTemplateService,
 		private RemoteFactory $remoteFactory,
+		private LocalFactory $localFactory,
 		private HarmonizationThreadService $HarmonizationThreadService,
 	) {
 	}
@@ -223,19 +224,13 @@ class CoreService {
 		// terminate harmonization thread
 		$this->HarmonizationThreadService->terminate($uid);
 		// initialize contacts data store
-		$localStore = LocalService::contactsStore();
+		$localStore = $this->localFactory->contactsStore();
 		// delete local entities
 		$localStore->entityDeleteByService($sid);
 		// delete local collection
 		$localStore->collectionDeleteByService($sid);
 		// initialize events data store
-		$localStore = LocalService::eventsStore();
-		// delete local entities
-		$localStore->entityDeleteByService($sid);
-		// delete local collection
-		$localStore->collectionDeleteByService($sid);
-		// initialize tasks data store
-		$localStore = LocalService::tasksStore();
+		$localStore = $this->localFactory->eventsStore();
 		// delete local entities
 		$localStore->entityDeleteByService($sid);
 		// delete local collection
@@ -335,11 +330,11 @@ class CoreService {
 		}
 		// retrieve local collections
 		if ($this->ConfigurationService->isContactsAppAvailable()) {
-			$localStore = LocalService::contactsStore();
+			$localStore = $this->localFactory->contactsStore();
 			$data['ContactCollections'] = $localStore->collectionListByService($sid);
 		}
 		if ($this->ConfigurationService->isCalendarAppAvailable()) {
-			$localStore = LocalService::eventsStore();
+			$localStore = $this->localFactory->eventsStore();
 			$data['EventCollections'] = $localStore->collectionListByService($sid);
 		}
 		// return response
@@ -372,7 +367,7 @@ class CoreService {
 		// deposit contacts correlations
 		if ($this->ConfigurationService->isContactsAppAvailable()) {
 			// initialize data store
-			$localStore = LocalService::contactsStore();
+			$localStore = $this->localFactory->contactsStore();
 			// process entries
 			foreach ($cc as $entry) {
 				if (!isset($entry['enabled']) || !is_bool($entry['enabled'])) {
@@ -407,7 +402,7 @@ class CoreService {
 		// deposit events correlations
 		if ($this->ConfigurationService->isCalendarAppAvailable()) {
 			// initialize data store
-			$localStore = LocalService::eventsStore();
+			$localStore = $this->localFactory->eventsStore();
 			// process entries
 			foreach ($ec as $entry) {
 				if (!isset($entry['enabled']) || !is_bool($entry['enabled'])) {

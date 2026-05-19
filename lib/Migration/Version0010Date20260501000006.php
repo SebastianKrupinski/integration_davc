@@ -44,7 +44,7 @@ class Version0010Date20260501000006 extends SimpleMigrationStep {
 			'notnull' => true
 		]);
 		// service id
-		$table->addColumn('sid', Types::INTEGER, [
+		$table->addColumn('sid', Types::BIGINT, [
 			'notnull' => true
 		]);
 		// tag
@@ -64,7 +64,7 @@ class Version0010Date20260501000006 extends SimpleMigrationStep {
 		]);
 		// entity uuid
 		$table->addColumn('euuid', Types::STRING, [
-			'length' => 64,
+			'length' => 255,
 			'notnull' => true,
 			'default' => '0'
 		]);

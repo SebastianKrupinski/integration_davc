@@ -13,15 +13,15 @@ use OCA\DAVC\Store\Local\ContactStore;
 use OCA\DAVC\Store\Local\EventStore;
 use OCP\Server;
 
-class LocalService {
+class LocalFactory {
 	/**
 	 * instance of the local contact service
 	 *
 	 * @since Release 1.0.0
 	 */
-	public static function contactsService(string $userId): LocalContactsService {
+	public function contactsService(string $userId): LocalContactsService {
 		$service = new LocalContactsService();
-		$service->initialize(self::contactsStore());
+		$service->initialize($this->contactsStore());
 		return $service;
 	}
 
@@ -30,9 +30,9 @@ class LocalService {
 	 *
 	 * @since Release 1.0.0
 	 */
-	public static function eventsService(string $userId): LocalEventsService {
+	public function eventsService(string $userId): LocalEventsService {
 		$service = new LocalEventsService();
-		$service->initialize(self::eventsStore());
+		$service->initialize($this->eventsStore());
 		return $service;
 	}
 
@@ -43,7 +43,7 @@ class LocalService {
 	 *
 	 * @return ContactStore
 	 */
-	public static function contactsStore(): ContactStore {
+	public function contactsStore(): ContactStore {
 		return Server::get(ContactStore::class);
 	}
 
@@ -54,7 +54,7 @@ class LocalService {
 	 *
 	 * @return EventStore
 	 */
-	public static function eventsStore(): EventStore {
+	public function eventsStore(): EventStore {
 		return Server::get(EventStore::class);
 	}
 

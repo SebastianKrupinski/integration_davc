@@ -35,10 +35,10 @@ use OCP\AppFramework\Db\Entity;
  * @method setLabel(string $label): void
  * @method getDescription(): string
  * @method setDescription(string $description): void
- * @method getStartsOn(): string
- * @method setStartsOn(int $startson): void
- * @method getEndsOn(): string
- * @method setEndsOn(int $endson): void
+ * @method getStartson(): int
+ * @method setStartson(int $startson): void
+ * @method getEndson(): int
+ * @method setEndson(int $endson): void
  */
 class EventEntity extends Entity {
 	protected ?string $uid = null;
