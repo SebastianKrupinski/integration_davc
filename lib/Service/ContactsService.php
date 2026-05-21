@@ -120,11 +120,6 @@ class ContactsService {
 			return $statistics;
 		}
 
-		// if the remote collection signature matches the correlation signature,
-		// we can be sure that there are no changes on the remote side since last harmonization
-		if ($remoteCollection->Signature === $rcsn) {
-			return $statistics;
-		}
 		// retrieve a delta of remote entity variations
 		try {
 			$remoteEntityDelta = $this->remoteContactsService->entityDelta($rcid, $rcsn, 'B');
@@ -169,7 +164,11 @@ class ContactsService {
 		}
 
 		// update and deposit remote harmonization signature
-		$collection->setHesn((string)$remoteCollection->Signature);
+		if (!empty($remoteEntityDelta->signature)) {
+			$collection->setHesn($remoteEntityDelta->signature);
+		} else {
+			$collection->setHesn($remoteCollection->Signature);
+		}
 		$collection = $this->localStore->collectionModify($collection);
 		// clean up
 		unset($remoteCollection, $remoteEntityDelta);

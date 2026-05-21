@@ -36,12 +36,14 @@ class RemoteEventsService {
 		RemoteClient::APPLE_ICAL_CALENDAR_ORDER,
 		RemoteClient::DAV_OWNER,
 		RemoteClient::DAV_ACL,
+		RemoteClient::DAV_SYNC_TOKEN,
 		RemoteClient::CALENDARSERVER_GETCTAG,
 		RemoteClient::SABREDAV_SYNC_TOKEN,
 	];
 	protected array $collectionPropertiesBasic = [
 		RemoteClient::DAV_RESOURCE_TYPE,
 		RemoteClient::DAV_DISPLAYNAME,
+		RemoteClient::DAV_SYNC_TOKEN,
 		RemoteClient::CALENDARSERVER_GETCTAG,
 		RemoteClient::SABREDAV_SYNC_TOKEN,
 	];
@@ -177,7 +179,7 @@ class RemoteEventsService {
 		$delta = new DeltaObject();
 
 		try {
-			$responses = $this->dataStore->report($location, RemoteClient::DAV_SYNC_COLLECTION, 1, [
+			$responses = $this->dataStore->report($location, RemoteClient::DAV_SYNC_COLLECTION, 0, [
 				[
 					'name' => RemoteClient::DAV_SYNC_TOKEN,
 					'value' => $state,
@@ -195,7 +197,23 @@ class RemoteEventsService {
 				],
 			]);
 
+			if (isset($responses['token'])) {
+				$delta->signature = $responses['token'];
+				unset($responses['token']);
+			}
+
 			foreach ($responses as $href => $response) {
+				// Some server implementations return no status for deleted items
+				if (!isset($response[200]) && !isset($response[404])) {
+					$delta->deletions->append((string)$href);
+					continue;
+				}
+				// Some server implementations return 404 for deleted items
+				if (isset($response[404])) {
+					$delta->deletions->append((string)$href);
+					continue;
+				}
+
 				// Some server implementations include all collection members in the response of a sync-collection report on the collection itself
 				if (isset($response[200][RemoteClient::DAV_RESOURCE_TYPE]) && $response[200][RemoteClient::DAV_RESOURCE_TYPE] !== null) {
 					continue;
@@ -204,8 +222,6 @@ class RemoteEventsService {
 				if (!isset($response[200][RemoteClient::DAV_ETAG])) {
 					continue;
 				}
-
-				// TODO: handle deleted items (status 404) if supported by remote server
 
 				// DAV sync reports do not distinguish created from modified items.
 				$delta->modifications->append((string)$href);
@@ -256,22 +272,49 @@ class RemoteEventsService {
 	/**
 	 * create entity in remote storage
 	 */
-	public function entityCreate(string $location, Entity $so): ?Entity {
-		return null;
+	public function entityCreate(Entity $so): ?Entity {
+
+		if (str_starts_with($so->CEID, $so->CCID)) {
+			$path = $so->CEID;
+		} else {
+			$path = $so->CCID . $so->CEID;
+		}
+
+		$data = $so->data ? $so->data->serialize() : '';
+		$signature = $this->dataStore->create($path, $data, "application/vcalendar");
+
+		$ro = clone $so;
+		//$ro->Signature = $signature;
+
+		return $ro;
 	}
 
 	/**
 	 * update entity in remote storage
 	 */
-	public function entityModify(string $location, string $identifier, Entity $so): ?Entity {
-		return null;
+	public function entityModify(Entity $so): ?Entity {
+
+		if (str_starts_with($so->CEID, $so->CCID)) {
+			$path = $so->CEID;
+		} else {
+			$path = $so->CCID . $so->CEID;
+		}
+
+		$data = $so->data ? $so->data->serialize() : '';
+		$signature = $this->dataStore->update($path, $data, "application/vcalendar");
+
+		$ro = clone $so;
+		//$ro->Signature = $signature;
+		
+		return $ro;
 	}
 
 	/**
 	 * delete entity from remote storage
 	 */
 	public function entityDelete(string $location, string $identifier): ?string {
-		return null;
+		$response = $this->dataStore->delete($identifier);
+		return $identifier;
 	}
 
 	/**
@@ -287,7 +330,7 @@ class RemoteEventsService {
 	private function toCollection(string $id, array $so): Collection {
 		$to = new Collection();
 		$to->Id = $id;
-		$to->Signature = $so[RemoteClient::SABREDAV_SYNC_TOKEN] ?? $so[RemoteClient::CALENDARSERVER_GETCTAG] ??  null;
+		$to->Signature = $so[RemoteClient::DAV_SYNC_TOKEN] ?? $so[RemoteClient::SABREDAV_SYNC_TOKEN] ?? $so[RemoteClient::CALENDARSERVER_GETCTAG] ?? null;
 		$to->Label = $so[RemoteClient::DAV_DISPLAYNAME] ?? null;
 		$to->Description = $so[RemoteClient::CALDAV_CALENDAR_DESCRIPTION] ?? null;
 		$to->Priority = isset($so[RemoteClient::APPLE_ICAL_CALENDAR_ORDER]) ? (int)$so[RemoteClient::APPLE_ICAL_CALENDAR_ORDER] : null;

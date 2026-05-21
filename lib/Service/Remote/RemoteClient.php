@@ -262,6 +262,41 @@ class RemoteClient {
 		return $response;
 	}
 
+	public function create(string $path, string $payload, string $contentType): IResponse {
+		$url = $this->constructUrl($path);
+
+		return $this->getClient()->request('PUT', $url, $this->buildOptionsRequestOptions(
+			[
+				'Content-Type' => $contentType,
+				'If-None-Match' => '*',
+			],
+			['body' => $payload],
+		));
+	}
+
+	public function update(string $path, string $payload, string $contentType, ?string $etag = null): IResponse {
+		$url = $this->constructUrl($path);
+
+		$headers = [
+			'Content-Type' => $contentType,
+		];
+
+		if ($etag !== null) {
+			$headers['If-Match'] = $etag;
+		}
+
+		return $this->getClient()->request('PUT', $url, $this->buildOptionsRequestOptions(
+			$headers,
+			['body' => $payload],
+		));
+	}
+
+	public function delete(string $path): IResponse {
+		$url = $this->constructUrl($path);
+
+		return $this->getClient()->request('DELETE', $url, $this->buildOptionsRequestOptions());
+	}
+
 	public function discover(): array {
 		$url = $this->constructUrl($this->locationPath);
 		$this->capabilities['endpoint'] = $url;
@@ -396,6 +431,9 @@ class RemoteClient {
 		$result = [];
 		foreach ($multistatus->getResponses() as $davResponse) {
 			$result[$davResponse->getHref()] = $davResponse->getResponseProperties();
+		}
+		if ($multistatus->getSyncToken() !== null) {
+			$result['token'] = $multistatus->getSyncToken();
 		}
 
 		return $result;

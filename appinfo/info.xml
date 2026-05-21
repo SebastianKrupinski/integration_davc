@@ -38,12 +38,10 @@
     </settings>
     <sabre>
         <address-book-plugins>
-			<plugin>OCA\DAVC\Providers\DAV\Contacts\Cached\Provider</plugin>
-            <plugin>OCA\DAVC\Providers\DAV\Contacts\Live\Provider</plugin>
+			<plugin>OCA\DAVC\Providers\DAV\Contacts\Hybrid\Provider</plugin>
 		</address-book-plugins>
 		<calendar-plugins>
-			<plugin>OCA\DAVC\Providers\DAV\Calendar\Cached\Provider</plugin>
-			<plugin>OCA\DAVC\Providers\DAV\Calendar\Live\Provider</plugin>
+			<plugin>OCA\DAVC\Providers\DAV\Calendar\Hybrid\Provider</plugin>
 		</calendar-plugins>
 	</sabre>
 </info>

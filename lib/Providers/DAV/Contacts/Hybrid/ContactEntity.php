@@ -7,32 +7,34 @@ declare(strict_types=1);
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-namespace OCA\DAVC\Providers\DAV\Contacts\Live;
+namespace OCA\DAVC\Providers\DAV\Contacts\Hybrid;
 
-use OCA\DAVC\Objects\Contact\ContactObject;
+use OCA\DAVC\Store\Local\ContactEntity as ContactEntityData;
 
 class ContactEntity implements \Sabre\CardDAV\ICard, \Sabre\DAVACL\IACL {
-
 	/**
 	 * Entity Constructor
+	 *
+	 * @param ContactCollection $collection
+	 * @param ContactEntityData $entity
 	 */
 	public function __construct(
-		private ContactCollection $_collection,
-		private ContactObject $_entity
-	) {}
+		private readonly ContactCollection $collection,
+		private readonly ContactEntityData $entity
+	){}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getOwner() {
-		return $this->_collection->getOwner();
+		return $this->collection->getOwner();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getGroup() {
-		return $this->_collection->getGroup();
+		return $this->collection->getGroup();
 	}
 
 	/**
@@ -66,21 +68,21 @@ class ContactEntity implements \Sabre\CardDAV\ICard, \Sabre\DAVACL\IACL {
 	 * @inheritDoc
 	 */
 	public function get() {
-		return $this->_collection->fromContactObject($this->_entity);
+		return $this->entity->getData();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function put($data) {
-		return $this->_collection->modifyFile($this->_entity->ID, $data);
+		return $this->collection->modifyFile($this->entity, $data);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function delete() {
-		return $this->_collection->deleteFile($this->_entity->ID);
+		return $this->collection->deleteFile($this->entity);
 	}
 
 	/**
@@ -94,21 +96,21 @@ class ContactEntity implements \Sabre\CardDAV\ICard, \Sabre\DAVACL\IACL {
 	 * @inheritDoc
 	 */
 	public function getETag() {
-		return $this->_entity->Signature;
+		return $this->entity->getSignature();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getSize() {
-		return 1024;
+		return strlen($this->entity->getData());
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getName() {
-		return $this->_entity->ID . '.vcf';
+		return $this->entity->getUuid() . '.vcf';
 	}
 
 	/**
@@ -122,7 +124,7 @@ class ContactEntity implements \Sabre\CardDAV\ICard, \Sabre\DAVACL\IACL {
 	 * @inheritDoc
 	 */
 	public function getLastModified() {
-		return $this->_entity->ModifiedOn->getTimestamp();
+		return time();
 	}
 
 }

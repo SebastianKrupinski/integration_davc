@@ -13,22 +13,22 @@ use OCP\AppFramework\Db\Entity;
 
 /**
  * @method getId(): int
- * @method getUID(): string
- * @method setUID(string $uid): void
- * @method getSID(): string
- * @method setSID(int $sid): void
- * @method getCID(): string
- * @method setCID(int $cid): void
- * @method getUUID(): string
- * @method setUUID(string $uuid): void
+ * @method getUid(): string
+ * @method setUid(string $uid): void
+ * @method getSid(): string
+ * @method setSid(int $sid): void
+ * @method getCid(): string
+ * @method setCid(int $cid): void
+ * @method getUuid(): string
+ * @method setUuid(string $uuid): void
  * @method getSignature(): string
- * @method setSignature(string $uuid): void
- * @method getCCID(): string
- * @method setCCID(string $ccid): void
- * @method getCEID(): string
- * @method setCEID(string $ceid): void
- * @method getCESN(): string
- * @method setCESN(string $cesn): void
+ * @method setSignature(string $signature): void
+ * @method getCcid(): string
+ * @method setCcid(string $ccid): void
+ * @method getCeid(): string
+ * @method setCeid(string $ceid): void
+ * @method getCesn(): string
+ * @method setCesn(string $cesn): void
  * @method getData(): string
  * @method setData(string $data): void
  * @method getLabel(): string

@@ -14,32 +14,32 @@ use OCP\AppFramework\Db\Entity;
 
 /**
  * @method getId(): int
- * @method getUID(): ?string
- * @method setUID(string $uid): void
- * @method getSID(): ?string
- * @method setSID(string $sid): void
+ * @method getUid(): ?string
+ * @method setUid(string $uid): void
+ * @method getSid(): ?string
+ * @method setSid(string $sid): void
  * @method getType(): ?string
  * @method setType(string $type): void
- * @method getCCID(): ?string
- * @method setCCID(string $ccid): void
- * @method getUUID(): ?string
- * @method setUUID(string $uuid): void
+ * @method getCcid(): ?string
+ * @method setCcid(string $ccid): void
+ * @method getUuid(): ?string
+ * @method setUuid(string $uuid): void
  * @method getLabel(): ?string
  * @method setLabel(string $label): void
  * @method getColor(): ?string
  * @method setColor(string $color): void
  * @method getVisible(): ?string
  * @method setVisible(string $visible): void
- * @method getHISN(): ?string
- * @method setHISN(string $hisn): void
- * @method getHESN(): ?string
- * @method setHESN(string $hesn): void
+ * @method getHisn(): ?string
+ * @method setHisn(string $hisn): void
+ * @method getHesn(): ?string
+ * @method setHesn(string $hesn): void
  * @method getHLock(): ?int
  * @method setHLock(int $status): void
- * @method getHLockHD(): ?int
- * @method setHLockHD(int $id): void
- * @method getHLockHB(): ?int
- * @method setHLockHB(int $timestamp): void
+ * @method getHLockHd(): ?int
+ * @method setHLockHd(int $id): void
+ * @method getHLockHb(): ?int
+ * @method setHLockHb(int $timestamp): void
  */
 class CollectionEntity extends Entity implements JsonSerializable {
 	protected ?string $uid = null;

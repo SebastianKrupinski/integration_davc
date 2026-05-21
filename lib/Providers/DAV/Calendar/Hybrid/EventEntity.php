@@ -7,19 +7,24 @@ declare(strict_types=1);
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-namespace OCA\DAVC\Providers\DAV\Calendar\Live;
+namespace OCA\DAVC\Providers\DAV\Calendar\Hybrid;
 
-use OCA\DAVC\Objects\Event\EventObject;
+use OCA\DAVC\Store\Local\EventEntity as EventEntityData;
 
 class EventEntity implements \Sabre\CalDAV\ICalendarObject, \Sabre\DAVACL\IACL {
+	private EventCollection $_collection;
+	private EventEntityData $_entity;
 
 	/**
-	 * entity constructor
+	 * Entity Constructor
+	 *
+	 * @param EventCollection $collection
+	 * @param EventEntityData $entity
 	 */
-	public function __construct(
-		private EventCollection $_collection,
-		private EventObject $_entity
-	) {}
+	public function __construct(EventCollection $collection, EventEntityData $entity) {
+		$this->_collection = $collection;
+		$this->_entity = $entity;
+	}
 
 	/**
 	 * @inheritDoc
@@ -66,21 +71,21 @@ class EventEntity implements \Sabre\CalDAV\ICalendarObject, \Sabre\DAVACL\IACL {
 	 * @inheritDoc
 	 */
 	public function get() {
-		return $this->_collection->fromEventObject($this->_entity);
+		return $this->_entity->getData();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function put($data) {
-		return $this->_collection->modifyFile($this->_entity->ID, $data);
+		return $this->_collection->modifyFile($this->_entity, $data);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function delete() {
-		return $this->_collection->deleteFile($this->_entity->ID);
+		return $this->_collection->deleteFile($this->_entity);
 	}
 
 	/**
@@ -94,21 +99,21 @@ class EventEntity implements \Sabre\CalDAV\ICalendarObject, \Sabre\DAVACL\IACL {
 	 * @inheritDoc
 	 */
 	public function getETag() {
-		return $this->_entity->Signature;
+		return $this->_entity->getSignature();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getSize() {
-		return 1024;
+		return strlen($this->_entity->getData());
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getName() {
-		return $this->_entity->ID . '.ics';
+		return $this->_entity->getUuid() . '.ics';
 	}
 
 	/**
@@ -122,7 +127,7 @@ class EventEntity implements \Sabre\CalDAV\ICalendarObject, \Sabre\DAVACL\IACL {
 	 * @inheritDoc
 	 */
 	public function getLastModified() {
-		return $this->_entity->ModifiedOn->getTimestamp();
+		return time();
 	}
 
 }
