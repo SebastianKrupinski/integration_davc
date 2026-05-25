@@ -14,26 +14,26 @@
         "psalm/phar": "^6.16"
     },
     "config": {
-		"platform": {
-			"php": "8.2"
-		},
-		"sort-packages": true,
-		"optimize-autoloader": true,
-		"autoloader-suffix": "DavConnector"
-	},
+        "platform": {
+            "php": "8.2"
+        },
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "autoloader-suffix": "DAVC"
+    },
     "autoload": {
         "psr-4": {
-            "OCA\\DavConnector\\": "lib/"
+            "OCA\\DAVC\\": "lib/"
         }
     },
     "scripts": {
-		"lint": "find . -name \\*.php -not -path './vendor/*' -not -path './build/*' -print0 | xargs -0 -n1 php -l",
-		"cs:check": "php-cs-fixer fix --dry-run --diff",
-		"cs:fix": "php-cs-fixer fix",
-		"psalm": "psalm --no-cache --threads=$(nproc)",
-		"psalm:dev": "@psalm",
-		"psalm:baseline": "psalm --threads=1 --update-baseline",
-		"test:unit": "phpunit -c tests/php/phpunit.xml --testsuite 'Unit Tests'",
-		"test:integration": "phpunit -c tests/php/phpunit.xml --testsuite 'Integration Tests'"
-	}
+        "lint": "find . -name \\*.php -not -path './vendor/*' -not -path './build/*' -print0 | xargs -0 -n1 php -l",
+        "cs:check": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix",
+        "psalm": "psalm --no-cache --threads=$(nproc)",
+        "psalm:dev": "@psalm",
+        "psalm:baseline": "psalm --threads=1 --update-baseline",
+        "test:unit": "phpunit -c tests/php/phpunit.xml --testsuite 'Unit Tests'",
+        "test:integration": "phpunit -c tests/php/phpunit.xml --testsuite 'Integration Tests'"
+    }
 }
