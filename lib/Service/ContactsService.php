@@ -125,27 +125,31 @@ class ContactsService {
 		} catch (\RuntimeException) {
 			$remoteEntityDelta = $this->determineRemoteDelta($collection);
 		}
-		// process remote additions
+		// process remote mutations
 		$alterations = array_unique(
 			array_merge(
 				$remoteEntityDelta->additions->getArrayCopy(),
-				$remoteEntityDelta->modifications->getArrayCopy()
+				$remoteEntityDelta->modifications->getArrayCopy(),
 			)
 		);
-		foreach ($alterations as $remoteEntityId) {
-			// process addition
-			$as = $this->harmonizeRemoteAltered($this->userId, $serviceId, $remoteCollectionId, $remoteEntityId, $localCollectionId);
-			// increment statistics
-			switch ($as) {
-				case 'LC':
-					$statistics->LocalCreated += 1;
-					break;
-				case 'LU':
-					$statistics->LocalUpdated += 1;
-					break;
-				case 'RU':
-					$statistics->RemoteUpdated += 1;
-					break;
+		// chunk alterations to prevent memory exhaustion on large collections
+		foreach (array_chunk($alterations, 100) as $chunk) {
+			$remoteEntities = $this->remoteContactsService->entityFetchMultiple($remoteCollectionId, $chunk);
+			foreach ($remoteEntities as $remoteEntityId => $remoteEntity) {
+				// process addition
+				$as = $this->harmonizeRemoteAltered($this->userId, $serviceId, $remoteEntity, $localCollectionId);
+				// increment statistics
+				switch ($as) {
+					case 'LC':
+						$statistics->LocalCreated += 1;
+						break;
+					case 'LU':
+						$statistics->LocalUpdated += 1;
+						break;
+					case 'RU':
+						$statistics->RemoteUpdated += 1;
+						break;
+				}
 			}
 		}
 
@@ -228,27 +232,24 @@ class ContactsService {
 	 *
 	 * @param string $uid system user id
 	 * @param int $serviceId service id
-	 * @param string $remoteCollectionId remote collection id
-	 * @param string $remoteEntityId remote entity id
+	 * @param Entity $remoteEntity remote entity
 	 * @param int $localCollectionId local collection id
 	 *
 	 * @return string what action was performed
 	 */
-	public function harmonizeRemoteAltered(string $uid, int $serviceId, string $remoteCollectionId, string $remoteEntityId, int $localCollectionId): string {
+	public function harmonizeRemoteAltered(string $uid, int $serviceId, Entity $remoteEntity, int $localCollectionId): string {
 
 		// define default operation status
 		$status = 'NA'; // no action
 		// define entity place holders
-		$ro = null;
+		$ro = $remoteEntity;
 		$lo = null;
-		// retrieve remote entity
-		$ro = $this->remoteContactsService->entityFetch($remoteCollectionId, $remoteEntityId);
 		// evaluate, if remote entity was returned
 		if (!($ro instanceof Entity)) {
 			return $status;
 		}
 		// retrieve local entity with remote collection and entity id
-		$lo = $this->localContactsService->entityFetchByCorrelation($localCollectionId, $remoteCollectionId, $remoteEntityId);
+		$lo = $this->localContactsService->entityFetchByCorrelation($localCollectionId, $ro->remoteCollectionId, $ro->remoteEntityId);
 		// if local entity exists
 		// compare local and remote generated signature to correlation signature
 		// stop processing if they match this is necessary to prevent synchronization feedback loop

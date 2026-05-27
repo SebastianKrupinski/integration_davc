@@ -142,6 +142,59 @@ class RemoteContactsService {
 		}
 		return $list;
 	}
+	
+	/**
+	 * retrieve entity(ies) from remote storage
+	 *
+	 * @param string $identifier Id of entity
+	 *
+	 * @return Entity|null
+	 */
+	public function entityFetch(string $location, string $identifier): ?Entity {
+		$responses = $this->dataStore->multiGet(
+			$location,
+			[$identifier],
+			RemoteClient::CARDDAV_ADDRESSBOOK_MULTIGET,
+			RemoteClient::CARDDAV_ADDRESS_DATA,
+		);
+
+		if (isset($responses[$identifier])) {
+			$response = $responses[$identifier];
+			if ($response['status'] === 200) {
+				return $this->toEntityModel($response, ['remoteEntityId' => $identifier, 'remoteCollectionId' => $location]);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * retrieve entity(ies) from remote storage
+	 *
+	 * @param array<string> $identifiers Id of entity
+	 *
+	 * @return array<string,Entity> list of entities indexed by id
+	 */
+	public function entityFetchMultiple(string $location, array $identifiers): array {
+		$responses = $this->dataStore->multiGet(
+			$location,
+			$identifiers,
+			RemoteClient::CARDDAV_ADDRESSBOOK_MULTIGET,
+			RemoteClient::CARDDAV_ADDRESS_DATA,
+		);
+
+		$entities = [];
+		foreach ($identifiers as $identifier) {
+			if (isset($responses[$identifier])) {
+				$response = $responses[$identifier];
+				if ($response['status'] === 200) {
+					$entities[$identifier] = $this->toEntityModel($response, ['remoteEntityId' => $identifier, 'remoteCollectionId' => $location]);
+				}
+			}
+		}
+
+		return $entities;
+	}
 
 	/**
 	 * delta for entities in remote storage
@@ -212,42 +265,6 @@ class RemoteContactsService {
 		} catch (\Throwable) {
 			throw new RuntimeException('Failed to retrieve delta from remote server.');
 		}
-	}
-
-	/**
-	 * retrieve entity(ies) from remote storage
-	 *
-	 * @param string $identifier Id of entity
-	 *
-	 * @return Entity|null
-	 */
-	public function entityFetch(string $location, string $identifier): ?Entity {
-		$responses = $this->dataStore->multiGet(
-			$location,
-			[$identifier],
-			RemoteClient::CARDDAV_ADDRESSBOOK_MULTIGET,
-			RemoteClient::CARDDAV_ADDRESS_DATA,
-		);
-
-		if (isset($responses[$identifier])) {
-			$response = $responses[$identifier];
-			if ($response['status'] === 200) {
-				return $this->toEntityModel($response, ['remoteEntityId' => $identifier, 'remoteCollectionId' => $location]);
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * retrieve entity(ies) from remote storage
-	 *
-	 * @param array<string> $identifiers Id of entity
-	 *
-	 * @return array<string,Entity> list of entities indexed by id
-	 */
-	public function entityFetchMultiple(string $location, array $identifiers): array {
-		return [];
 	}
 
 	/**
