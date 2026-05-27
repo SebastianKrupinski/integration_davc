@@ -189,7 +189,6 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 	public function getProperties($properties): array {
 		// return collection properties
 		return [
-			Constants::DAV_PROPERTY_OWNER => $this->getOwner(),
 			Constants::DAV_PROPERTY_DISPLAYNAME => $this->collection->label,
 			Constants::DAV_PROPERTY_CALENDAR_ENABLED => (string)$this->collection->visible,
 			Constants::DAV_PROPERTY_CALENDAR_COMPONENT_SET => new SupportedCalendarComponentSet(['VEVENT']),
@@ -222,7 +221,7 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 			}
 			// evaluate if enabled was changed
 			if (isset($mutations[Constants::DAV_PROPERTY_CALENDAR_ENABLED])) {
-				$mutation->visible = $mutations[Constants::DAV_PROPERTY_CALENDAR_ENABLED];
+				$mutation->visible = (bool)$mutations[Constants::DAV_PROPERTY_CALENDAR_ENABLED];
 				$propPatch->setResultCode(Constants::DAV_PROPERTY_CALENDAR_ENABLED, 200);
 			}
 			// update collection

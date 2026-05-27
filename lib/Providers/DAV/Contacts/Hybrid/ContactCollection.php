@@ -170,7 +170,6 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 	public function getProperties($properties): array {
 		// return collection properties
 		return [
-			Constants::DAV_PROPERTY_OWNER => $this->getOwner(),
 			Constants::DAV_PROPERTY_DISPLAYNAME => $this->collection->label,
 			Constants::DAV_PROPERTY_ADDRESSBOOK_ENABLED => (string)$this->collection->visible,
 		];
