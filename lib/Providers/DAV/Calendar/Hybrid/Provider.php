@@ -119,7 +119,7 @@ class Provider implements ICalendarProvider1, ICalendarProvider2 {
 		return null;
 	}
 
-	protected function cacheRetrieveCollection(string $uid, string $cid): EventCollection|null {
+	protected function cacheRetrieveCollection(string $uid, string $cid): ?EventCollection {
 		if (isset($this->_CollectionCache[$uid][$cid])) {
 			return $this->_CollectionCache[$uid][$cid];
 		}

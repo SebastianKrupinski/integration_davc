@@ -55,7 +55,7 @@ class CollectionEntity extends Entity implements JsonSerializable {
 	protected ?int $hlock = 0;
 	protected ?int $hlockhd = 0;
 	protected ?int $hlockhb = 0;
-		
+
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,

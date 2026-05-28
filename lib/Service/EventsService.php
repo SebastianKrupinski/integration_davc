@@ -36,7 +36,8 @@ class EventsService {
 		private readonly LoggerInterface $logger,
 		private readonly LocalFactory $localFactory,
 		private readonly RemoteFactory $remoteFactory,
-	) {}
+	) {
+	}
 
 	/**
 	 * Perform harmonization for all collections for a service
@@ -58,8 +59,8 @@ class EventsService {
 		// iterate through collections
 		foreach ($collections as $collection) {
 			// evaluate if collection is locked and lock has not expired
-			if ($collection->getHlock() == 1 &&
-			   (time() - $collection->getHlockhb()) < 3600) {
+			if ($collection->getHlock() == 1
+			   && (time() - $collection->getHlockhb()) < 3600) {
 				continue;
 			}
 			// lock collection before harmonization
@@ -175,9 +176,8 @@ class EventsService {
 		$collection = $this->localStore->collectionModify($collection);
 		// clean up
 		unset($remoteCollection, $remoteEntityDelta);
-		
-		return $statistics;
 
+		return $statistics;
 	}
 
 	/**
@@ -187,7 +187,7 @@ class EventsService {
 		// retrieve remote entity list and local entity list
 		$remoteCollectionId = $collection->getCcid();
 		$rList = $this->remoteEventsService->entityList($remoteCollectionId, 'basic');
-		
+
 		$localCollectionId = $collection->getId();
 		$lFilter = $this->localEventsService->entityListFilter();
 		$lFilter->condition('cid', $localCollectionId);
@@ -272,7 +272,6 @@ class EventsService {
 		}
 		// return operation status
 		return $status;
-
 	}
 
 	/**

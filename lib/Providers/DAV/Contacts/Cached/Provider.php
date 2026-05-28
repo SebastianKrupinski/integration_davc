@@ -11,7 +11,6 @@ namespace OCA\DAVC\Providers\DAV\Contacts\Cached;
 
 use OCA\DAV\CardDAV\Integration\ExternalAddressBook;
 use OCA\DAV\CardDAV\Integration\IAddressBookProvider;
-
 use OCA\DAVC\AppInfo\Application;
 use OCA\DAVC\Store\Local\CollectionEntity;
 use OCA\DAVC\Store\Local\ContactStore;

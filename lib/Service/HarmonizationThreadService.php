@@ -38,10 +38,10 @@ class HarmonizationThreadService {
 	public function launch(string $uid): int {
 
 		// construct command
-		$command = 'php --define apc.enable_cli=1 ' .
-			dirname(__DIR__) . '/Tasks/HarmonizationThread.php ' .
-			'-u' . $uid .
-			' > /dev/null 2>&1 & echo $!;';
+		$command = 'php --define apc.enable_cli=1 '
+			. dirname(__DIR__) . '/Tasks/HarmonizationThread.php '
+			. '-u' . $uid
+			. ' > /dev/null 2>&1 & echo $!;';
 		// execute command
 		$rs = shell_exec($command);
 		// format response
@@ -128,7 +128,9 @@ class HarmonizationThreadService {
 					return $entry['NcUser'] == $uid;
 				});
 			}
-			$rs = array_map(function ($entry) { return (object)['TID' => intval($entry['ThreadId']), 'UID' => $entry['NcUser']];}, $matches);
+			$rs = array_map(function ($entry) {
+				return (object)['TID' => intval($entry['ThreadId']), 'UID' => $entry['NcUser']];
+			}, $matches);
 			return $rs;
 		} else {
 			return [];

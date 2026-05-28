@@ -12,7 +12,7 @@ namespace OCA\DAVC\Store\Local\Sort;
 use OCA\DAVC\Store\Common\Sort\SortBase;
 
 class CollectionSort extends SortBase {
-	
+
 	protected array $attributes = [
 		'id' => true,
 		'uid' => true,

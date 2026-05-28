@@ -11,10 +11,10 @@ namespace OCA\DAVC\Service;
 
 use DateTime;
 use OCA\DAVC\AppInfo\Application;
-use OCA\DAVC\Service\Remote\RemoteFactory;
-use OCA\DAVC\Store\Local\ServiceEntity;
 use OCA\DAVC\Constants;
 use OCA\DAVC\Service\Local\LocalFactory;
+use OCA\DAVC\Service\Remote\RemoteFactory;
+use OCA\DAVC\Store\Local\ServiceEntity;
 use OCP\BackgroundJob\IJobList;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
@@ -208,7 +208,6 @@ class CoreService {
 		//$this->TaskService->add(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $service->getId()]);
 
 		return true;
-
 	}
 
 	/**
@@ -315,7 +314,6 @@ class CoreService {
 		}
 		// return response
 		return $data;
-
 	}
 
 	/**
@@ -349,7 +347,6 @@ class CoreService {
 		}
 		// return response
 		return $data;
-
 	}
 
 	/**

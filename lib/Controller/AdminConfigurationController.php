@@ -12,7 +12,6 @@ namespace OCA\DAVC\Controller;
 use OCA\DAVC\Service\ConfigurationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
-
 use OCP\IRequest;
 
 class AdminConfigurationController extends Controller {
@@ -27,7 +26,7 @@ class AdminConfigurationController extends Controller {
 		parent::__construct($appName, $request);
 
 		$this->ConfigurationService = $ConfigurationService;
-		
+
 	}
 
 	/**
@@ -38,7 +37,7 @@ class AdminConfigurationController extends Controller {
 	 * @return DataResponse
 	 */
 	public function depositConfiguration(array $values): DataResponse {
-		
+
 		$this->ConfigurationService->depositSystem($values);
 
 		return new DataResponse(true);

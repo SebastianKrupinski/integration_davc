@@ -11,8 +11,8 @@ namespace OCA\DAVC\Service\Remote;
 
 use OCA\DAVC\AppInfo\Application;
 use OCP\Http\Client\IClient;
-use OCP\Http\Client\IResponse;
 use OCP\Http\Client\IClientService;
+use OCP\Http\Client\IResponse;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\Xml\Response\MultiStatus;
@@ -21,9 +21,8 @@ use Sabre\Xml\ParseException;
 
 class RemoteClient {
 
-	
-    public const DAV_PROFIND = '{DAV:}propfind';
-    public const DAV_PROPERTY = '{DAV:}prop';
+	public const DAV_PROFIND = '{DAV:}propfind';
+	public const DAV_PROPERTY = '{DAV:}prop';
 	public const DAV_MULTISTATUS = '{DAV:}multistatus';
 	public const DAV_SYNC_COLLECTION = '{DAV:}sync-collection';
 	public const DAV_SYNC_LEVEL = '{DAV:}sync-level';
@@ -77,15 +76,15 @@ class RemoteClient {
 
 	private ?LoggerInterface $logger = null;
 
-    private array $capabilities = [
-        'discovery' => false,
-        'endpoint' => null,
-        'dav' => [],
-        'allow' => [],
-        'principalUrl' => null,
-        'calendarHomeSet' => null,
-        'addressbookHomeSet' => null,
-    ];
+	private array $capabilities = [
+		'discovery' => false,
+		'endpoint' => null,
+		'dav' => [],
+		'allow' => [],
+		'principalUrl' => null,
+		'calendarHomeSet' => null,
+		'addressbookHomeSet' => null,
+	];
 
 	public function __construct(
 		private IClientService $clientService,
@@ -102,20 +101,20 @@ class RemoteClient {
 		$this->locationSecurity = $verify;
 	}
 
-	public function configureLocation(string|null $protocol, string $host, int|null $port, string|null $path): void {
+	public function configureLocation(?string $protocol, string $host, ?int $port, ?string $path): void {
 		$this->locationHost = $host;
-        if ($protocol !== null) {
-            $this->locationProtocol = $protocol;
-        }
-        if ($port !== null) {
-            $this->locationPort = $port;
-        }
-        if ($path !== null) {
-            $this->locationPath = $path;
-        }
+		if ($protocol !== null) {
+			$this->locationProtocol = $protocol;
+		}
+		if ($port !== null) {
+			$this->locationPort = $port;
+		}
+		if ($path !== null) {
+			$this->locationPath = $path;
+		}
 	}
 
-	public function configureLogging(LoggerInterface|null $logger): void {
+	public function configureLogging(?LoggerInterface $logger): void {
 		$this->logger = $logger instanceof LoggerInterface ? $logger : null;
 	}
 
@@ -133,17 +132,17 @@ class RemoteClient {
 		return $this->capabilities['principalUrl'] ?? null;
 	}
 
-    public function setPrincipalUrl(?string $principalUrl): void {
-        $this->capabilities['principalUrl'] = $principalUrl;
-    }
+	public function setPrincipalUrl(?string $principalUrl): void {
+		$this->capabilities['principalUrl'] = $principalUrl;
+	}
 
 	public function getCalendarHome(): ?string {
 		return $this->capabilities['calendarHomeSet'] ?? null;
 	}
 
-    public function setCalendarHome(?string $calendarHomeSet): void {
-        $this->capabilities['calendarHomeSet'] = $calendarHomeSet;
-    }
+	public function setCalendarHome(?string $calendarHomeSet): void {
+		$this->capabilities['calendarHomeSet'] = $calendarHomeSet;
+	}
 
 	public function getAddressbookHome(): ?string {
 		return $this->capabilities['addressbookHomeSet'] ?? null;
@@ -153,7 +152,7 @@ class RemoteClient {
 		$this->capabilities['addressbookHomeSet'] = $addressbookHomeSet;
 	}
 
-	public function capabilities(string|null $capability = null): array {
+	public function capabilities(?string $capability = null): array {
 		if ($capability !== null) {
 			return $this->capabilities[$capability] ?? [];
 		}
@@ -198,14 +197,14 @@ class RemoteClient {
 		$request = (new SabreXmlService())->write(self::DAV_PROFIND, [
 			self::DAV_PROPERTY => $normalizedProperties,
 		]);
-		
+
 		$options = $this->buildOptionsRequestOptions(
 			['Depth' => (string)$depth],
 			['body' => $request],
 		);
 
 		$url = $this->constructUrl($path);
-		
+
 		$response = $this->transceive('PROPFIND', $url, $options);
 
 		return $this->parseMultistatusProperties($response);
@@ -329,7 +328,7 @@ class RemoteClient {
 
 		try {
 			$this->options($url);
-			
+
 			$discoveryProperties = $this->propFind($url, 0, [
 				self::DAV_USER_PRINCIPAL => null,
 			]);
@@ -371,7 +370,7 @@ class RemoteClient {
 			$this->capabilities['discovery'] = true;
 		} catch (ClientExceptionInterface|ParseException $e) {
 			$this->capabilities['discovery'] = false;
-            throw $e;
+			throw $e;
 		}
 
 		return $this->capabilities;

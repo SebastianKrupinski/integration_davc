@@ -16,7 +16,7 @@ use OCP\IDBConnection;
 class ContactStore extends BaseStore {
 
 	public function __construct(IDBConnection $store) {
-		
+
 		$this->_Store = $store;
 		$this->_CollectionTable = 'davc_collections';
 		$this->_CollectionIdentifier = 'CC';

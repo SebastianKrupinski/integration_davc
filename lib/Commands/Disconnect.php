@@ -22,7 +22,7 @@ class Disconnect extends Command {
 	public function __construct(
 		private IUserManager $userManager,
 		private CoreService $CoreService,
-		private ServicesService $servicesService
+		private ServicesService $servicesService,
 	) {
 		parent::__construct();
 	}

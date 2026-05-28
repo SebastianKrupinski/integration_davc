@@ -12,7 +12,6 @@ namespace OCA\DAVC\Settings;
 use OCA\DAVC\AppInfo\Application;
 use OCA\DAVC\Service\ConfigurationService;
 use OCP\AppFramework\Http\TemplateResponse;
-
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Settings\ISettings;
 use OCP\Util;
@@ -23,7 +22,8 @@ class UserSettings implements ISettings {
 		private IInitialState $initialStateService,
 		private ConfigurationService $configurationService,
 		private string $userId,
-	) {}
+	) {
+	}
 
 	/**
 	 * @return TemplateResponse
@@ -34,7 +34,7 @@ class UserSettings implements ISettings {
 		// retrieve system configuration
 		$configuration['system_contacts'] = $this->configurationService->isContactsAppAvailable();
 		$configuration['system_events'] = $this->configurationService->isCalendarAppAvailable();
-		
+
 		$this->initialStateService->provideInitialState('system-configuration', $configuration);
 
 		return new TemplateResponse(Application::APP_ID, 'UserSettings');

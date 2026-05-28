@@ -12,9 +12,9 @@ namespace OCA\DAVC\Providers\DAV\Calendar\Hybrid;
 use DateTimeInterface;
 use OCA\DAV\CalDAV\Integration\ExternalCalendar;
 use OCA\DAVC\AppInfo\Application;
-use OCA\DAVC\Providers\DAV\Constants;
 use OCA\DAVC\Models\Calendars\Collection;
 use OCA\DAVC\Models\Calendars\Entity;
+use OCA\DAVC\Providers\DAV\Constants;
 use OCA\DAVC\Service\Local\LocalEventsService;
 use OCA\DAVC\Service\Remote\RemoteEventsService;
 use OCA\DAVC\Service\Remote\RemoteFactory;
@@ -29,20 +29,20 @@ use Sabre\DAV\PropPatch;
 use Sabre\DAV\Sync\ISyncCollection;
 
 class EventCollection extends ExternalCalendar implements ICalendar, IProperties, IMultiGet, ISyncCollection {
-	
+
 	private const DAV_USER_PREFIX = 'principals/users/';
-	private RemoteEventsService|null $remoteService = null;
+	private ?RemoteEventsService $remoteService = null;
 
 	public function __construct(
 		private readonly ServicesStore $servicesStore,
 		private readonly LocalEventsService $localService,
 		private readonly RemoteFactory $remoteFactory,
-		private Collection $collection
+		private Collection $collection,
 	) {
 		parent::__construct(Application::APP_ID, $collection->uuid);
 	}
 
-	/** 
+	/**
 	 * lazy load remote service
 	 */
 	protected function remoteService(): RemoteEventsService {
@@ -55,7 +55,7 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 		if ($service === null) {
 			throw new \Exception('Service not found');
 		}
-		
+
 		$this->remoteService = $this->remoteFactory->eventsService($this->remoteFactory->freshClient($service));
 
 		return $this->remoteService;
@@ -249,7 +249,6 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 		$this->localService->collectionDelete($this->collection->localId);
 	}
 
-
 	/**
 	 * find entities in this collection
 	 *
@@ -375,7 +374,7 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 	 * @return string entity signature
 	 */
 	public function createFile($id, $data = null): string {
-	
+
 		$eo = new Entity();
 		$eo->localCollectionId = $this->collection->localId;
 		$eo->remoteCollectionId = $this->collection->remoteId;
@@ -391,7 +390,7 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 			$this->collection->localId,
 			$entity
 		);
-		
+
 		// return state
 		return $entity->localSignature ?? '';
 	}
@@ -421,7 +420,6 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 
 		// return state
 		return $entity->localSignature ?? '';
-
 	}
 
 	/**

@@ -11,11 +11,10 @@ namespace OCA\DAVC\Providers\DAV\Contacts\Hybrid;
 
 use OCA\DAV\CardDAV\Integration\ExternalAddressBook;
 use OCA\DAV\CardDAV\Integration\IAddressBookProvider;
-
 use OCA\DAVC\AppInfo\Application;
 use OCA\DAVC\Models\Contacts\Collection;
-use OCA\DAVC\Service\Local\LocalFactory;
 use OCA\DAVC\Service\Local\LocalContactsService;
+use OCA\DAVC\Service\Local\LocalFactory;
 use OCA\DAVC\Service\Remote\RemoteFactory;
 use OCA\DAVC\Store\Local\ServicesStore;
 

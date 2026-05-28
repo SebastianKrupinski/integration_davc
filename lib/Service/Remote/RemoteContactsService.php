@@ -9,11 +9,10 @@ declare(strict_types=1);
 
 namespace OCA\DAVC\Service\Remote;
 
-use RuntimeException;
-
 use OCA\DAVC\Models\Contacts\Collection;
 use OCA\DAVC\Models\Contacts\Entity;
 use OCA\DAVC\Models\DeltaObject;
+use RuntimeException;
 
 class RemoteContactsService {
 	protected RemoteClient $dataStore;
@@ -69,7 +68,7 @@ class RemoteContactsService {
 			$this->dataStore->getAddressbookHome(),
 			1,
 			$granularity === 'basic' ? $this->collectionPropertiesBasic : $this->collectionPropertiesDefault
-		);		
+		);
 
 		// convert dav properties to collection objects
 		$list = [];
@@ -85,7 +84,7 @@ class RemoteContactsService {
 			}
 
 			$list[] = $this->toCollectionModel($id, $properties);
-			
+
 		}
 		// return collection of collections
 		return $list;
@@ -142,7 +141,7 @@ class RemoteContactsService {
 		}
 		return $list;
 	}
-	
+
 	/**
 	 * retrieve entity(ies) from remote storage
 	 *
@@ -204,10 +203,9 @@ class RemoteContactsService {
 	public function entityDelta(string $location, string $state): DeltaObject {
 		$davAbilities = $this->dataStore->capabilities('dav') ?? [];
 		$davMethods = $this->dataStore->capabilities('allow') ?? [];
-		
+
 		if (in_array('sync-collection', $davAbilities, true) === false && in_array('REPORT', $davMethods, true) === false) {
 			throw new RuntimeException('Remote server does not support DAV sync-collection reports.');
-			
 		}
 
 		$delta = new DeltaObject();
@@ -278,8 +276,8 @@ class RemoteContactsService {
 			$path = $so->remoteCollectionId . $so->remoteEntityId;
 		}
 		$data = $so->data;
-		
-		$result = $this->dataStore->create($path, $data, "application/vcard");
+
+		$result = $this->dataStore->create($path, $data, 'application/vcard');
 
 		$ro = clone $so;
 		$ro->remoteSignature = $result['etag'] ?? null;
@@ -298,12 +296,12 @@ class RemoteContactsService {
 			$path = $so->remoteCollectionId . $so->remoteEntityId;
 		}
 		$data = $so->data;
-		
-		$result = $this->dataStore->update($path, $data, "application/vcard");
+
+		$result = $this->dataStore->update($path, $data, 'application/vcard');
 
 		$ro = clone $so;
 		$ro->remoteSignature = $result['etag'] ?? null;
-		
+
 		return $ro;
 	}
 

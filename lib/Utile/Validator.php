@@ -27,7 +27,6 @@ class Validator {
 	public static function fqdn(string $fqdn): bool {
 
 		return (!empty($fqdn) && preg_match(self::_fqdn, $fqdn) > 0);
-
 	}
 
 	/**
@@ -42,7 +41,6 @@ class Validator {
 	public static function ip4(string $ip): bool {
 
 		return (!empty($ip) && preg_match(self::_ip4, $ip) > 0);
-
 	}
 
 	/**
@@ -57,7 +55,6 @@ class Validator {
 	public static function ip6(string $ip): bool {
 
 		return (!empty($ip) && preg_match(self::_ip6, $ip) > 0);
-
 	}
 
 	/**
@@ -88,7 +85,6 @@ class Validator {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -103,7 +99,6 @@ class Validator {
 	public static function email(string $address): bool {
 
 		return (!empty($address) && filter_var($address, FILTER_VALIDATE_EMAIL));
-
 	}
 
 	/**
@@ -120,7 +115,7 @@ class Validator {
 		if (self::email($username)) {
 			return true;
 		}
-		
+
 		// TODO: Windows Login Validator
 		/*
 		if (self::windows_username($username)) {
@@ -129,6 +124,5 @@ class Validator {
 		*/
 
 		return false;
-
 	}
 }

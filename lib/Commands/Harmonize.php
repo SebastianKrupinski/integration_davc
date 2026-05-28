@@ -20,7 +20,7 @@ class Harmonize extends Command {
 
 	public function __construct(
 		private IUserManager $userManager,
-		private HarmonizationService $HarmonizationService
+		private HarmonizationService $HarmonizationService,
 	) {
 		parent::__construct();
 	}
@@ -50,14 +50,12 @@ class Harmonize extends Command {
 
 		if ($sid !== null) {
 			$this->HarmonizationService->performHarmonization($uid, (int)$sid);
-		}
-		else {
+		} else {
 			$this->HarmonizationService->performHarmonization($uid);
 		}
 
 		$output->writeln("<info>Ended harmonization for User $uid</info>");
 
 		return self::SUCCESS;
-
 	}
 }

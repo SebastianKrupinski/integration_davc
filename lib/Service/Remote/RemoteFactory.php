@@ -53,7 +53,7 @@ class RemoteFactory {
 		}
 
 		// Set default capabilities from saved service
-		// This is does to short circuit the discovery process and avoid 
+		// This is does to short circuit the discovery process and avoid
 		// unnecessary network calls when capabilities are already known from previous discovery
 		$client->setPrincipalUrl($service->getPrincipalUrl());
 		$client->setCalendarHome($service->getCalendarsUrl());

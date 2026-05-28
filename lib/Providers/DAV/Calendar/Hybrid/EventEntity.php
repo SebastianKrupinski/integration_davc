@@ -12,11 +12,12 @@ namespace OCA\DAVC\Providers\DAV\Calendar\Hybrid;
 use OCA\DAVC\Models\Calendars\Entity;
 
 class EventEntity implements \Sabre\CalDAV\ICalendarObject, \Sabre\DAVACL\IACL {
-	
+
 	public function __construct(
 		private readonly EventCollection $collection,
-		private readonly Entity $entity
-	){}
+		private readonly Entity $entity,
+	) {
+	}
 
 	/**
 	 * @inheritDoc

@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace OCA\DAVC\Store\Common\Sort;
 
-use OCA\DAVC\Store\Common\Sort\ISort;
-
 class SortBase implements ISort {
 
 	protected array $attributes = [];
@@ -29,7 +27,7 @@ class SortBase implements ISort {
 	/**
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @param string $attribute attribute name
 	 * @param bool $direction true for ascending, false for descending
 	 */

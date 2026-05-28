@@ -13,7 +13,6 @@ use Exception;
 use OCA\DAVC\Service\CoreService;
 use OCA\DAVC\Service\ServicesService;
 use OCP\EventDispatcher\Event;
-
 use OCP\EventDispatcher\IEventListener;
 use OCP\User\Events\UserDeletedEvent;
 use Psr\Log\LoggerInterface;
@@ -40,6 +39,6 @@ class UserDeletedListener implements IEventListener {
 				$this->logger->warning($e->getMessage(), ['uid' => $event->getUser()->getUID()]);
 			}
 		}
-		
+
 	}
 }

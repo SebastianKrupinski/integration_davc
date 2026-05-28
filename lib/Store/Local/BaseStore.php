@@ -83,7 +83,7 @@ class BaseStore {
 	 * retrieve collections from data store
 	 *
 	 * @since Release 1.0.0
-	 * 
+	 *
 	 * @param IFilter $filter filter options
 	 * @param ISort $sort sort options
 	 *
@@ -118,9 +118,9 @@ class BaseStore {
 
 	/**
 	 * retrieve instance of collection filter
-	 * 
+	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return CollectionFilter
 	 */
 	public function collectionListFilter(): IFilter {
@@ -129,9 +129,9 @@ class BaseStore {
 
 	/**
 	 * retrieve instance of collection sort
-	 * 
+	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return CollectionSort
 	 */
 	public function collectionListSort(): ISort {
@@ -233,12 +233,12 @@ class BaseStore {
 		if ($entity->id === null) {
 			$entity->setId($cmd->getLastInsertId());
 		}
-		
+
 		$entity->resetUpdatedFields();
 
 		return $entity;
 	}
-	
+
 	/**
 	 * modify a collection entry in the data store
 	 *
@@ -297,7 +297,7 @@ class BaseStore {
 			->where($cmd->expr()->eq('id', $cmd->createNamedParameter($entity->getId())));
 		// execute command
 		$cmd->executeStatement();
-		
+
 		return $entity;
 	}
 
@@ -659,7 +659,6 @@ class BaseStore {
 	public function entityFresh(): Entity {
 
 		return new $this->_EntityClass;
-		
 	}
 
 	/**
@@ -695,9 +694,8 @@ class BaseStore {
 		$entity->resetUpdatedFields();
 
 		return $entity;
-		
 	}
-	
+
 	/**
 	 * modify a entity entry in the data store
 	 *
@@ -730,11 +728,10 @@ class BaseStore {
 		}
 		// chronicle operation
 		$this->chronicleDocument($entity->getUid(), $entity->getSid(), $entity->getCid(), $entity->getId(), $entity->getUuid(), 2);
-		
+
 		$entity->resetUpdatedFields();
-		
+
 		return $entity;
-		
 	}
 
 	/**
@@ -758,7 +755,6 @@ class BaseStore {
 		$this->chronicleDocument($entity->getUid(), $entity->getSid(), $entity->getCid(), $entity->getId(), $entity->getUuid(), 3);
 		// return result
 		return $entity;
-		
 	}
 
 	/**
@@ -778,7 +774,6 @@ class BaseStore {
 			->where($cmd->expr()->eq('id', $cmd->createNamedParameter($id)));
 		// execute command and return result
 		return $cmd->executeStatement();
-
 	}
 
 	/**
@@ -798,7 +793,6 @@ class BaseStore {
 			->where($cmd->expr()->eq('uid', $cmd->createNamedParameter($uid)));
 		// execute command and return result
 		return $cmd->executeStatement();
-
 	}
 
 	/**
@@ -818,7 +812,6 @@ class BaseStore {
 			->where($cmd->expr()->eq('sid', $cmd->createNamedParameter($sid)));
 		// execute command and return result
 		return $cmd->executeStatement();
-
 	}
 
 	/**
@@ -838,7 +831,6 @@ class BaseStore {
 			->where($cmd->expr()->eq('cid', $cmd->createNamedParameter($cid)));
 		// execute command and return result
 		return $cmd->executeStatement();
-
 	}
 
 	/**
@@ -874,7 +866,6 @@ class BaseStore {
 		$cmd->executeStatement();
 		// return stamp
 		return base64_encode((string)$stamp);
-		
 	}
 
 	/**
@@ -902,7 +893,7 @@ class BaseStore {
 		} else {
 			return max(0, $stampApex);
 		}
-		
+
 	}
 
 	/**
@@ -952,7 +943,7 @@ class BaseStore {
 
 		// define place holder
 		$chronicle = ['additions' => [], 'modifications' => [], 'deletions' => [], 'stamp' => base64_encode((string)$stampApex)];
-		
+
 		// execute command
 		$rs = $cmd->executeQuery();
 		// process result
@@ -974,7 +965,6 @@ class BaseStore {
 
 		// return stamp
 		return $chronicle;
-		
 	}
 
 	/**

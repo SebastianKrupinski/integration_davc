@@ -12,7 +12,7 @@ namespace OCA\DAVC\Store\Local\Sort;
 use OCA\DAVC\Store\Common\Sort\SortBase;
 
 class ContactSort extends SortBase {
-	
+
 	protected array $attributes = [
 		'uid' => true,
 		'sid' => true,

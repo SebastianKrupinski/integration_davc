@@ -16,8 +16,9 @@ use OCP\Migration\IRepairStep;
 class DefaultServiceTemplates implements IRepairStep {
 
 	public function __construct(
-		private ServicesTemplateStore $store
-	) {}
+		private ServicesTemplateStore $store,
+	) {
+	}
 
 	public function getName(): string {
 		return 'Create or update default Dav Connector service templates';
@@ -39,5 +40,5 @@ class DefaultServiceTemplates implements IRepairStep {
 			}
 		}
 	}
-	
+
 }

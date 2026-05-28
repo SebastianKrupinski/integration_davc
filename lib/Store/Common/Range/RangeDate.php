@@ -18,7 +18,7 @@ class RangeDate implements IRangeDate {
 		protected ?DateTimeInterface $start = null,
 		protected ?DateTimeInterface $end = null,
 	) {
-		
+
 		if ($start === null) {
 			$start = new DateTime();
 		}
@@ -37,7 +37,7 @@ class RangeDate implements IRangeDate {
 	public function type(): string {
 		return 'date';
 	}
-	
+
 	/**
 	 *
 	 * @since 1.0.0

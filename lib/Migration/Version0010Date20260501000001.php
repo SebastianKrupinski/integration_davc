@@ -20,7 +20,8 @@ class Version0010Date20260501000001 extends SimpleMigrationStep {
 
 	public function __construct(
 		private IDBConnection $db,
-	) {}
+	) {
+	}
 
 	/**
 	 * @param IOutput $output

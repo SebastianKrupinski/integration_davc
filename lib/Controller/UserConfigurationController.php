@@ -15,14 +15,13 @@ use OCA\DAVC\Service\HarmonizationService;
 use OCA\DAVC\Service\ServicesService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-
 use OCP\AppFramework\Http\Attribute\FrontpageRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
 
 class UserConfigurationController extends Controller {
-	
+
 	public function __construct(
 		string $appName,
 		IRequest $request,
@@ -43,7 +42,7 @@ class UserConfigurationController extends Controller {
 	#[NoAdminRequired]
 	#[FrontpageRoute(verb: 'GET', url: '/service/list')]
 	public function serviceList(): DataResponse {
-		
+
 		// evaluate if user id is present
 		if ($this->userId === null) {
 			return new DataResponse([], Http::STATUS_BAD_REQUEST);
@@ -68,7 +67,7 @@ class UserConfigurationController extends Controller {
 	#[NoAdminRequired]
 	#[FrontpageRoute(verb: 'POST', url: '/service/connect')]
 	public function Connect(array $service): DataResponse {
-		
+
 		// evaluate if user id is present
 		if ($this->userId === null) {
 			return new DataResponse([], Http::STATUS_BAD_REQUEST);
@@ -80,7 +79,7 @@ class UserConfigurationController extends Controller {
 		} catch (\Throwable $th) {
 			return new DataResponse($th->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
-		
+
 	}
 
 	/**
@@ -143,7 +142,7 @@ class UserConfigurationController extends Controller {
 	#[NoAdminRequired]
 	#[FrontpageRoute(verb: 'GET', url: '/remote/collections/fetch')]
 	public function remoteCollectionsFetch(int $sid): DataResponse {
-		
+
 		// evaluate if user id is present
 		if ($this->userId === null) {
 			return new DataResponse([], Http::STATUS_BAD_REQUEST);
@@ -167,7 +166,7 @@ class UserConfigurationController extends Controller {
 	#[NoAdminRequired]
 	#[FrontpageRoute(verb: 'GET', url: '/local/collections/fetch')]
 	public function localCollectionsFetch(int $sid): DataResponse {
-		
+
 		// evaluate if user id is present
 		if ($this->userId === null) {
 			return new DataResponse([], Http::STATUS_BAD_REQUEST);
@@ -192,7 +191,7 @@ class UserConfigurationController extends Controller {
 	#[NoAdminRequired]
 	#[FrontpageRoute(verb: 'POST', url: '/local/collections/deposit')]
 	public function localCollectionsDeposit(int $sid, array $ContactCorrelations, array $EventCorrelations): DataResponse {
-		
+
 		// evaluate if user id is present
 		if ($this->userId === null) {
 			return new DataResponse([], Http::STATUS_BAD_REQUEST);

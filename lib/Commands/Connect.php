@@ -25,7 +25,7 @@ class Connect extends Command {
 
 	public function __construct(
 		private IUserManager $userManager,
-		private CoreService $CoreService
+		private CoreService $CoreService,
 	) {
 		parent::__construct();
 	}

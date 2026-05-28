@@ -36,7 +36,8 @@ class ContactsService {
 		private LoggerInterface $logger,
 		private readonly LocalFactory $localFactory,
 		private readonly RemoteFactory $remoteFactory,
-	) {}
+	) {
+	}
 
 	/**
 	 * Perform harmonization for all collections for a service
@@ -58,8 +59,8 @@ class ContactsService {
 		// iterate through collections
 		foreach ($collections as $collection) {
 			// evaluate if collection is locked and lock has not expired
-			if ($collection->getHlock() == 1 &&
-			   (time() - $collection->getHlockhb()) < 3600) {
+			if ($collection->getHlock() == 1
+			   && (time() - $collection->getHlockhb()) < 3600) {
 				continue;
 			}
 			// lock collection before harmonization
@@ -186,7 +187,7 @@ class ContactsService {
 		// retrieve remote entity list and local entity list
 		$remoteCollectionId = $collection->getCcid();
 		$rList = $this->remoteContactsService->entityList($remoteCollectionId, 'basic');
-		
+
 		$localCollectionId = $collection->getId();
 		$lFilter = $this->localContactsService->entityListFilter();
 		$lFilter->condition('cid', $localCollectionId);
@@ -271,7 +272,6 @@ class ContactsService {
 		}
 		// return operation status
 		return $status;
-
 	}
 
 	/**
@@ -295,6 +295,5 @@ class ContactsService {
 		}
 
 	}
-
 
 }

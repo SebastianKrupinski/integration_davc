@@ -37,7 +37,7 @@ class LocalEventsService {
 	 */
 	public function collectionList(IFilter $filter): array {
 		$co = $this->_Store->collectionList($filter);
-		
+
 		$list = [];
 		foreach ($co as $entry) {
 			$list[] = $this->toCollectionModel($entry);
@@ -65,10 +65,10 @@ class LocalEventsService {
 		return $this->_Store->chronicleApex($id, true);
 	}
 
-	public function collectionModify(int $id, Collection $mutation): Collection|null {
+	public function collectionModify(int $id, Collection $mutation): ?Collection {
 		// retrieve existing entry from data store
 		$entry = $this->_Store->collectionFetch($id);
-		
+
 		if ($entry instanceof CollectionEntity) {
 			// modify collection properties
 			if (isset($mutation->label)) {
@@ -103,7 +103,7 @@ class LocalEventsService {
 	 *
 	 * @return array collection of entities
 	 */
-	public function entityList(IFilter|null $filter = null, ISort|null $sort = null, IRange|null $range = null): array {
+	public function entityList(?IFilter $filter = null, ?ISort $sort = null, ?IRange $range = null): array {
 		$entities = $this->_Store->entityList($filter, $sort, $range);
 
 		$list = [];
@@ -348,7 +348,7 @@ class LocalEventsService {
 			$method = 'set' . ucfirst($key);
 			$to->$method($value);
 		}
-		
+
 		return $to;
 	}
 

@@ -21,7 +21,7 @@ class Show extends Command {
 
 	public function __construct(
 		private IUserManager $userManager,
-		private ServicesService $servicesService
+		private ServicesService $servicesService,
 	) {
 		parent::__construct();
 	}

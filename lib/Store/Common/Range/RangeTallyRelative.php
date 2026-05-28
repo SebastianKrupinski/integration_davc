@@ -14,7 +14,8 @@ class RangeTallyRelative implements IRangeTally {
 	public function __construct(
 		protected string|int $position = 0,
 		protected string|int $count = 32,
-	) {	}
+	) {
+	}
 
 	/**
 	 *

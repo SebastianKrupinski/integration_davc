@@ -107,12 +107,12 @@ class Provider implements ICalendarProvider1, ICalendarProvider2 {
 		// collection not found
 		return null;
 	}
-	
+
 	protected function extractUserId(string $principalUri): string {
 		return substr($principalUri, 17);
 	}
 
-	protected function cacheRetrieveCollection(string $uid, string $cid): EventCollection|null {
+	protected function cacheRetrieveCollection(string $uid, string $cid): ?EventCollection {
 		if (isset($this->_CollectionCache[$uid][$cid])) {
 			return $this->_CollectionCache[$uid][$cid];
 		}
@@ -126,7 +126,7 @@ class Provider implements ICalendarProvider1, ICalendarProvider2 {
 		$this->_CollectionCache[$uid][$cid] = $collection;
 	}
 
-	protected function collectionFromDataEntity(CollectionEntity $entity): EventCollection|null {
+	protected function collectionFromDataEntity(CollectionEntity $entity): ?EventCollection {
 		if ($entity->getType() == 'EC') {
 			return new EventCollection($this->_EventStore, $entity);
 		}

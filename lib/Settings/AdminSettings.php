@@ -12,7 +12,6 @@ namespace OCA\DAVC\Settings;
 use OCA\DAVC\AppInfo\Application;
 use OCA\DAVC\Service\ConfigurationService;
 use OCP\AppFramework\Http\TemplateResponse;
-
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Settings\ISettings;
 use OCP\Util;
@@ -21,8 +20,9 @@ class AdminSettings implements ISettings {
 
 	public function __construct(
 		private IInitialState $initialStateService,
-		private ConfigurationService $ConfigurationService
-	) {}
+		private ConfigurationService $ConfigurationService,
+	) {
+	}
 
 	/**
 	 * @return TemplateResponse
@@ -32,7 +32,7 @@ class AdminSettings implements ISettings {
 
 		// retrieve user configuration
 		$configuration = $this->ConfigurationService->retrieveSystem();
-		
+
 		$this->initialStateService->provideInitialState('admin-configuration', $configuration);
 
 		return new TemplateResponse(Application::APP_ID, 'AdminSettings');

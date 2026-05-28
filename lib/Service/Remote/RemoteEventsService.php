@@ -9,12 +9,10 @@ declare(strict_types=1);
 
 namespace OCA\DAVC\Service\Remote;
 
-use Exception;
-use RuntimeException;
-
 use OCA\DAVC\Models\Calendars\Collection;
 use OCA\DAVC\Models\Calendars\Entity;
 use OCA\DAVC\Models\DeltaObject;
+use RuntimeException;
 
 class RemoteEventsService {
 
@@ -71,7 +69,7 @@ class RemoteEventsService {
 			$this->dataStore->getCalendarHome(),
 			1,
 			$granularity === 'basic' ? $this->collectionPropertiesBasic : $this->collectionPropertiesDefault
-		);		
+		);
 
 		// convert dav properties to collection objects
 		$list = [];
@@ -87,7 +85,7 @@ class RemoteEventsService {
 			}
 
 			$list[] = $this->toCollectionModel($id, $properties);
-			
+
 		}
 		// return collection of collections
 		return $list;
@@ -206,10 +204,9 @@ class RemoteEventsService {
 	public function entityDelta(string $location, string $state): DeltaObject {
 		$davAbilities = $this->dataStore->capabilities('dav') ?? [];
 		$davMethods = $this->dataStore->capabilities('allow') ?? [];
-		
+
 		if (in_array('sync-collection', $davAbilities, true) === false && in_array('REPORT', $davMethods, true) === false) {
 			throw new RuntimeException('Remote server does not support DAV sync-collection reports.');
-			
 		}
 
 		$delta = new DeltaObject();
@@ -281,7 +278,7 @@ class RemoteEventsService {
 		}
 		$data = $so->data;
 
-		$result = $this->dataStore->create($path, $data, "application/vcalendar");
+		$result = $this->dataStore->create($path, $data, 'application/vcalendar');
 
 		$ro = clone $so;
 		$ro->remoteSignature = $result['etag'] ?? null;
@@ -301,11 +298,11 @@ class RemoteEventsService {
 		}
 		$data = $so->data;
 
-		$result = $this->dataStore->update($path, $data, "application/vcalendar");
+		$result = $this->dataStore->update($path, $data, 'application/vcalendar');
 
 		$ro = clone $so;
 		$ro->remoteSignature = $result['etag'] ?? null;
-		
+
 		return $ro;
 	}
 

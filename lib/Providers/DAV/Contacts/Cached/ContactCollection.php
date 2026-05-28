@@ -346,7 +346,6 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 		$entity = $this->_store->entityModify($entity);
 		// return state
 		return $entity->getSignature();
-
 	}
 
 	/**

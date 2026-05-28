@@ -11,14 +11,14 @@ namespace OCA\DAVC\Models\Calendars;
 
 class Entity {
 
-	public int|null $localCollectionId = null;
-	public int|null $localEntityId = null;
-	public string|null $localSignature = null;
-	public string|null $remoteCollectionId = null;
-	public string|null $remoteEntityId = null;
-	public string|null $remoteSignature = null;
-	public string|null $correlationSignature = null;
-	public string|null $uuid = null;
-	public string|null $data = null;
+	public ?int $localCollectionId = null;
+	public ?int $localEntityId = null;
+	public ?string $localSignature = null;
+	public ?string $remoteCollectionId = null;
+	public ?string $remoteEntityId = null;
+	public ?string $remoteSignature = null;
+	public ?string $correlationSignature = null;
+	public ?string $uuid = null;
+	public ?string $data = null;
 
 }

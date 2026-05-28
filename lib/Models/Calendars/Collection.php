@@ -12,16 +12,16 @@ namespace OCA\DAVC\Models\Calendars;
 class Collection {
 
 	public string $userId = '';
-	public int|null $serviceId = null;
-	public int|null $localId = null;
-	public string|null $localSignature = null;
-	public string|null $remoteId = null;
-	public string|null $remoteSignature = null;
-	public string|null $uuid = null;
-	public string|null $label = null;
-	public string|null $description = null;
-	public int|null $priority = null;
-	public bool|null $visible = null;
-	public string|null $color = null;
+	public ?int $serviceId = null;
+	public ?int $localId = null;
+	public ?string $localSignature = null;
+	public ?string $remoteId = null;
+	public ?string $remoteSignature = null;
+	public ?string $uuid = null;
+	public ?string $label = null;
+	public ?string $description = null;
+	public ?int $priority = null;
+	public ?bool $visible = null;
+	public ?string $color = null;
 
 }

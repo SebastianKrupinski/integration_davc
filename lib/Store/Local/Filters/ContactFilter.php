@@ -12,7 +12,7 @@ namespace OCA\DAVC\Store\Local\Filters;
 use OCA\DAVC\Store\Common\Filters\FilterBase;
 
 class ContactFilter extends FilterBase {
-	
+
 	protected array $attributes = [
 		'uid' => true,
 		'sid' => true,

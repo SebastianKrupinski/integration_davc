@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace OCA\DAVC\Providers\DAV\Contacts\Hybrid;
 
-use OCA\DAVC\Providers\DAV\Constants;
 use OCA\DAVC\Models\Contacts\Collection;
 use OCA\DAVC\Models\Contacts\Entity;
+use OCA\DAVC\Providers\DAV\Constants;
 use OCA\DAVC\Service\Local\LocalContactsService;
 use OCA\DAVC\Service\Remote\RemoteContactsService;
 use OCA\DAVC\Service\Remote\RemoteFactory;
@@ -22,21 +22,21 @@ use Sabre\DAV\IMultiGet;
 use Sabre\DAV\IProperties;
 use Sabre\DAV\PropPatch;
 use Sabre\DAV\Sync\ISyncCollection;
-use Sabre\VObject\Reader;
 
 class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCollection {
 
 	private const DAV_USER_PREFIX = 'principals/users/';
-	private RemoteContactsService|null $remoteService = null;
+	private ?RemoteContactsService $remoteService = null;
 
 	public function __construct(
 		private readonly ServicesStore $servicesStore,
 		private readonly LocalContactsService $localService,
 		private readonly RemoteFactory $remoteFactory,
-		private Collection $collection
-	) {}
+		private Collection $collection,
+	) {
+	}
 
-	/** 
+	/**
 	 * Lazy load remote service
 	 */
 	protected function remoteService(): RemoteContactsService {
@@ -49,7 +49,7 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 		if ($service === null) {
 			throw new \Exception('Service not found');
 		}
-		
+
 		$this->remoteService = $this->remoteFactory->contactsService($this->remoteFactory->freshClient($service));
 
 		return $this->remoteService;
@@ -310,7 +310,7 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 	 * @return string entity signature
 	 */
 	public function createFile($id, $data = null): string {
-	
+
 		$eo = new Entity();
 		$eo->localCollectionId = $this->collection->localId;
 		$eo->remoteCollectionId = $this->collection->remoteId;
@@ -326,7 +326,7 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 			$this->collection->localId,
 			$entity
 		);
-		
+
 		// return state
 		return $entity->localSignature ?? '';
 	}
@@ -356,7 +356,6 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 
 		// return state
 		return $entity->localSignature ?? '';
-
 	}
 
 	/**

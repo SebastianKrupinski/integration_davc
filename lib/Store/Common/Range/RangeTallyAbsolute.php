@@ -14,7 +14,8 @@ class RangeTallyAbsolute implements IRangeTally {
 	public function __construct(
 		protected string|int $position = 0,
 		protected string|int $count = 32,
-	) {}
+	) {
+	}
 
 	/**
 	 *
@@ -23,7 +24,7 @@ class RangeTallyAbsolute implements IRangeTally {
 	public function type(): string {
 		return 'tally';
 	}
-	
+
 	/**
 	 *
 	 * @since 1.0.0

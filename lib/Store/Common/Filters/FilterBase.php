@@ -23,7 +23,7 @@ class FilterBase implements IFilter {
 	public function attributes(): array {
 		return $this->attributes;
 	}
-	
+
 	/**
 	 *
 	 * @since 1.0.0

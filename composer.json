@@ -10,6 +10,7 @@
         "php": ">=8.2 <=8.5"
     },
     "require-dev": {
+        "nextcloud/coding-standard": "^1.5.0",
         "phpunit/phpunit": "^11.5",
         "psalm/phar": "^6.16"
     },

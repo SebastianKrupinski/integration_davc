@@ -35,7 +35,7 @@ class LocalContactsService {
 	 */
 	public function collectionList(IFilter $filter): array {
 		$co = $this->_Store->collectionList($filter);
-		
+
 		$list = [];
 		foreach ($co as $entry) {
 			$list[] = $this->toCollectionModel($entry);
@@ -63,10 +63,10 @@ class LocalContactsService {
 		return $this->_Store->chronicleApex($id, true);
 	}
 
-	public function collectionModify(int $id, Collection $mutation): Collection|null {
+	public function collectionModify(int $id, Collection $mutation): ?Collection {
 		// retrieve existing entry from data store
 		$entry = $this->_Store->collectionFetch($id);
-		
+
 		if ($entry instanceof CollectionEntity) {
 			// modify collection properties
 			if (isset($mutation->label)) {
@@ -302,13 +302,13 @@ class LocalContactsService {
 		/** @var \Sabre\VObject\VCard $vo */
 		$vo = Reader::read($so->data);
 		$to->setUuid($vo->UID->getValue());
-		
+
 		// override / assign additional values
 		foreach ($additional as $key => $value) {
 			$method = 'set' . ucfirst($key);
 			$to->$method($value);
 		}
-		
+
 		return $to;
 	}
 

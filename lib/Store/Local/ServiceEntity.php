@@ -77,15 +77,15 @@ use OCP\AppFramework\Db\Entity;
  */
 class ServiceEntity extends Entity implements JsonSerializable {
 	protected ?string $uid = null;
-    protected ?string $uuid = null;
+	protected ?string $uuid = null;
 	protected ?string $label = null;
 	protected ?string $locationProtocol = null;
 	protected ?string $locationHost = null;
 	protected ?int $locationPort = null;
 	protected ?string $locationPath = null;
-    protected ?string $principalUrl = null;
-    protected ?string $calendarsUrl = null;
-    protected ?string $addressbooksUrl = null;
+	protected ?string $principalUrl = null;
+	protected ?string $calendarsUrl = null;
+	protected ?string $addressbooksUrl = null;
 	protected ?int $locationSecurity = 1;
 	protected ?string $auth = null;
 	protected ?string $bauthId = null;
@@ -103,43 +103,43 @@ class ServiceEntity extends Entity implements JsonSerializable {
 	protected ?int $harmonizationState = 0;
 	protected ?int $harmonizationStart = 0;
 	protected ?int $harmonizationEnd = 0;
-    protected ?string $subscriptionCode = null;
+	protected ?string $subscriptionCode = null;
 	protected ?string $contactsMode = null;
 	protected ?string $eventsMode = null;
-	
+
 	public function jsonSerialize(): array {
-        return [
-            'id' => $this->id,
-            'uid' => $this->uid,
-            'uuid' => $this->uuid,
-            'label' => $this->label,
-            'location_protocol' => $this->locationProtocol,
-            'location_host' => $this->locationHost,
-            'location_port' => $this->locationPort,
-            'location_path' => $this->locationPath,
-            'principal_url' => $this->principalUrl,
-            'calendars_url' => $this->calendarsUrl,
-            'addressbooks_url' => $this->addressbooksUrl,
-            'location_security' => $this->locationSecurity,
-            'auth' => $this->auth,
-            'bauth_id' => $this->bauthId,
-            'bauth_secret' => $this->bauthSecret,
-            'bauth_location' => $this->bauthLocation,
-            'oauth_id' => $this->oauthId,
-            'oauth_access_token' => $this->oauthAccessToken,
-            'oauth_access_location' => $this->oauthAccessLocation,
-            'oauth_access_expiry' => $this->oauthAccessExpiry,
-            'oauth_refresh_token' => $this->oauthRefreshToken,
-            'oauth_refresh_location' => $this->oauthRefreshLocation,
-            'enabled' => $this->enabled,
-            'connected' => $this->connected,
-            'debug' => $this->debug,
-            'harmonization_state' => $this->harmonizationState,
-            'harmonization_start' => $this->harmonizationStart,
-            'harmonization_end' => $this->harmonizationEnd,
-            'subscription_code' => $this->subscriptionCode,
-            'contacts_mode' => $this->contactsMode,
-            'events_mode' => $this->eventsMode,
-        ];
-    }
+		return [
+			'id' => $this->id,
+			'uid' => $this->uid,
+			'uuid' => $this->uuid,
+			'label' => $this->label,
+			'location_protocol' => $this->locationProtocol,
+			'location_host' => $this->locationHost,
+			'location_port' => $this->locationPort,
+			'location_path' => $this->locationPath,
+			'principal_url' => $this->principalUrl,
+			'calendars_url' => $this->calendarsUrl,
+			'addressbooks_url' => $this->addressbooksUrl,
+			'location_security' => $this->locationSecurity,
+			'auth' => $this->auth,
+			'bauth_id' => $this->bauthId,
+			'bauth_secret' => $this->bauthSecret,
+			'bauth_location' => $this->bauthLocation,
+			'oauth_id' => $this->oauthId,
+			'oauth_access_token' => $this->oauthAccessToken,
+			'oauth_access_location' => $this->oauthAccessLocation,
+			'oauth_access_expiry' => $this->oauthAccessExpiry,
+			'oauth_refresh_token' => $this->oauthRefreshToken,
+			'oauth_refresh_location' => $this->oauthRefreshLocation,
+			'enabled' => $this->enabled,
+			'connected' => $this->connected,
+			'debug' => $this->debug,
+			'harmonization_state' => $this->harmonizationState,
+			'harmonization_start' => $this->harmonizationStart,
+			'harmonization_end' => $this->harmonizationEnd,
+			'subscription_code' => $this->subscriptionCode,
+			'contacts_mode' => $this->contactsMode,
+			'events_mode' => $this->eventsMode,
+		];
+	}
 }

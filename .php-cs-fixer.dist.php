@@ -24,4 +24,5 @@ $config
 	->notPath('vendor')
 	->notPath('vendor-bin')
 	->in(__DIR__);
+
 return $config;
