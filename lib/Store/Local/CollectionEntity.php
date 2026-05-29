@@ -17,8 +17,8 @@ use OCP\DB\Types;
  * @method getId(): int
  * @method getUid(): ?string
  * @method setUid(string $uid): void
- * @method getSid(): ?string
- * @method setSid(string $sid): void
+ * @method getSid(): ?int
+ * @method setSid(int $sid): void
  * @method getType(): ?string
  * @method setType(string $type): void
  * @method getCcid(): ?string
@@ -31,8 +31,8 @@ use OCP\DB\Types;
  * @method setLabel(string $label): void
  * @method getColor(): ?string
  * @method setColor(string $color): void
- * @method getVisible(): ?string
- * @method setVisible(string $visible): void
+ * @method getVisible(): ?int
+ * @method setVisible(int $visible): void
  * @method getHisn(): ?string
  * @method setHisn(string $hisn): void
  * @method getHesn(): ?string

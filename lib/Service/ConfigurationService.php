@@ -16,9 +16,13 @@ use OCP\Security\ICrypto;
 class ConfigurationService {
 	/**
 	 * Default System Configuration
-	 * @var array
+	 * @var array<string, string>
 	 * */
-	private const _SYSTEM = [];
+	private const _SYSTEM = [
+		'harmonization_mode' => 'P',
+		'harmonization_thread_duration' => '3600',
+		'harmonization_thread_pause' => '5',
+	];
 
 	/**
 	 * Default System Secure Parameters
@@ -298,7 +302,7 @@ class ConfigurationService {
 			return $value;
 		} else {
 			// return default system configuration value
-			return self::_SYSTEM[$key];
+			return self::_SYSTEM[$key] ?? '';
 		}
 
 	}
@@ -381,7 +385,7 @@ class ConfigurationService {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @return string harmonization thread run duration interval (default 3600 seconds)
+	 * @return int harmonization thread run duration interval (default 3600 seconds)
 	 */
 	public function getHarmonizationThreadDuration(): int {
 
@@ -402,14 +406,14 @@ class ConfigurationService {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param string $interval harmonization thread pause interval in seconds
+	 * @param int $interval harmonization thread pause interval in seconds
 	 *
 	 * @return void
 	 */
 	public function setHarmonizationThreadDuration(int $interval): void {
 
 		// set value
-		$this->depositSystemValue('harmonization_thread_duration', $interval);
+		$this->depositSystemValue('harmonization_thread_duration', (string)$interval);
 
 	}
 
@@ -418,7 +422,7 @@ class ConfigurationService {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @return string harmonization thread pause interval (default 5 seconds)
+	 * @return int harmonization thread pause interval (default 5 seconds)
 	 */
 	public function getHarmonizationThreadPause(): int {
 
@@ -429,7 +433,7 @@ class ConfigurationService {
 		if (is_numeric($interval)) {
 			return intval($interval);
 		} else {
-			return intval($self::_SYSTEM['harmonization_thread_pause']);
+			return intval(self::_SYSTEM['harmonization_thread_pause']);
 		}
 
 	}
@@ -439,14 +443,14 @@ class ConfigurationService {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param string $interval harmonization thread pause interval in seconds
+	 * @param int $interval harmonization thread pause interval in seconds
 	 *
 	 * @return void
 	 */
 	public function setHarmonizationThreadPause(int $interval): void {
 
 		// set value
-		$this->depositSystemValue('harmonization_thread_pause', $interval);
+		$this->depositSystemValue('harmonization_thread_pause', (string)$interval);
 
 	}
 
@@ -457,7 +461,7 @@ class ConfigurationService {
 	 *
 	 * @param string $uid nextcloud user id
 	 *
-	 * @return string|null thread id if exists | null if does not exist
+	 * @return int thread id if exists | 0 if does not exist
 	 */
 	public function getHarmonizationThreadId(string $uid): int {
 
@@ -478,7 +482,7 @@ class ConfigurationService {
 	 * @since Release 1.0.0
 	 *
 	 * @param string $uid nextcloud user id
-	 * @param string $tid thread id
+	 * @param int $tid thread id
 	 *
 	 * @return void
 	 */
@@ -524,7 +528,7 @@ class ConfigurationService {
 	public function setHarmonizationThreadHeartBeat(string $uid, int $thb): void {
 
 		// update harmonization thread id
-		$this->depositUserValue($uid, 'account_harmonization_thb', $thb);
+		$this->depositUserValue($uid, 'account_harmonization_thb', (string)$thb);
 
 	}
 

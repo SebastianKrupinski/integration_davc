@@ -61,7 +61,7 @@ class RemoteEventsService {
 	/**
 	 * list of collections in remote storage
 	 *
-	 * @return array<string,Collection>
+	 * @return list<Collection>
 	 */
 	public function collectionList(string $granularity = 'basic'): array {
 		// transceive
@@ -202,8 +202,8 @@ class RemoteEventsService {
 	 * @return DeltaObject
 	 */
 	public function entityDelta(string $location, string $state): DeltaObject {
-		$davAbilities = $this->dataStore->capabilities('dav') ?? [];
-		$davMethods = $this->dataStore->capabilities('allow') ?? [];
+		$davAbilities = $this->dataStore->capabilities('dav');
+		$davMethods = $this->dataStore->capabilities('allow');
 
 		if (in_array('sync-collection', $davAbilities, true) === false && in_array('REPORT', $davMethods, true) === false) {
 			throw new RuntimeException('Remote server does not support DAV sync-collection reports.');

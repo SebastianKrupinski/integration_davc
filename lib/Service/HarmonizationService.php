@@ -62,7 +62,7 @@ class HarmonizationService {
 			return;
 		}
 		// update harmonization state and start time
-		$service->setHarmonizationState(true);
+		$service->setHarmonizationState(1);
 		$service->setHarmonizationStart(time());
 		$service = $this->servicesService->deposit($service->getUid(), $service);
 		// initialize store(s)
@@ -87,7 +87,7 @@ class HarmonizationService {
 		}
 
 		// update harmonization state and end time
-		$service->setHarmonizationState(false);
+		$service->setHarmonizationState(0);
 		$service->setHarmonizationEnd(time());
 		$service = $this->servicesService->deposit($service->getUid(), $service);
 

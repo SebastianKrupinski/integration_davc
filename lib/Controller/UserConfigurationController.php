@@ -29,7 +29,7 @@ class UserConfigurationController extends Controller {
 		private CoreService $CoreService,
 		private HarmonizationService $HarmonizationService,
 		private ServicesService $ServicesService,
-		private string $userId,
+		private ?string $userId,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -124,7 +124,7 @@ class UserConfigurationController extends Controller {
 		}
 		// execute command
 		try {
-			$this->HarmonizationService->performHarmonization($this->userId, $sid, 'M');
+			$this->HarmonizationService->performHarmonization($this->userId, $sid);
 			return new DataResponse('success');
 		} catch (\Throwable $th) {
 			return new DataResponse($th->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -198,7 +198,7 @@ class UserConfigurationController extends Controller {
 		}
 		// execute command
 		try {
-			$rs = $this->CoreService->localCollectionsDeposit($this->userId, $sid, $ContactCorrelations, $EventCorrelations);
+			$this->CoreService->localCollectionsDeposit($this->userId, $sid, $ContactCorrelations, $EventCorrelations);
 			return $this->localCollectionsFetch($sid);
 		} catch (\Throwable $th) {
 			return new DataResponse($th->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);

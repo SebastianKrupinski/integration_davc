@@ -17,7 +17,6 @@ class ContactFilter extends FilterBase {
 		'uid' => true,
 		'sid' => true,
 		'cid' => true,
-		'uid' => true,
 		'uuid' => true,
 		'label' => true,
 	];

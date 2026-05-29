@@ -43,7 +43,7 @@ class Sanitizer {
 			$name = rtrim($name);
 		}
 		// return result
-		return $name;
+		return $name ?? '';
 	}
 
 	/**

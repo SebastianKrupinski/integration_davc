@@ -43,11 +43,9 @@ class CoreService {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param string $uid user id
-	 * @param string $account_bauth_id account username
-	 * @param string $account_bauth_secret account secret
+	 * @param array<string, mixed> $configuration service connection data
 	 *
-	 * @return object
+	 * @return array<string, mixed>|null
 	 */
 	public function locateAccount(array $configuration): ?array {
 
@@ -225,11 +223,12 @@ class CoreService {
 		// retrieve service information
 		$service = $this->ServicesService->fetch($sid);
 		// determine if user if the service owner
-		if ($service->getUid() !== $uid) {
+		if ($service === null || $service->getUid() !== $uid) {
 			return;
 		}
 		// deregister task
-		$this->TaskService->remove(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $sid]);
+		// TODO: re-enable once the harmonization launcher task is implemented (see connectAccount)
+		//$this->TaskService->remove(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $sid]);
 		// terminate harmonization thread
 		$this->HarmonizationThreadService->terminate($uid);
 		// initialize contacts data store
@@ -266,7 +265,7 @@ class CoreService {
 		// retrieve service information
 		$service = $this->ServicesService->fetch($sid);
 		// determine if user is the service owner
-		if ($service->getUid() !== $uid) {
+		if ($service === null || $service->getUid() !== $uid) {
 			return $data;
 		}
 		// create remote store client
@@ -334,7 +333,7 @@ class CoreService {
 		// retrieve service information
 		$service = $this->ServicesService->fetch($sid);
 		// determine if user if the service owner
-		if ($service->getUid() !== $uid) {
+		if ($service === null || $service->getUid() !== $uid) {
 			return $data;
 		}
 		// retrieve local collections
@@ -360,7 +359,7 @@ class CoreService {
 	 * @param array $cc contacts collection(s) correlations
 	 * @param array $ec events collection(s) correlations
 	 *
-	 * @return array of collection correlation(s) and attributes
+	 * @return void
 	 */
 	public function localCollectionsDeposit(string $uid, int $sid, array $cc, array $ec): void {
 
@@ -369,7 +368,7 @@ class CoreService {
 		// retrieve service information
 		$service = $this->ServicesService->fetch($sid);
 		// determine if user is the service owner
-		if ($service->getUid() !== $uid) {
+		if ($service === null || $service->getUid() !== $uid) {
 			return;
 		}
 		$remoteStore = $this->remoteFactory->freshClient($service);
@@ -393,7 +392,7 @@ class CoreService {
 				switch ((bool)$entry['enabled']) {
 					case false:
 						if (is_numeric($entry['id'])) {
-							$collection = $localStore->collectionFetch($entry['id']);
+							$collection = $localStore->collectionFetch((int)$entry['id']);
 							if ($collection->getUid() === $uid) {
 								$localStore->collectionDelete($collection);
 							}
@@ -418,7 +417,7 @@ class CoreService {
 							$collection->setPermissions($remoteCollection?->permissions);
 							$collection->setLabel('DavC: ' . ($remoteCollection?->label ?? $entry['label'] ?? 'Unknown'));
 							$collection->setColor($remoteCollection?->color ?? $entry['color'] ?? '#0055aa');
-							$collection->setVisible(true);
+							$collection->setVisible(1);
 							$collection->setHesn($remoteCollection?->remoteSignature);
 							$id = $localStore->collectionCreate($collection);
 						}
@@ -446,7 +445,7 @@ class CoreService {
 				switch ((bool)$entry['enabled']) {
 					case false:
 						if (is_numeric($entry['id'])) {
-							$collection = $localStore->collectionFetch($entry['id']);
+							$collection = $localStore->collectionFetch((int)$entry['id']);
 							if ($collection->getUid() === $uid) {
 								$localStore->collectionDelete($collection);
 							}
@@ -471,7 +470,7 @@ class CoreService {
 							$collection->setPermissions($remoteCollection?->permissions);
 							$collection->setLabel('DavC: ' . ($remoteCollection?->label ?? $entry['label'] ?? 'Unknown'));
 							$collection->setColor($remoteCollection?->color ?? $entry['color'] ?? '#0055aa');
-							$collection->setVisible(true);
+							$collection->setVisible(1);
 							$collection->setHesn($remoteCollection?->remoteSignature);
 							$id = $localStore->collectionCreate($collection);
 						}
@@ -490,7 +489,7 @@ class CoreService {
 	 * @param string $subject notification type
 	 * @param array $params notification parameters to pass
 	 *
-	 * @return array of collection correlation(s) and attributes
+	 * @return void
 	 */
 	public function publishNotice(string $uid, string $subject, array $params): void {
 		// construct notification object

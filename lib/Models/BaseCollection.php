@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace OCA\DAVC\Models;
 
+/**
+ * @extends \ArrayObject<array-key, mixed>
+ */
 class BaseCollection extends \ArrayObject {
 	private $type;
 
@@ -35,7 +38,7 @@ class BaseCollection extends \ArrayObject {
 		parent::append($value);
 	}
 
-	public function offsetSet($key, $value): void {
+	public function offsetSet(mixed $key, mixed $value): void {
 		if (!$this->validate($value)) {
 			throw new \InvalidArgumentException(
 				sprintf('Cannot set offset %s with value of type %s in collection expecting %s', var_export($key, true), gettype($value), $this->type)

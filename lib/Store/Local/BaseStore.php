@@ -668,11 +668,11 @@ class BaseStore {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param Entity $entity
+	 * @param BaseEntity $entity
 	 *
 	 * @return Entity
 	 */
-	public function entityCreate(Entity $entity): Entity {
+	public function entityCreate(BaseEntity $entity): Entity {
 
 		// construct data store command
 		$cmd = $this->_Store->getQueryBuilder();
@@ -703,11 +703,11 @@ class BaseStore {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param Entity $entity
+	 * @param BaseEntity $entity
 	 *
 	 * @return Entity
 	 */
-	public function entityModify(Entity $entity): Entity {
+	public function entityModify(BaseEntity $entity): Entity {
 
 		// construct data store command
 		$cmd = $this->_Store->getQueryBuilder();
@@ -741,11 +741,11 @@ class BaseStore {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param Entity $entity
+	 * @param BaseEntity $entity
 	 *
 	 * @return Entity
 	 */
-	public function entityDelete(Entity $entity): Entity {
+	public function entityDelete(BaseEntity $entity): Entity {
 
 		// construct data store command
 		$cmd = $this->_Store->getQueryBuilder();
@@ -764,7 +764,7 @@ class BaseStore {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param string $id entity id
+	 * @param int $id entity id
 	 *
 	 * @return mixed
 	 */
@@ -842,10 +842,10 @@ class BaseStore {
 	 *
 	 * @param string $uid user id
 	 * @param int $sid service id
-	 * @param string $cid collection id
-	 * @param string $eid entity id
+	 * @param int $cid collection id
+	 * @param int $eid entity id
 	 * @param string $euuid entity uuid
-	 * @param string $operation operation type (1 - Created, 2 - Modified, 3 - Deleted)
+	 * @param int $operation operation type (1 - Created, 2 - Modified, 3 - Deleted)
 	 *
 	 * @return string
 	 */
@@ -876,7 +876,7 @@ class BaseStore {
 	 * @since Release 1.0.0
 	 *
 	 * @param int $cid collection id
-	 * @param int $encode weather to encode the result
+	 * @param bool $encode weather to encode the result
 	 *
 	 * @return int|float|string
 	 */
@@ -887,8 +887,13 @@ class BaseStore {
 			->from($this->_ChronicleTable)
 			->where($cmd->expr()->eq('cid', $cmd->createNamedParameter($cid)))
 			->andWhere($cmd->expr()->eq('tag', $cmd->createNamedParameter($this->_EntityIdentifier)));
-		$stampApex = $cmd->executeQuery()->fetchOne();
-		$cmd->executeQuery()->closeCursor();
+		$result = $cmd->executeQuery();
+		$stampApex = $result->fetchOne();
+		$result->closeCursor();
+		// normalize missing/false result to 0
+		if ($stampApex === false) {
+			$stampApex = 0;
+		}
 
 		if ($encode) {
 			return base64_encode((string)max(0, $stampApex));
@@ -974,7 +979,7 @@ class BaseStore {
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param int $id user id
+	 * @param string $id user id
 	 *
 	 * @return mixed
 	 */

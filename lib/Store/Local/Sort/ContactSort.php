@@ -17,7 +17,6 @@ class ContactSort extends SortBase {
 		'uid' => true,
 		'sid' => true,
 		'cid' => true,
-		'uid' => true,
 		'uuid' => true,
 		'label' => true,
 	];

@@ -17,7 +17,6 @@ class EventFilter extends FilterBase {
 		'uid' => true,
 		'sid' => true,
 		'cid' => true,
-		'uid' => true,
 		'uuid' => true,
 		'startson' => true,
 		'endson' => true,

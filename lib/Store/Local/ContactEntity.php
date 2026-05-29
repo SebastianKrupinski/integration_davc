@@ -9,18 +9,7 @@ declare(strict_types=1);
 
 namespace OCA\DAVC\Store\Local;
 
-use OCP\AppFramework\Db\Entity;
-
 /**
- * @method getId(): int
- * @method getUid(): string
- * @method setUid(string $uid): void
- * @method getSid(): string
- * @method setSid(int $sid): void
- * @method getCid(): string
- * @method setCid(int $cid): void
- * @method getUuid(): string
- * @method setUuid(string $uuid): void
  * @method getSignature(): string
  * @method setSignature(string $signature): void
  * @method getCcid(): string
@@ -34,7 +23,7 @@ use OCP\AppFramework\Db\Entity;
  * @method getLabel(): string
  * @method setLabel(string $label): void
  */
-class ContactEntity extends Entity {
+class ContactEntity extends BaseEntity {
 	protected ?string $uid = null;
 	protected ?int $sid = null;
 	protected ?int $cid = null;

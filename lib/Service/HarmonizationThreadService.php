@@ -33,7 +33,7 @@ class HarmonizationThreadService {
 	 *
 	 * @param string $uid nextcloud user id
 	 *
-	 * @return string|null thread id on success | null on failure
+	 * @return int thread id on success | 0 on failure
 	 */
 	public function launch(string $uid): int {
 
@@ -65,7 +65,7 @@ class HarmonizationThreadService {
 	 * @since Release 1.0.0
 	 *
 	 * @param string $uid nextcloud user id
-	 * @param string $tid thread id (optional)
+	 * @param int $tid thread id (optional)
 	 *
 	 * @return int quantity of threads terminated
 	 */
@@ -150,14 +150,7 @@ class HarmonizationThreadService {
 	public function getId(string $uid): int {
 
 		// retrieve thread id
-		$tid = $this->ConfigurationService->getHarmonizationThreadId($uid);
-		// return thread id
-		if (is_numeric($tid)) {
-			return intval($tid);
-		} else {
-			return 0;
-		}
-
+		return $this->ConfigurationService->getHarmonizationThreadId($uid);
 	}
 
 	/**
@@ -189,14 +182,7 @@ class HarmonizationThreadService {
 	public function getHeartBeat(string $uid): ?int {
 
 		// retrieve thread heart beat
-		$thb = $this->ConfigurationService->getHarmonizationThreadHeartBeat($uid);
-		// return thread heart beat
-		if (is_numeric($thb)) {
-			return (int)$thb;
-		} else {
-			return null;
-		}
-
+		return $this->ConfigurationService->getHarmonizationThreadHeartBeat($uid);
 	}
 
 	/**

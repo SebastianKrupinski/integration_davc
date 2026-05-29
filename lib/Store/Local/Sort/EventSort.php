@@ -17,7 +17,6 @@ class EventSort extends SortBase {
 		'uid' => true,
 		'sid' => true,
 		'cid' => true,
-		'uid' => true,
 		'uuid' => true,
 		'startson' => true,
 		'endson' => true,

@@ -29,7 +29,7 @@ class FilterBase implements IFilter {
 	 * @since 1.0.0
 	 */
 	public function comparators(): FilterComparisonOperator {
-		return new FilterComparisonOperator;
+		return FilterComparisonOperator::EQ;
 	}
 
 	/**
@@ -37,7 +37,7 @@ class FilterBase implements IFilter {
 	 * @since 1.0.0
 	 */
 	public function conjunctions(): FilterConjunctionOperator {
-		return new FilterConjunctionOperator;
+		return FilterConjunctionOperator::NONE;
 	}
 
 	/**
@@ -45,10 +45,10 @@ class FilterBase implements IFilter {
 	 * @since 1.0.0
 	 *
 	 */
-	public function condition(string $attribute, mixed $value, FilterComparisonOperator $comparator = FilterComparisonOperator::EQ, FilterConjunctionOperator $conjunction = FilterConjunctionOperator::AND): void {
-		if (!isset($this->properties[$attribute])) {
+	public function condition(string $property, mixed $value, FilterComparisonOperator $comparator = FilterComparisonOperator::EQ, FilterConjunctionOperator $conjunction = FilterConjunctionOperator::AND): void {
+		if (!isset($this->attributes[$property])) {
 			$this->conditions[] = [
-				'attribute' => $attribute,
+				'attribute' => $property,
 				'value' => $value,
 				'comparator' => $comparator,
 				'conjunction' => $conjunction,

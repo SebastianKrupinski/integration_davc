@@ -28,13 +28,13 @@ class SortBase implements ISort {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $attribute attribute name
+	 * @param string $property attribute name
 	 * @param bool $direction true for ascending, false for descending
 	 */
-	public function condition(string $attribute, bool $direction): void {
-		if (isset($this->attributes[$attribute])) {
-			$this->conditions[$attribute] = [
-				'attribute' => $attribute,
+	public function condition(string $property, bool $direction): void {
+		if (isset($this->attributes[$property])) {
+			$this->conditions[$property] = [
+				'attribute' => $property,
 				'direction' => $direction,
 			];
 		}

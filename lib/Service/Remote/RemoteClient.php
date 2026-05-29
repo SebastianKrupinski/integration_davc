@@ -278,7 +278,7 @@ class RemoteClient {
 	}
 
 	/**
-	 * @return array{etag: string|null, statusCode: int, location: string|null, lastModified: string|null, response: IResponse}
+	 * @return array{status: int, etag: string|null, location: string|null, lastModified: string|null}
 	 */
 	public function create(string $path, string $payload, string $contentType): array {
 		$url = $this->constructUrl($path);
@@ -295,7 +295,7 @@ class RemoteClient {
 	}
 
 	/**
-	 * @return array{etag: string|null, statusCode: int, location: string|null, lastModified: string|null, response: IResponse}
+	 * @return array{status: int, etag: string|null, location: string|null, lastModified: string|null}
 	 */
 	public function update(string $path, string $payload, string $contentType, ?string $etag = null): array {
 		$url = $this->constructUrl($path);
