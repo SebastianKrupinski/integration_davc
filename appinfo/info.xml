@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>integration_davc</id>
     <name>DAV Connector</name>
     <summary>Connect Nextcloud to a DAV service</summary>
     <description><![CDATA[DAV Connector allows you connect any compatible DAV service to Nextcloud]]></description>
     <version>0.1.0-dev</version>
-    <licence>agpl</licence>
+    <licence>AGPL-3.0-or-later</licence>
     <author mail="krupinski01@gmail.com">Sebastian Krupinski</author>
     <namespace>DAVC</namespace>
     <types>

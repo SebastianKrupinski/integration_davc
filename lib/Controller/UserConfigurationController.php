@@ -201,7 +201,7 @@ class UserConfigurationController extends Controller {
 		}
 		// execute command
 		try {
-			$rs = $this->CoreService->localCollectionsDeposit($this->userId, $sid, $ContactCorrelations, $EventCorrelations);
+			$this->CoreService->localCollectionsDeposit($this->userId, $sid, $ContactCorrelations, $EventCorrelations);
 			return $this->localCollectionsFetch($sid);
 		} catch (\Throwable $th) {
 			return new DataResponse($th->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);

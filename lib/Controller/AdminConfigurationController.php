@@ -16,12 +16,9 @@ use OCP\IRequest;
 
 class AdminConfigurationController extends Controller {
 
-	/**
-	 * @var ConfigurationService
-	 */
-	private $ConfigurationService;
+	private ConfigurationService $ConfigurationService;
 
-	public function __construct($appName, IRequest $request, ConfigurationService $ConfigurationService) {
+	public function __construct(string $appName, IRequest $request, ConfigurationService $ConfigurationService) {
 
 		parent::__construct($appName, $request);
 
