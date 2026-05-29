@@ -14,7 +14,7 @@ use OCP\IDBConnection;
 class ServicesTemplateStore {
 
 	protected IDBConnection $_Store;
-	protected string $_EntityTable = 'jmapc_service_templates';
+	protected string $_EntityTable = 'davc_service_templates';
 
 	public function __construct(IDBConnection $store) {
 		$this->_Store = $store;

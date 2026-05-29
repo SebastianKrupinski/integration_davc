@@ -39,7 +39,7 @@ class AdminSettings implements ISettings {
 	}
 
 	public function getSection(): string {
-		return 'integration-jmapc';
+		return 'integration-davc';
 	}
 
 	public function getPriority(): int {
