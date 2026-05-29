@@ -312,6 +312,8 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 	 * @return array<int,EventEntity>
 	 */
 	public function getMultipleChildren(array $ids): array {
+		// remove extension
+		$ids = array_map(fn ($id) => str_replace('.ics', '', $id), $ids);
 		// construct filter
 		$filter = $this->_store->entityListFilter();
 		$filter->condition('cid', $this->_collection->getId());
@@ -360,6 +362,9 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 	 * @return string entity signature
 	 */
 	public function createFile($id, $data = null): string {
+		if (is_resource($data)) {
+			$data = stream_get_contents($data);
+		}
 		// remove extension
 		$id = str_replace('.ics', '', $id);
 		// evaluate if data is in UTF8 format and convert if needed

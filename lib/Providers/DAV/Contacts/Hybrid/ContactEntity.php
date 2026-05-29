@@ -71,6 +71,9 @@ class ContactEntity implements \Sabre\CardDAV\ICard, \Sabre\DAVACL\IACL {
 	 * @inheritDoc
 	 */
 	public function put($data) {
+		if (is_resource($data)) {
+			$data = stream_get_contents($data);
+		}
 		return $this->collection->modifyFile($this->entity, $data);
 	}
 

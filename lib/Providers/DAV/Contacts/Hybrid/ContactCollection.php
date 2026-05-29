@@ -101,7 +101,7 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 				'principal' => $this->getOwner(),
 				'protected' => true
 			];
-		}, $this->collection->permissions ?? ['{DAV:}all']);
+		}, $this->collection->permissions ?: ['{DAV:}all']);
 	}
 
 	/**
@@ -247,6 +247,8 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 	 * @return bool
 	 */
 	public function childExists($id): bool {
+		// remove extension
+		$id = str_replace('.vcf', '', $id);
 		// construct filter
 		$listFilter = $this->localService->entityListFilter();
 		$listFilter->condition('cid', $this->collection->localId);
@@ -264,6 +266,8 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 	 * @return array<int,ContactEntity>
 	 */
 	public function getMultipleChildren(array $ids): array {
+		// remove extension
+		$ids = array_map(fn ($id) => str_replace('.vcf', '', $id), $ids);
 		// construct filter
 		$listFilter = $this->localService->entityListFilter();
 		$listFilter->condition('cid', $this->collection->localId);
@@ -287,6 +291,8 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 	 * @return ContactEntity|false
 	 */
 	public function getChild($id): ContactEntity|false {
+		// remove extension
+		$id = str_replace('.vcf', '', $id);
 		// construct filter
 		$listFilter = $this->localService->entityListFilter();
 		$listFilter->condition('cid', $this->collection->localId);
@@ -310,6 +316,10 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 	 * @return string entity signature
 	 */
 	public function createFile($id, $data = null): string {
+
+		if (is_resource($data)) {
+			$data = stream_get_contents($data);
+		}
 
 		$eo = new Entity();
 		$eo->localCollectionId = $this->collection->localId;
