@@ -128,9 +128,7 @@ async function connectService(): Promise<void> {
 			showSuccess(t('integration_davc', 'Successfully connected to account'))
 			const connected = response.data as Service
 			await serviceList()
-			selectedService.value = configuredServices.value.find(
-				(s) => String(s.id) === String(connected.id),
-			) ?? connected
+			selectedService.value = configuredServices.value.find((s) => String(s.id) === String(connected.id)) ?? connected
 			await Promise.all([remoteCollectionsFetch(), localCollectionsFetch()])
 		}
 	} catch (error: unknown) {
