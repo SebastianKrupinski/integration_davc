@@ -357,7 +357,7 @@ class LocalEventsService {
 				}
 			}
 
-			$to->setUuid($vc->UID->getValue());
+			$to->setUuid(!empty($so->uuid) ? $so->uuid : $vc->UID->getValue());
 			$to->setStartson($vc->DTSTART->getDateTime()->getTimestamp());
 
 			if ($vc->DTEND) {

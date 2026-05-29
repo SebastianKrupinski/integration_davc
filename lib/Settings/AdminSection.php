@@ -32,7 +32,7 @@ class AdminSection implements IIconSection {
 	 * @returns string
 	 */
 	public function getID(): string {
-		return 'integration-jmapc'; //or a generic id if feasible
+		return 'integration-davc';
 	}
 
 	/**
@@ -42,7 +42,7 @@ class AdminSection implements IIconSection {
 	 * @return string
 	 */
 	public function getName(): string {
-		return $this->l->t('JMAP Connector');
+		return $this->l->t('DAV Connector');
 	}
 
 	/**

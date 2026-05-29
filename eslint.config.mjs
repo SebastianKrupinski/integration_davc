@@ -15,7 +15,7 @@ export default [
 		files: ['**/*.js', '**/*.vue', '**/*.ts'],
 		rules: {
 			// Relax some rules for now. Can be improved later on (baseline).
-			'no-console': 'off',
+			'no-console': 'warn',
 			'@typescript-eslint/no-unused-vars': 'off',
 			'vue/multi-word-component-names': 'off',
 			'jsdoc/require-jsdoc': 'off',

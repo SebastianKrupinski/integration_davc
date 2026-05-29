@@ -111,7 +111,7 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 				'principal' => $this->getOwner(),
 				'protected' => true
 			];
-		}, $this->collection->permissions ?? ['{DAV:}all']);
+		}, $this->collection->permissions ?: ['{DAV:}all']);
 	}
 
 	/**
@@ -309,6 +309,8 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 	 * @return bool
 	 */
 	public function childExists($id): bool {
+		// remove extension
+		$id = str_replace('.ics', '', $id);
 		// construct filter
 		$listFilter = $this->localService->entityListFilter();
 		$listFilter->condition('cid', $this->collection->localId);
@@ -326,6 +328,8 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 	 * @return array<int,EventEntity>
 	 */
 	public function getMultipleChildren(array $ids): array {
+		// remove extension
+		$ids = array_map(fn ($id) => str_replace('.ics', '', $id), $ids);
 		// construct filter
 		$listFilter = $this->localService->entityListFilter();
 		$listFilter->condition('cid', $this->collection->localId);
@@ -375,10 +379,17 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 	 */
 	public function createFile($id, $data = null): string {
 
+		if (is_resource($data)) {
+			$data = stream_get_contents($data);
+		}
+		// remove extension
+		$id = str_replace('.ics', '', $id);
+
 		$eo = new Entity();
 		$eo->localCollectionId = $this->collection->localId;
 		$eo->remoteCollectionId = $this->collection->remoteId;
 		$eo->remoteEntityId = $id;
+		$eo->uuid = $id;
 		$eo->data = $data;
 
 		$remoteService = $this->remoteService();

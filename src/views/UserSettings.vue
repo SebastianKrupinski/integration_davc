@@ -14,6 +14,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcColorPicker from '@nextcloud/vue/components/NcColorPicker'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
+import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcPasswordField from '@nextcloud/vue/components/NcPasswordField'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
@@ -80,17 +81,7 @@ const eventsLocalCollections = ref<Collection[]>([])
 
 // UI State
 const configureManually = ref<boolean>(false)
-const selectedcolor = ref<string>('')
-
-// Computed
-const color = computed({
-	get() {
-		return selectedcolor.value || randomColor()
-	},
-	set(value: string) {
-		selectedcolor.value = value
-	},
-})
+const connecting = ref<boolean>(false)
 
 // Lifecycle
 onMounted(() => {
@@ -123,24 +114,28 @@ function freshService(): void {
 	selectedService.value = { label: 'New Connection' } as Service
 }
 async function connectService(): Promise<void> {
+	if (connecting.value) {
+		return
+	}
+	connecting.value = true
 	const uri = generateUrl('/apps/integration_davc/service/connect')
 	const data = {
 		service: selectedService.value,
 	}
 	try {
 		const response = await axios.post(uri, data)
-		if (response.data === 'success') {
-			showSuccess('Successfully connected to account')
-			if (selectedService.value) {
-				selectedService.value.connected = 1
-			}
-			serviceList()
-			remoteCollectionsFetch()
-			localCollectionsFetch()
+		if (response.data && response.data.id) {
+			showSuccess(t('integration_davc', 'Successfully connected to account'))
+			const connected = response.data as Service
+			await serviceList()
+			selectedService.value = configuredServices.value.find((s) => String(s.id) === String(connected.id)) ?? connected
+			await Promise.all([remoteCollectionsFetch(), localCollectionsFetch()])
 		}
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to authenticate with server')
 			+ ': ' + getErrorResponseText(error))
+	} finally {
+		connecting.value = false
 	}
 }
 
@@ -151,7 +146,7 @@ async function disconnectService(): Promise<void> {
 	}
 	try {
 		await axios.post(uri, data)
-		showSuccess('Successfully disconnected from account')
+		showSuccess(t('integration_davc', 'Successfully disconnected from account'))
 		// Reset state
 		selectedService.value = null
 		// contacts
@@ -181,7 +176,7 @@ async function harmonizeService(): Promise<void> {
 	}
 	try {
 		await axios.post(uri, data)
-		showSuccess('Synchronization Successful')
+		showSuccess(t('integration_davc', 'Synchronization Successful'))
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Synchronization Failed')
 			+ ': ' + getErrorResponseText(error))
@@ -194,7 +189,7 @@ async function serviceList(): Promise<void> {
 		const response = await axios.get(uri)
 		if (response.data) {
 			configuredServices.value = Object.values(response.data)
-			showSuccess('Found ' + configuredServices.value.length + ' Configured Services')
+			showSuccess(t('integration_davc', 'Found {count} Configured Services', { count: configuredServices.value.length }))
 		}
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to load service list')
@@ -217,16 +212,15 @@ async function remoteCollectionsFetch(): Promise<void> {
 	}
 	try {
 		const response = await axios.get(uri, { params })
-		console.log('Remote collections response:', response)
 		if (response.data.ContactsSupported) {
 			contactsRemoteSupported.value = response.data.ContactsSupported
 			contactsRemoteCollections.value = response.data.ContactsCollections
-			showSuccess('Found ' + contactsRemoteCollections.value.length + ' Remote Contacts Collections')
+			showSuccess(t('integration_davc', 'Found {count} Remote Contacts Collections', { count: contactsRemoteCollections.value.length }))
 		}
 		if (response.data.EventsSupported) {
 			eventsRemoteSupported.value = response.data.EventsSupported
 			eventsRemoteCollections.value = response.data.EventsCollections
-			showSuccess('Found ' + eventsRemoteCollections.value.length + ' Remote Events Collections')
+			showSuccess(t('integration_davc', 'Found {count} Remote Events Collections', { count: eventsRemoteCollections.value.length }))
 		}
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to load remote collections')
@@ -243,11 +237,11 @@ async function localCollectionsFetch(): Promise<void> {
 		const response = await axios.get(uri, { params })
 		if (response.data.ContactCollections) {
 			contactsLocalCollections.value = response.data.ContactCollections
-			showSuccess('Found ' + contactsLocalCollections.value.length + ' Local Contact Collections')
+			showSuccess(t('integration_davc', 'Found {count} Local Contact Collections', { count: contactsLocalCollections.value.length }))
 		}
 		if (response.data.EventCollections) {
 			eventsLocalCollections.value = response.data.EventCollections
-			showSuccess('Found ' + eventsLocalCollections.value.length + ' Local Event Collections')
+			showSuccess(t('integration_davc', 'Found {count} Local Event Collections', { count: eventsLocalCollections.value.length }))
 		}
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to load remote collections')
@@ -264,7 +258,7 @@ async function localCollectionsDeposit(): Promise<void> {
 	}
 	try {
 		await axios.post(uri, data)
-		showSuccess('Saved correlations')
+		showSuccess(t('integration_davc', 'Saved correlations'))
 		localCollectionsFetch()
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to save correlations')
@@ -285,10 +279,14 @@ function changeContactCorrelation(rcid: string | null, e: boolean): void {
 				ccid: rCollection.id,
 				label: rCollection.label,
 				enabled: e,
+				color: randomColor(),
 			})
 		}
 	} else {
 		lCollection.enabled = e
+		if (!lCollection.color) {
+			lCollection.color = randomColor()
+		}
 	}
 }
 
@@ -306,10 +304,14 @@ function changeEventCorrelation(rcid: string | null, e: boolean): void {
 				ccid: rCollection.id,
 				label: rCollection.label,
 				enabled: e,
+				color: randomColor(),
 			})
 		}
 	} else {
 		eventsLocalCollections.value[lid].enabled = e
+		if (!eventsLocalCollections.value[lid].color) {
+			eventsLocalCollections.value[lid].color = randomColor()
+		}
 	}
 }
 
@@ -347,25 +349,59 @@ const establishedEventCorrelation = computed(() => {
 
 function establishedContactCorrelationColor(ccid: string | null): string {
 	if (!ccid) {
-		return randomColor()
+		return ''
 	}
 	const collection = contactsLocalCollections.value.find((i) => String(i.ccid) === String(ccid))
-	if (typeof collection !== 'undefined') {
-		return collection.color || randomColor()
-	} else {
-		return randomColor()
-	}
+	return collection?.color ?? ''
 }
 
 function establishedEventCorrelationColor(ccid: string | null): string {
 	if (!ccid) {
-		return randomColor()
+		return ''
 	}
 	const collection = eventsLocalCollections.value.find((i) => String(i.ccid) === String(ccid))
-	if (typeof collection !== 'undefined') {
-		return collection.color || randomColor()
-	} else {
-		return randomColor()
+	return collection?.color ?? ''
+}
+
+function setContactCorrelationColor(rcid: string | null, value: string): void {
+	if (!rcid) {
+		return
+	}
+	const lCollection = contactsLocalCollections.value.find((i) => String(i.ccid) === String(rcid))
+	if (lCollection) {
+		lCollection.color = value
+		return
+	}
+	const rCollection = contactsRemoteCollections.value.find((i) => String(i.id) === String(rcid))
+	if (rCollection && rCollection.id) {
+		contactsLocalCollections.value.push({
+			id: null,
+			ccid: rCollection.id,
+			label: rCollection.label,
+			enabled: false,
+			color: value,
+		})
+	}
+}
+
+function setEventCorrelationColor(rcid: string | null, value: string): void {
+	if (!rcid) {
+		return
+	}
+	const lCollection = eventsLocalCollections.value.find((i) => String(i.ccid) === String(rcid))
+	if (lCollection) {
+		lCollection.color = value
+		return
+	}
+	const rCollection = eventsRemoteCollections.value.find((i) => String(i.id) === String(rcid))
+	if (rCollection && rCollection.id) {
+		eventsLocalCollections.value.push({
+			id: null,
+			ccid: rCollection.id,
+			label: rCollection.label,
+			enabled: false,
+			color: value,
+		})
 	}
 }
 
@@ -412,7 +448,7 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 				:searchable="false"
 				:options="configuredServices"
 				@option:selected="serviceSelect" />
-			<NcButton @click="disconnectService()">
+			<NcButton :disabled="selectedService === null" @click="disconnectService()">
 				<template #icon>
 					<AccountRemoveIcon :size="20" />
 				</template>
@@ -587,7 +623,7 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 			</div>
 			<div v-if="configureManually" class="parameter">
 				<NcCheckboxRadioSwitch v-model="selectedService.location_security" type="switch">
-					{{ t('integration_ews', 'Secure Transport Verification (SSL Certificate Verification). Should always be ON, unless connecting to a service over a secure internal network') }}
+					{{ t('integration_davc', 'Secure Transport Verification (SSL Certificate Verification). Should always be ON, unless connecting to a service over a secure internal network') }}
 				</NcCheckboxRadioSwitch>
 			</div>
 			<div v-if="configureManually" class="parameter">
@@ -624,11 +660,12 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 				</NcCheckboxRadioSwitch>
 			</div>
 			<div class="actions">
-				<NcButton @click="connectService()">
+				<NcButton :disabled="connecting" @click="connectService()">
 					<template #icon>
-						<CheckIcon />
+						<NcLoadingIcon v-if="connecting" :size="20" />
+						<CheckIcon v-else />
 					</template>
-					{{ t('integration_davc', 'Connect') }}
+					{{ connecting ? t('integration_davc', 'Connecting…') : t('integration_davc', 'Connect') }}
 				</NcButton>
 			</div>
 		</div>
@@ -664,7 +701,12 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 								type="switch"
 								:modelValue="establishedContactCorrelation(ritem.id)"
 								@update:modelValue="changeContactCorrelation(ritem.id, $event)" />
-							<ContactIcon :inline="true" :style="{ color: establishedContactCorrelationColor(ritem.id) }" />
+							<NcColorPicker
+								:modelValue="establishedContactCorrelationColor(ritem.id)"
+								:advancedFields="true"
+								@update:modelValue="setContactCorrelationColor(ritem.id, $event)">
+								<ContactIcon :inline="true" :style="{ color: establishedContactCorrelationColor(ritem.id) }" />
+							</NcColorPicker>
 							<label>
 								{{ ritem.label }}
 							</label>
@@ -679,8 +721,8 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 							</label>
 						</li>
 					</ul>
-					<div v-else-if="contactsRemoteCollections.length == 0" class="empty-message">
-						{{ t('integration_davc', 'No contacts collections where found in the connected account') }}
+					<div v-else-if="contactsRemoteCollections.length === 0" class="empty-message">
+						{{ t('integration_davc', 'No contacts collections were found in the connected account') }}
 					</div>
 					<div v-else class="loading-message">
 						{{ t('integration_davc', 'Loading contacts collections from the connected account') }}
@@ -705,7 +747,10 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 								type="switch"
 								:modelValue="establishedEventCorrelation(ritem.id)"
 								@update:modelValue="changeEventCorrelation(ritem.id, $event)" />
-							<NcColorPicker v-model="color" :advancedFields="true">
+							<NcColorPicker
+								:modelValue="establishedEventCorrelationColor(ritem.id)"
+								:advancedFields="true"
+								@update:modelValue="setEventCorrelationColor(ritem.id, $event)">
 								<CalendarIcon :inline="true" :style="{ color: establishedEventCorrelationColor(ritem.id) }" />
 							</NcColorPicker>
 							<label>
@@ -722,8 +767,8 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 							</label>
 						</li>
 					</ul>
-					<div v-else-if="eventsRemoteCollections.length == 0" class="empty-message">
-						{{ t('integration_davc', 'No events collections where found in the connected account') }}
+					<div v-else-if="eventsRemoteCollections.length === 0" class="empty-message">
+						{{ t('integration_davc', 'No events collections were found in the connected account') }}
 					</div>
 					<div v-else class="loading-message">
 						{{ t('integration_davc', 'Loading events collections from the connected account') }}

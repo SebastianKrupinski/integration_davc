@@ -248,6 +248,8 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 	 * @return array<int,ContactEntity>
 	 */
 	public function getMultipleChildren(array $ids): array {
+		// remove extension
+		$ids = array_map(fn ($id) => str_replace('.vcf', '', $id), $ids);
 		// construct filter
 		$filter = $this->_store->entityListFilter();
 		$filter->condition('cid', $this->_collection->getId());
@@ -296,6 +298,9 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 	 * @return string entity signature
 	 */
 	public function createFile($id, $data = null): string {
+		if (is_resource($data)) {
+			$data = stream_get_contents($data);
+		}
 		// remove extension
 		$id = str_replace('.vcf', '', $id);
 		// evaluate if data is in UTF8 format and convert if needed
@@ -315,6 +320,8 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 		$entity->setSignature(md5($data));
 		// extract additional properties
 		$this->extractProperties($entity, $vObject);
+		// URI segment is authoritative for lookups
+		$entity->setUuid($id);
 		// deposit entity to data store
 		$entity = $this->_store->entityCreate($entity);
 		// return state
