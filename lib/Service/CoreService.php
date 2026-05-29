@@ -201,11 +201,10 @@ class CoreService {
 		$service->setEnabled(true);
 		$service->setConnected(true);
 
-		$this->ServicesService->deposit($uid, $service);
+		$service = $this->ServicesService->deposit($uid, $service);
 
-		// TODO: Should this be implemented?
-		// register harmonization task
-		//$this->TaskService->add(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $service->getId()]);
+		// register periodic harmonization task for this service
+		$this->TaskService->add(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $service->getId()]);
 
 		return true;
 	}
