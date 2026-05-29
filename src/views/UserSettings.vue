@@ -14,6 +14,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcColorPicker from '@nextcloud/vue/components/NcColorPicker'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
+import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcPasswordField from '@nextcloud/vue/components/NcPasswordField'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
@@ -80,17 +81,7 @@ const eventsLocalCollections = ref<Collection[]>([])
 
 // UI State
 const configureManually = ref<boolean>(false)
-const selectedcolor = ref<string>('')
-
-// Computed
-const color = computed({
-	get() {
-		return selectedcolor.value || randomColor()
-	},
-	set(value: string) {
-		selectedcolor.value = value
-	},
-})
+const connecting = ref<boolean>(false)
 
 // Lifecycle
 onMounted(() => {
@@ -123,6 +114,10 @@ function freshService(): void {
 	selectedService.value = { label: 'New Connection' } as Service
 }
 async function connectService(): Promise<void> {
+	if (connecting.value) {
+		return
+	}
+	connecting.value = true
 	const uri = generateUrl('/apps/integration_davc/service/connect')
 	const data = {
 		service: selectedService.value,
@@ -131,14 +126,18 @@ async function connectService(): Promise<void> {
 		const response = await axios.post(uri, data)
 		if (response.data && response.data.id) {
 			showSuccess(t('integration_davc', 'Successfully connected to account'))
-			selectedService.value = response.data as Service
-			serviceList()
-			remoteCollectionsFetch()
-			localCollectionsFetch()
+			const connected = response.data as Service
+			await serviceList()
+			selectedService.value = configuredServices.value.find(
+				(s) => String(s.id) === String(connected.id),
+			) ?? connected
+			await Promise.all([remoteCollectionsFetch(), localCollectionsFetch()])
 		}
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to authenticate with server')
 			+ ': ' + getErrorResponseText(error))
+	} finally {
+		connecting.value = false
 	}
 }
 
@@ -282,10 +281,14 @@ function changeContactCorrelation(rcid: string | null, e: boolean): void {
 				ccid: rCollection.id,
 				label: rCollection.label,
 				enabled: e,
+				color: randomColor(),
 			})
 		}
 	} else {
 		lCollection.enabled = e
+		if (!lCollection.color) {
+			lCollection.color = randomColor()
+		}
 	}
 }
 
@@ -303,10 +306,14 @@ function changeEventCorrelation(rcid: string | null, e: boolean): void {
 				ccid: rCollection.id,
 				label: rCollection.label,
 				enabled: e,
+				color: randomColor(),
 			})
 		}
 	} else {
 		eventsLocalCollections.value[lid].enabled = e
+		if (!eventsLocalCollections.value[lid].color) {
+			eventsLocalCollections.value[lid].color = randomColor()
+		}
 	}
 }
 
@@ -344,25 +351,59 @@ const establishedEventCorrelation = computed(() => {
 
 function establishedContactCorrelationColor(ccid: string | null): string {
 	if (!ccid) {
-		return randomColor()
+		return ''
 	}
 	const collection = contactsLocalCollections.value.find((i) => String(i.ccid) === String(ccid))
-	if (typeof collection !== 'undefined') {
-		return collection.color || randomColor()
-	} else {
-		return randomColor()
-	}
+	return collection?.color ?? ''
 }
 
 function establishedEventCorrelationColor(ccid: string | null): string {
 	if (!ccid) {
-		return randomColor()
+		return ''
 	}
 	const collection = eventsLocalCollections.value.find((i) => String(i.ccid) === String(ccid))
-	if (typeof collection !== 'undefined') {
-		return collection.color || randomColor()
-	} else {
-		return randomColor()
+	return collection?.color ?? ''
+}
+
+function setContactCorrelationColor(rcid: string | null, value: string): void {
+	if (!rcid) {
+		return
+	}
+	const lCollection = contactsLocalCollections.value.find((i) => String(i.ccid) === String(rcid))
+	if (lCollection) {
+		lCollection.color = value
+		return
+	}
+	const rCollection = contactsRemoteCollections.value.find((i) => String(i.id) === String(rcid))
+	if (rCollection && rCollection.id) {
+		contactsLocalCollections.value.push({
+			id: null,
+			ccid: rCollection.id,
+			label: rCollection.label,
+			enabled: false,
+			color: value,
+		})
+	}
+}
+
+function setEventCorrelationColor(rcid: string | null, value: string): void {
+	if (!rcid) {
+		return
+	}
+	const lCollection = eventsLocalCollections.value.find((i) => String(i.ccid) === String(rcid))
+	if (lCollection) {
+		lCollection.color = value
+		return
+	}
+	const rCollection = eventsRemoteCollections.value.find((i) => String(i.id) === String(rcid))
+	if (rCollection && rCollection.id) {
+		eventsLocalCollections.value.push({
+			id: null,
+			ccid: rCollection.id,
+			label: rCollection.label,
+			enabled: false,
+			color: value,
+		})
 	}
 }
 
@@ -409,7 +450,7 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 				:searchable="false"
 				:options="configuredServices"
 				@option:selected="serviceSelect" />
-			<NcButton @click="disconnectService()">
+			<NcButton :disabled="selectedService === null" @click="disconnectService()">
 				<template #icon>
 					<AccountRemoveIcon :size="20" />
 				</template>
@@ -621,11 +662,12 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 				</NcCheckboxRadioSwitch>
 			</div>
 			<div class="actions">
-				<NcButton @click="connectService()">
+				<NcButton :disabled="connecting" @click="connectService()">
 					<template #icon>
-						<CheckIcon />
+						<NcLoadingIcon v-if="connecting" :size="20" />
+						<CheckIcon v-else />
 					</template>
-					{{ t('integration_davc', 'Connect') }}
+					{{ connecting ? t('integration_davc', 'Connecting…') : t('integration_davc', 'Connect') }}
 				</NcButton>
 			</div>
 		</div>
@@ -661,7 +703,12 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 								type="switch"
 								:modelValue="establishedContactCorrelation(ritem.id)"
 								@update:modelValue="changeContactCorrelation(ritem.id, $event)" />
-							<ContactIcon :inline="true" :style="{ color: establishedContactCorrelationColor(ritem.id) }" />
+							<NcColorPicker
+								:modelValue="establishedContactCorrelationColor(ritem.id)"
+								:advancedFields="true"
+								@update:modelValue="setContactCorrelationColor(ritem.id, $event)">
+								<ContactIcon :inline="true" :style="{ color: establishedContactCorrelationColor(ritem.id) }" />
+							</NcColorPicker>
 							<label>
 								{{ ritem.label }}
 							</label>
@@ -702,7 +749,10 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 								type="switch"
 								:modelValue="establishedEventCorrelation(ritem.id)"
 								@update:modelValue="changeEventCorrelation(ritem.id, $event)" />
-							<NcColorPicker v-model="color" :advancedFields="true">
+							<NcColorPicker
+								:modelValue="establishedEventCorrelationColor(ritem.id)"
+								:advancedFields="true"
+								@update:modelValue="setEventCorrelationColor(ritem.id, $event)">
 								<CalendarIcon :inline="true" :style="{ color: establishedEventCorrelationColor(ritem.id) }" />
 							</NcColorPicker>
 							<label>
