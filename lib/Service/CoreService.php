@@ -111,40 +111,40 @@ class CoreService {
 	 *
 	 * @return bool
 	 */
-	public function connectAccount(string $uid, array $configuration, array $options = []): bool {
+	public function connectAccount(string $uid, array $configuration, array $options = []): ?ServiceEntity {
 		$forceAutoDiscovery = in_array('AUTO_DISCOVERY', $options, true);
 
 		// validate service configuration
 		if (!empty($configuration['location_host']) && !\OCA\DAVC\Utile\Validator::host($configuration['location_host'])) {
-			return false;
+			return null;
 		}
 
 		if ($configuration['auth'] === Constants::AUTHENTICATION_TYPE_BASIC) {
 			// validate id
 			//if (!\OCA\DAVC\Utile\Validator::username($configuration['bauth_id'])) {
-			//	return false;
+			//	return null;
 			//}
 			// validate secret
 			if (empty($configuration['bauth_secret'])) {
-				return false;
+				return null;
 			}
 		} elseif ($configuration['auth'] === Constants::AUTHENTICATION_TYPE_TOKEN) {
 			// validate id
 			if (!\OCA\DAVC\Utile\Validator::username($configuration['oauth_id'])) {
-				return false;
+				return null;
 			}
 			// validate secret
 			if (empty($configuration['oauth_access_token'])) {
-				return false;
+				return null;
 			}
 		} else {
-			return false;
+			return null;
 		}
 		// if host was not provided, or auto-discovery was explicitly requested, attempt to locate it
 		if ($forceAutoDiscovery || empty($configuration['location_host'])) {
 			$configuration = $this->locateAccount($configuration) ?? [];
 			if (empty($configuration['location_host'])) {
-				return false;
+				return null;
 			}
 		}
 
@@ -180,12 +180,12 @@ class CoreService {
 			$info = $remoteStore->discover();
 		} catch (Throwable $e) {
 			$this->logger->error('Connection failed:', ['app' => 'davc', 'exception' => $e]);
-			return false;
+			return null;
 		}
 
 		// determine if connection was established
 		if ($info['connected'] === false) {
-			return false;
+			return null;
 		}
 
 		if ($info['principalUrl'] !== null) {
@@ -201,13 +201,13 @@ class CoreService {
 		$service->setEnabled(true);
 		$service->setConnected(true);
 
-		$this->ServicesService->deposit($uid, $service);
+		$service = $this->ServicesService->deposit($uid, $service);
 
 		// TODO: Should this be implemented?
 		// register harmonization task
 		//$this->TaskService->add(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $service->getId()]);
 
-		return true;
+		return $service;
 	}
 
 	/**

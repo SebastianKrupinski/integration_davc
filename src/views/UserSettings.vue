@@ -129,11 +129,9 @@ async function connectService(): Promise<void> {
 	}
 	try {
 		const response = await axios.post(uri, data)
-		if (response.data === 'success') {
+		if (response.data && response.data.id) {
 			showSuccess('Successfully connected to account')
-			if (selectedService.value) {
-				selectedService.value.connected = 1
-			}
+			selectedService.value = response.data as Service
 			serviceList()
 			remoteCollectionsFetch()
 			localCollectionsFetch()
