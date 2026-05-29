@@ -320,11 +320,14 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 		if (is_resource($data)) {
 			$data = stream_get_contents($data);
 		}
+		// remove extension
+		$id = str_replace('.vcf', '', $id);
 
 		$eo = new Entity();
 		$eo->localCollectionId = $this->collection->localId;
 		$eo->remoteCollectionId = $this->collection->remoteId;
 		$eo->remoteEntityId = $id;
+		$eo->uuid = $id;
 		$eo->data = $data;
 
 		$remoteService = $this->remoteService();

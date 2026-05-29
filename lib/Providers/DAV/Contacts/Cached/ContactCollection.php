@@ -320,6 +320,8 @@ class ContactCollection implements IAddressBook, IProperties, IMultiGet, ISyncCo
 		$entity->setSignature(md5($data));
 		// extract additional properties
 		$this->extractProperties($entity, $vObject);
+		// URI segment is authoritative for lookups
+		$entity->setUuid($id);
 		// deposit entity to data store
 		$entity = $this->_store->entityCreate($entity);
 		// return state

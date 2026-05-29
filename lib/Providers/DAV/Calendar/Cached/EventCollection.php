@@ -386,6 +386,8 @@ class EventCollection extends ExternalCalendar implements ICalendar, IProperties
 		$entity->setSignature(md5($entity->getData()));
 		// extract additional properties
 		$this->extractProperties($entity, $vObject);
+		// URI segment is authoritative for lookups
+		$entity->setUuid($id);
 		// deposit entity to data store
 		$entity = $this->_store->entityCreate($entity);
 		// return state

@@ -330,9 +330,13 @@ class LocalContactsService {
 		// construct correlation signature
 		$to->setCesn($signature . $so->remoteSignature);
 		// extract additional values from object
-		/** @var \Sabre\VObject\VCard $vo */
-		$vo = Reader::read($so->data);
-		$to->setUuid($vo->UID->getValue());
+		if (!empty($so->uuid)) {
+			$to->setUuid($so->uuid);
+		} else {
+			/** @var \Sabre\VObject\VCard $vo */
+			$vo = Reader::read($so->data);
+			$to->setUuid($vo->UID->getValue());
+		}
 
 		// override / assign additional values
 		foreach ($additional as $key => $value) {
