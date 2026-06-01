@@ -14,9 +14,11 @@ use OCA\DAVC\Constants;
 use OCA\DAVC\Service\CoreService;
 use OCA\DAVC\Service\ServicesService;
 use OCA\DAVC\Store\Local\ServiceEntity;
+use PHPUnit\Framework\Attributes\Group;
 use Test\TestCase;
 
-class CoreServiceTests extends TestCase {
+#[Group('DB')]
+class CoreServiceTest extends TestCase {
 
 	private CoreService $coreService;
 	private ServicesService $servicesService;
@@ -66,7 +68,7 @@ class CoreServiceTests extends TestCase {
 		return $value;
 	}
 
-	public function testConnectManually(): void {
+	public function testConnectWithManualConfiguration(): void {
 		$service = $this->coreService->connectAccount($this->uid, [
 			'label' => 'Local Nextcloud DAV',
 			'auth' => Constants::AUTHENTICATION_TYPE_BASIC,
@@ -79,8 +81,30 @@ class CoreServiceTests extends TestCase {
 			'location_security' => false,
 		]);
 
+		$this->assertConnectedService($service);
+	}
+
+	public function testConnectWithDiscoveredConfiguration(): void {
+		$service = $this->coreService->connectAccount($this->uid, [
+			'label' => 'Auto-discovered DAV',
+			'auth' => Constants::AUTHENTICATION_TYPE_BASIC,
+			'bauth_id' => $this->davUsername,
+			'bauth_secret' => $this->davPassword,
+			'location_protocol' => $this->davProtocol,
+			'location_security' => false,
+		], ['AUTO_DISCOVERY']);
+
+		$this->assertConnectedService($service);
+		$this->assertSame($this->davHost, $service->getLocationHost());
+		$this->assertSame($this->davPort, $service->getLocationPort());
+		$this->assertSame(ltrim($this->davPath, '/'), ltrim((string)$service->getLocationPath(), '/'));
+	}
+
+	private function assertConnectedService(ServiceEntity $service): void {
+		$serviceId = (int)$service->getId();
+
 		$this->assertInstanceOf(ServiceEntity::class, $service);
-		$this->assertGreaterThan(0, $service->getId());
+		$this->assertGreaterThan(0, $serviceId);
 		$this->assertSame($this->uid, $service->getUid());
 		$this->assertTrue($service->getConnected());
 		$this->assertTrue($service->getEnabled());
@@ -91,7 +115,7 @@ class CoreServiceTests extends TestCase {
 		$this->assertIsString($service->getAddressbooksUrl());
 		$this->assertNotSame('', $service->getAddressbooksUrl());
 
-		$persistedService = $this->servicesService->fetchByUserIdAndServiceId($this->uid, $service->getId());
+		$persistedService = $this->servicesService->fetchByUserIdAndServiceId($this->uid, $serviceId);
 
 		$this->assertNotNull($persistedService);
 		$this->assertSame($service->getPrincipalUrl(), $persistedService->getPrincipalUrl());

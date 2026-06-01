@@ -50,6 +50,8 @@ class CoreService {
 	 * @return object
 	 */
 	public function locateAccount(array $configuration): ?array {
+		$dnsTarget = null;
+		$dnsPort = null;
 
 		// determine account and host from identity
 		$identity = $configuration['bauth_id'] ?? $configuration['oauth_id'];
@@ -68,10 +70,10 @@ class CoreService {
 		// find dns service records
 		if (empty($configuration['location_host'])) {
 			$dns = dns_get_record('_caldavs._tcp.' . $identityDomain, DNS_SRV);
-			if ($dns === false) {
+			if (empty($dns)) {
 				$dns = dns_get_record('_caldav._tcp.' . $identityDomain, DNS_SRV);
 			}
-			if ($dns[0]['type'] === 'SRV') {
+			if (!empty($dns) && ($dns[0]['type'] ?? null) === 'SRV') {
 				$dnsTarget = $dns[0]['target'];
 				$dnsPort = $dns[0]['port'];
 				$configuration['location_host'] = $dnsTarget;
@@ -79,7 +81,7 @@ class CoreService {
 			}
 		}
 		// find template for dns service target
-		if ($dnsTarget) {
+		if ($dnsTarget !== null && $dnsTarget !== '') {
 			$template = $this->ServicesTemplateService->findByDomain($dnsTarget);
 			if (isset($template[0]['connection'])) {
 				$settings = json_decode($template[0]['connection'], true, 512, JSON_THROW_ON_ERROR);

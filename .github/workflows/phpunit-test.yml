@@ -287,6 +287,7 @@ jobs:
       DAV_HOST: localhost
       DAV_PORT: 10080
       DAV_PATH: /.well-known/caldav
+      DAV_DOMAIN: example.com
       DAV_USERNAME: user1@example.com
       DAV_PASSWORD: mysecretpassword
 
@@ -329,11 +330,39 @@ jobs:
           curl -sf -X POST http://localhost:10080/api/principal \
             -u "admin:${{ env.STALWART_ADMIN_PWD }}" \
             -H 'Content-Type: application/json' \
-            -d '{"type":"domain","name":"example.com"}'
+            -d '{"type":"domain","name":"${{ env.DAV_DOMAIN }}"}'
           curl -sf -X POST http://localhost:10080/api/principal \
             -u "admin:${{ env.STALWART_ADMIN_PWD }}" \
             -H 'Content-Type: application/json' \
             -d '{"type":"individual","name":"${{ env.DAV_USERNAME }}","secrets":["${{ env.DAV_PASSWORD }}"],"emails":["${{ env.DAV_USERNAME }}"],"roles":["user"]}'
+
+      - name: Set up DNS for DAV discovery
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dnsmasq-base
+          sudo mkdir -p /etc/dnsmasq.d
+
+          sudo cp /etc/resolv.conf /etc/dnsmasq-upstream-resolv.conf
+
+          cat <<EOF | sudo tee /etc/dnsmasq.d/integration-davc.conf >/dev/null
+          port=53
+          listen-address=127.0.0.1
+          bind-interfaces
+          resolv-file=/etc/dnsmasq-upstream-resolv.conf
+          address=/${{ env.DAV_DOMAIN }}/127.0.0.1
+          srv-host=_caldav._tcp.${{ env.DAV_DOMAIN }},${{ env.DAV_HOST }},10080,0,0
+          EOF
+
+          sudo pkill dnsmasq || true
+          sudo dnsmasq --conf-dir=/etc/dnsmasq.d
+
+          printf 'nameserver 127.0.0.1\noptions timeout:1 attempts:3\n' | sudo tee /etc/resolv.conf >/dev/null
+
+      - name: Verify DNS discovery records
+        run: |
+          php -r '$records = dns_get_record("_caldav._tcp.${{ env.DAV_DOMAIN }}", DNS_SRV); if ($records === false || $records === [] || ($records[0]["target"] ?? "") !== "${{ env.DAV_HOST }}") { fwrite(STDERR, "SRV lookup failed\n"); exit(1); }'
+          getent hosts ${{ env.DAV_HOST }}
+
       - name: Checkout server
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
