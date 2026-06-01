@@ -35,6 +35,7 @@
         "psalm:dev": "@psalm",
         "psalm:baseline": "psalm --threads=1 --update-baseline",
         "test:unit": "phpunit -c tests/php/phpunit.xml --testsuite 'Unit Tests'",
-        "test:integration": "phpunit -c tests/php/phpunit.xml --testsuite 'Integration Tests'"
+        "test:integration:db": "phpunit -c tests/php/phpunit.xml --testsuite 'Database Tests'",
+        "test:integration:dav": "phpunit -c tests/php/phpunit.xml --testsuite 'Dav Tests'"
     }
 }

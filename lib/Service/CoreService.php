@@ -109,42 +109,42 @@ class CoreService {
 	 * @param array $configuration service connection data
 	 * @param array $options
 	 *
-	 * @return bool
+	 * @return ServiceEntity
 	 */
-	public function connectAccount(string $uid, array $configuration, array $options = []): ?ServiceEntity {
+	public function connectAccount(string $uid, array $configuration, array $options = []): ServiceEntity {
 		$forceAutoDiscovery = in_array('AUTO_DISCOVERY', $options, true);
 
 		// validate service configuration
 		if (!empty($configuration['location_host']) && !\OCA\DAVC\Utile\Validator::host($configuration['location_host'])) {
-			return null;
+			throw new \InvalidArgumentException('Invalid DAV host provided.');
 		}
 
 		if ($configuration['auth'] === Constants::AUTHENTICATION_TYPE_BASIC) {
 			// validate id
 			if (!\OCA\DAVC\Utile\Validator::username($configuration['bauth_id'])) {
-				return null;
+				throw new \InvalidArgumentException('Invalid DAV username provided for basic authentication.');
 			}
 			// validate secret
 			if (!\OCA\DAVC\Utile\Validator::password($configuration['bauth_secret'])) {
-				return null;
+				throw new \InvalidArgumentException('Invalid DAV password provided for basic authentication.');
 			}
 		} elseif ($configuration['auth'] === Constants::AUTHENTICATION_TYPE_TOKEN) {
 			// validate id
 			if (!\OCA\DAVC\Utile\Validator::username($configuration['oauth_id'])) {
-				return null;
+				throw new \InvalidArgumentException('Invalid DAV identity provided for token authentication.');
 			}
 			// validate secret
 			if (!\OCA\DAVC\Utile\Validator::password($configuration['oauth_access_token'])) {
-				return null;
+				throw new \InvalidArgumentException('Invalid DAV access token provided.');
 			}
 		} else {
-			return null;
+			throw new \InvalidArgumentException('Unsupported DAV authentication type.');
 		}
 		// if host was not provided, or auto-discovery was explicitly requested, attempt to locate it
 		if ($forceAutoDiscovery || empty($configuration['location_host'])) {
 			$configuration = $this->locateAccount($configuration) ?? [];
 			if (empty($configuration['location_host'])) {
-				return null;
+				throw new \RuntimeException('Unable to locate a DAV host for the provided account.');
 			}
 		}
 
@@ -174,18 +174,25 @@ class CoreService {
 
 		// construct remote data store client
 		$remoteStore = $this->remoteFactory->freshClient($service);
+		$endpoint = sprintf(
+			'%s://%s:%d%s',
+			$configuration['location_protocol'] ?? 'https',
+			$configuration['location_host'],
+			$configuration['location_port'] ?? 443,
+			$configuration['location_path'] ?? '/',
+		);
 
 		// connect client
 		try {
 			$info = $remoteStore->discover();
 		} catch (Throwable $e) {
 			$this->logger->error('Connection failed:', ['app' => 'davc', 'exception' => $e]);
-			return null;
+			throw new \RuntimeException(sprintf('DAV discovery failed for %s: %s', $endpoint, $e->getMessage()), 0, $e);
 		}
 
 		// determine if connection was established
 		if ($info['connected'] === false) {
-			return null;
+			throw new \RuntimeException(sprintf('DAV discovery did not establish a connection for %s.', $endpoint));
 		}
 
 		if ($info['principalUrl'] !== null) {

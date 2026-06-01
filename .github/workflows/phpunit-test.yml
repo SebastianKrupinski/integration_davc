@@ -13,8 +13,11 @@ on: pull_request
 permissions:
   contents: read
 
+env:
+  APP_NAME: integration_davc
+
 concurrency:
-  group: phpunit-tests-${{ github.head_ref || github.run_id }}
+  group: php-tests-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -50,7 +53,6 @@ jobs:
           filters: |
             src:
               - '.github/workflows/**'
-              - '.gtihub/workflows/**'
               - 'appinfo/**'
               - 'lib/**'
               - 'templates/**'
@@ -61,7 +63,68 @@ jobs:
               - 'composer.json'
               - 'composer.lock'
 
-  phpunit-databases:
+  php-unit:
+    runs-on: ubuntu-latest
+
+    needs: [changes, matrix]
+    if: needs.changes.outputs.src != 'false'
+
+    strategy:
+      matrix:
+        php-versions: ${{ fromJson(needs.matrix.outputs.php-version) }}
+        server-versions: ${{ fromJson(needs.matrix.outputs.server-max) }}
+
+    name: Unit PHP ${{ matrix.php-versions }} Nextcloud ${{ matrix.server-versions }}
+
+    steps:
+      - name: Checkout server
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          submodules: true
+          repository: nextcloud/server
+          ref: ${{ matrix.server-versions }}
+
+      - name: Checkout app
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          path: apps/${{ env.APP_NAME }}
+
+      - name: Set up php ${{ matrix.php-versions }}
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # 2.37.1
+        with:
+          php-version: ${{ matrix.php-versions }}
+          # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
+          extensions: bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, sqlite, pdo_sqlite
+          coverage: none
+          ini-file: development
+          # Temporary workaround for missing pcntl_* in PHP 8.3
+          ini-values: disable_functions=
+
+      - name: Check composer file existence
+        id: check_composer
+        uses: andstor/file-existence-action@558493d6c74bf472d87c84eab196434afc2fa029 # v3.1.0
+        with:
+          files: apps/${{ env.APP_NAME }}/composer.json
+
+      - name: Set up dependencies
+        working-directory: apps/${{ env.APP_NAME }}
+        run: |
+          composer remove nextcloud/ocp --dev --no-scripts
+          composer i
+
+      - name: Set up Nextcloud
+        run: |
+          mkdir data
+          ./occ maintenance:install --verbose --database=sqlite --database-name=nextcloud --admin-user admin --admin-pass admin
+          ./occ app:enable --force ${{ env.APP_NAME }}
+
+      - name: Run tests
+        working-directory: apps/${{ env.APP_NAME }}
+        run: composer run test:unit
+
+  php-databases:
     runs-on: ubuntu-latest
 
     needs: [changes, matrix]
@@ -73,23 +136,14 @@ jobs:
         server-versions: ${{ fromJson(needs.matrix.outputs.server-max) }}
         database:
           - type: mariadb
-            display: MariaDB 10.6
-            version: '10.6'
-            install-type: mysql
-            host: 127.0.0.1
-            port: '4444'
-            name: nextcloud
-            user: root
-            pass: rootpassword
-          - type: mariadb
             display: MariaDB 11.4
             version: '11.4'
             install-type: mysql
             host: 127.0.0.1
-            port: '4444'
+            port: '3306'
             name: nextcloud
-            user: root
-            pass: rootpassword
+            user: nextcloud
+            pass: nextcloud
           - type: postgres
             display: PostgreSQL 16
             version: '16'
@@ -97,8 +151,8 @@ jobs:
             host: 127.0.0.1
             port: '5432'
             name: nextcloud
-            user: postgres
-            pass: postgres
+            user: nextcloud
+            pass: nextcloud
           - type: sqlite
             display: SQLite
             version: ''
@@ -109,14 +163,43 @@ jobs:
             user: ''
             pass: ''
 
-    name: ${{ matrix.database.display }} PHP ${{ matrix.php-versions }} Nextcloud ${{ matrix.server-versions }}
+    name: DB Integration ${{ matrix.database.display }} PHP ${{ matrix.php-versions }} Nextcloud ${{ matrix.server-versions }}
+
+    services:
+      mariadb-service:
+        image: ${{ matrix.database.type == 'mariadb' && format('ghcr.io/nextcloud/continuous-integration-mariadb-{0}:latest', matrix.database.version) || 'ghcr.io/nextcloud/continuous-integration-mariadb-11.4:latest' }}
+        env:
+          MARIADB_ROOT_PASSWORD: rootpassword
+          MARIADB_DATABASE: nextcloud
+          MARIADB_USER: nextcloud
+          MARIADB_PASSWORD: nextcloud
+        ports:
+          - 3306:3306/tcp
+        options: >-
+          --health-cmd="mariadb-admin ping"
+          --health-interval=5s
+          --health-timeout=2s
+          --health-retries=5
+      postgres-service:
+        image: ${{ matrix.database.type == 'postgres' && format('ghcr.io/nextcloud/continuous-integration-postgres-{0}:latest', matrix.database.version) || 'ghcr.io/nextcloud/continuous-integration-postgres-16:latest' }}
+        env:
+          POSTGRES_USER: nextcloud
+          POSTGRES_DB: nextcloud
+          POSTGRES_PASSWORD: nextcloud
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Set app env
-        if: ${{ env.APP_NAME == '' }}
+      - name: Enable ONLY_FULL_GROUP_BY MariaDB option
+        if: matrix.database.type == 'mariadb'
         run: |
-          # Split and keep last
-          echo "APP_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
+          echo "SET GLOBAL sql_mode=(SELECT CONCAT(@@sql_mode,',ONLY_FULL_GROUP_BY'));" | mysql -h 127.0.0.1 -u root -prootpassword
+          echo 'SELECT @@sql_mode;' | mysql -h 127.0.0.1 -u root -prootpassword
 
       - name: Checkout server
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -137,41 +220,13 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
-          extensions: bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, mysql, pdo_mysql, pgsql, pdo_pgsql, sqlite, pdo_sqlite
+          extensions: bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, pgsql, pdo_pgsql
           coverage: none
           ini-file: development
           # Temporary workaround for missing pcntl_* in PHP 8.3
           ini-values: disable_functions=
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Start MariaDB
-        if: matrix.database.type == 'mariadb'
-        run: |
-          docker run --detach --name integration-davc-mariadb \
-            --publish 4444:3306 \
-            --env MARIADB_ROOT_PASSWORD=rootpassword \
-            ghcr.io/nextcloud/continuous-integration-mariadb-${{ matrix.database.version }}:latest
-
-          timeout 60s bash -c 'until docker exec integration-davc-mariadb mariadb-admin ping -uroot -prootpassword >/dev/null 2>&1; do sleep 2; done'
-
-      - name: Start PostgreSQL
-        if: matrix.database.type == 'postgres'
-        run: |
-          docker run --detach --name integration-davc-postgres \
-            --publish 5432:5432 \
-            --env POSTGRES_DB=nextcloud \
-            --env POSTGRES_USER=postgres \
-            --env POSTGRES_PASSWORD=postgres \
-            postgres:${{ matrix.database.version }}
-
-          timeout 60s bash -c 'until docker exec integration-davc-postgres pg_isready -U postgres >/dev/null 2>&1; do sleep 2; done'
-
-      - name: Enable ONLY_FULL_GROUP_BY MariaDB option
-        if: matrix.database.type == 'mariadb'
-        run: |
-          echo "SET GLOBAL sql_mode=(SELECT CONCAT(@@sql_mode,',ONLY_FULL_GROUP_BY'));" | mysql -h ${{ matrix.database.host }} -P ${{ matrix.database.port }} -u ${{ matrix.database.user }} -p${{ matrix.database.pass }}
-          echo 'SELECT @@sql_mode;' | mysql -h ${{ matrix.database.host }} -P ${{ matrix.database.port }} -u ${{ matrix.database.user }} -p${{ matrix.database.pass }}
 
       - name: Check composer file existence
         id: check_composer
@@ -180,8 +235,135 @@ jobs:
           files: apps/${{ env.APP_NAME }}/composer.json
 
       - name: Set up dependencies
-        # Only run if phpunit config file exists
-        if: steps.check_composer.outputs.files_exists == 'true'
+        working-directory: apps/${{ env.APP_NAME }}
+        run: |
+          composer remove nextcloud/ocp --dev --no-scripts
+          composer i
+          
+      - name: Set up Nextcloud
+        env:
+          DB_INSTALL_TYPE: ${{ matrix.database['install-type'] }}
+          DB_HOST: ${{ matrix.database.host }}
+          DB_PORT: ${{ matrix.database.port }}
+          DB_NAME: ${{ matrix.database.name }}
+          DB_USER: ${{ matrix.database.user }}
+          DB_PASS: ${{ matrix.database.pass }}
+        run: |
+          mkdir data
+          if [[ "$DB_INSTALL_TYPE" == 'sqlite' ]]; then
+            ./occ maintenance:install --verbose \
+              --database=sqlite \
+              --database-name="$DB_NAME" \
+              --admin-user admin \
+              --admin-pass admin
+          else
+            ./occ maintenance:install --verbose \
+              --database="$DB_INSTALL_TYPE" \
+              --database-name="$DB_NAME" \
+              --database-host="$DB_HOST" \
+              --database-port="$DB_PORT" \
+              --database-user="$DB_USER" \
+              --database-pass="$DB_PASS" \
+              --admin-user admin \
+              --admin-pass admin
+          fi
+          ./occ app:enable --force ${{ env.APP_NAME }}
+
+      - name: Run tests
+        working-directory: apps/${{ env.APP_NAME }}
+        run: composer run test:integration:db
+
+  php-dav:
+    runs-on: ubuntu-latest
+
+    needs: [changes, matrix]
+    if: needs.changes.outputs.src != 'false'
+
+    env:
+      STALWART_ADMIN_PWD: adminpassword
+      DAV_PROTOCOL: http
+      DAV_HOST: localhost
+      DAV_PORT: 10080
+      DAV_PATH: /.well-known/caldav
+      DAV_USERNAME: user1@example.com
+      DAV_PASSWORD: mysecretpassword
+
+    services:
+      mail-stalwart-service:
+        image: stalwartlabs/stalwart:v0.15.5
+        env:
+          STALWART_ADMIN_PASSWORD: ${{ env.STALWART_ADMIN_PWD }}
+        ports:
+          - 10080:8080
+          - 10025:25
+          - 10143:143
+          - 10993:993
+
+    strategy:
+      matrix:
+        php-versions: ${{ fromJson(needs.matrix.outputs.php-version) }}
+        server-versions: ${{ fromJson(needs.matrix.outputs.server-max) }}
+
+    name: DAV Integration SQLite PHP ${{ matrix.php-versions }} Nextcloud ${{ matrix.server-versions }}
+
+    steps:
+      - name: Wait for dav server admin API
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl -sf -m 5 http://localhost:10080/login >/dev/null 2>&1; then
+              exit 0
+            fi
+
+            if [ "$attempt" -eq 30 ]; then
+              echo 'Stalwart admin API did not become ready in time.' >&2
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+      - name: Create domain and account in dav server
+        run: |
+          curl -sf -X POST http://localhost:10080/api/principal \
+            -u "admin:${{ env.STALWART_ADMIN_PWD }}" \
+            -H 'Content-Type: application/json' \
+            -d '{"type":"domain","name":"example.com"}'
+          curl -sf -X POST http://localhost:10080/api/principal \
+            -u "admin:${{ env.STALWART_ADMIN_PWD }}" \
+            -H 'Content-Type: application/json' \
+            -d '{"type":"individual","name":"${{ env.DAV_USERNAME }}","secrets":["${{ env.DAV_PASSWORD }}"],"emails":["${{ env.DAV_USERNAME }}"],"roles":["user"]}'
+      - name: Checkout server
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          submodules: true
+          repository: nextcloud/server
+          ref: ${{ matrix.server-versions }}
+
+      - name: Checkout app
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          path: apps/${{ env.APP_NAME }}
+
+      - name: Set up php ${{ matrix.php-versions }}
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # 2.37.1
+        with:
+          php-version: ${{ matrix.php-versions }}
+          # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
+          extensions: bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, sqlite, pdo_sqlite
+          coverage: none
+          ini-file: development
+          # Temporary workaround for missing pcntl_* in PHP 8.3
+          ini-values: disable_functions=
+
+      - name: Check composer file existence
+        id: check_composer
+        uses: andstor/file-existence-action@558493d6c74bf472d87c84eab196434afc2fa029 # v3.1.0
+        with:
+          files: apps/${{ env.APP_NAME }}/composer.json
+
+      - name: Set up dependencies
         working-directory: apps/${{ env.APP_NAME }}
         run: |
           composer remove nextcloud/ocp --dev --no-scripts
@@ -190,61 +372,19 @@ jobs:
       - name: Set up Nextcloud
         run: |
           mkdir data
-          if [[ "${{ matrix.database.type }}" = 'sqlite' ]]; then
-            ./occ maintenance:install --verbose --database=${{ matrix.database.install-type }} --database-name=${{ matrix.database.name }} --admin-user admin --admin-pass admin
-          else
-            ./occ maintenance:install --verbose --database=${{ matrix.database.install-type }} --database-name=${{ matrix.database.name }} --database-host=${{ matrix.database.host }} --database-port=${{ matrix.database.port }} --database-user=${{ matrix.database.user }} --database-pass=${{ matrix.database.pass }} --admin-user admin --admin-pass admin
-          fi
+          ./occ maintenance:install --verbose --database=sqlite --database-name=nextcloud --admin-user admin --admin-pass admin
+          ./occ config:system:set allow_local_remote_servers --value="true"
           ./occ app:enable --force ${{ env.APP_NAME }}
 
-      - name: Check PHPUnit script is defined
-        id: check_phpunit
-        continue-on-error: true
+      - name: Run tests
         working-directory: apps/${{ env.APP_NAME }}
-        run: |
-          composer run --list | grep '^  test:unit ' | wc -l | grep 1
-
-      - name: PHPUnit
-        # Only run if phpunit config file exists
-        if: steps.check_phpunit.outcome == 'success'
-        working-directory: apps/${{ env.APP_NAME }}
-        run: composer run test:unit
-
-      - name: Check PHPUnit integration script is defined
-        id: check_integration
-        continue-on-error: true
-        working-directory: apps/${{ env.APP_NAME }}
-        run: |
-          composer run --list | grep '^  test:integration ' | wc -l | grep 1
-
-      - name: Run Nextcloud
-        # Only run if phpunit integration config file exists
-        if: steps.check_integration.outcome == 'success'
-        run: php -S localhost:8080 &
-
-      - name: PHPUnit integration
-        # Only run if phpunit integration config file exists
-        if: steps.check_integration.outcome == 'success'
-        working-directory: apps/${{ env.APP_NAME }}
-        run: composer run test:integration
-
-      - name: Print logs
-        if: always()
-        run: |
-          cat data/nextcloud.log
-
-      - name: Skipped
-        # Fail the action when neither unit nor integration tests ran
-        if: steps.check_phpunit.outcome == 'failure' && steps.check_integration.outcome == 'failure'
-        run: |
-          echo 'Neither PHPUnit nor PHPUnit integration tests are specified in composer.json scripts'
-          exit 1
+        run: composer run test:integration:dav
 
   summary:
     permissions:
       contents: none
     runs-on: ubuntu-latest-low
-    needs: [changes, php-tests]
+    needs: [changes, php-unit, php-databases, php-dav]
 
     if: always()
 
@@ -252,4 +392,4 @@ jobs:
 
     steps:
       - name: PHP Test Summary status
-        run: if ${{ needs.changes.outputs.src != 'false' && needs.php-tests.result != 'success' }}; then exit 1; fi
+        run: if ${{ needs.changes.outputs.src != 'false' && (needs.php-unit.result != 'success' || needs.php-databases.result != 'success' || needs.php-dav.result != 'success') }}; then exit 1; fi

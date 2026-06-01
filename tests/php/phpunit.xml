@@ -24,8 +24,11 @@
         <testsuite name="Unit Tests">
             <directory>unit</directory>
         </testsuite>
-        <testsuite name="Integration Tests">
-            <directory>integration</directory>
+        <testsuite name="Database Tests">
+            <directory>database</directory>
+        </testsuite>
+        <testsuite name="Dav Tests">
+            <directory>dav</directory>
         </testsuite>
     </testsuites>
 

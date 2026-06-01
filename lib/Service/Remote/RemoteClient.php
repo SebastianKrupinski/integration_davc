@@ -77,6 +77,7 @@ class RemoteClient {
 	private ?LoggerInterface $logger = null;
 
 	private array $capabilities = [
+		'connected' => false,
 		'discovery' => false,
 		'endpoint' => null,
 		'dav' => [],
@@ -367,8 +368,10 @@ class RemoteClient {
 				);
 			}
 
+			$this->capabilities['connected'] = true;
 			$this->capabilities['discovery'] = true;
 		} catch (ClientExceptionInterface|ParseException $e) {
+			$this->capabilities['connected'] = false;
 			$this->capabilities['discovery'] = false;
 			throw $e;
 		}

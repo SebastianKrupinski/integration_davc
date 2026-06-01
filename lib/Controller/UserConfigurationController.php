@@ -73,10 +73,9 @@ class UserConfigurationController extends Controller {
 		// execute command
 		try {
 			$entity = $this->CoreService->connectAccount($this->userId, $service);
-			if ($entity === null) {
-				return new DataResponse('Failed to connect account', Http::STATUS_BAD_REQUEST);
-			}
 			return new DataResponse($entity);
+		} catch (\InvalidArgumentException|\RuntimeException $th) {
+			return new DataResponse($th->getMessage(), Http::STATUS_BAD_REQUEST);
 		} catch (\Throwable $th) {
 			return new DataResponse($th->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
