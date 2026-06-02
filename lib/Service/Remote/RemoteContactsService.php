@@ -309,7 +309,13 @@ class RemoteContactsService {
 	 * delete entity from remote storage
 	 */
 	public function entityDelete(string $location, string $identifier): ?string {
-		$response = $this->dataStore->delete($identifier);
+		if (str_starts_with($identifier, $location)) {
+			$path = $identifier;
+		} else {
+			$path = rtrim($location, '/') . '/' . ltrim($identifier, '/');
+		}
+
+		$this->dataStore->delete($path);
 		return $identifier;
 	}
 
