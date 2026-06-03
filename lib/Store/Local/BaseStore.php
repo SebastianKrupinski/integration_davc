@@ -924,7 +924,8 @@ class BaseStore {
 			->from($this->_ChronicleTable)
 			->where($cmd->expr()->eq('cid', $cmd->createNamedParameter($cid)))
 			->andWhere($cmd->expr()->eq('tag', $cmd->createNamedParameter($this->_EntityIdentifier)))
-			->groupBy('eid');
+			->groupBy('eid')
+			->addGroupBy('euuid');
 		// evaluate if this is a initial reconciliation
 		if ($initial) {
 			// select only entries that are not deleted
