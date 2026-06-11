@@ -30,7 +30,7 @@ class UUID {
 	 * @param string $namespace another valid UUID
 	 * @param string $name random value
 	 *
-	 * @return string a version 3 UUID
+	 * @return string|false a version 3 UUID, or false if the namespace is invalid
 	 */
 	public static function v3($namespace, $name) {
 		if (!self::is_valid($namespace)) {
@@ -111,7 +111,7 @@ class UUID {
 	 * @param string $namespace another valid UUID
 	 * @param string $name random value
 	 *
-	 * @return string a version 5 UUID
+	 * @return string|false a version 5 UUID, or false if the namespace is invalid
 	 */
 	public static function v5($namespace, $name) {
 		if (!self::is_valid($namespace)) {

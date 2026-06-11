@@ -60,7 +60,7 @@ class ServicesService {
 		return new ServiceEntity();
 	}
 
-	public function fetch(int $id): ServiceEntity {
+	public function fetch(int $id): ?ServiceEntity {
 		return $this->_Store->fetch($id);
 	}
 

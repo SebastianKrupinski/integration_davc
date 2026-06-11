@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="6.16.1@f1f5de594dc76faf8784e02d3dc4716c91c6f6ac">
+  <file src="lib/Providers/DAV/Calendar/Cached/EventCollection.php">
+    <UndefinedClass>
+      <code><![CDATA[ExternalCalendar]]></code>
+      <code><![CDATA[ICalendar]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Calendar/Cached/EventEntity.php">
+    <UndefinedClass>
+      <code><![CDATA[\Sabre\CalDAV\ICalendarObject]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Calendar/Cached/Provider.php">
+    <UndefinedClass>
+      <code><![CDATA[ICalendarProvider2]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Calendar/Hybrid/EventCollection.php">
+    <UndefinedClass>
+      <code><![CDATA[ExternalCalendar]]></code>
+      <code><![CDATA[ICalendar]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Calendar/Hybrid/EventEntity.php">
+    <UndefinedClass>
+      <code><![CDATA[\Sabre\CalDAV\ICalendarObject]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Calendar/Hybrid/Provider.php">
+    <UndefinedClass>
+      <code><![CDATA[ICalendarProvider2]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Contacts/Cached/ContactCollection.php">
+    <UndefinedClass>
+      <code><![CDATA[IAddressBook]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Contacts/Cached/ContactEntity.php">
+    <UndefinedClass>
+      <code><![CDATA[\Sabre\CardDAV\ICard]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Contacts/Cached/Provider.php">
+    <UndefinedClass>
+      <code><![CDATA[IAddressBookProvider]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Contacts/Hybrid/ContactCollection.php">
+    <UndefinedClass>
+      <code><![CDATA[IAddressBook]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Contacts/Hybrid/ContactEntity.php">
+    <UndefinedClass>
+      <code><![CDATA[\Sabre\CardDAV\ICard]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Providers/DAV/Contacts/Hybrid/Provider.php">
+    <UndefinedClass>
+      <code><![CDATA[IAddressBookProvider]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Service/CoreService.php">
+    <RedundantCondition>
+      <code><![CDATA[true]]></code>
+      <code><![CDATA[true]]></code>
+    </RedundantCondition>
+  </file>
+  <file src="lib/Service/HarmonizationThreadService.php">
+    <ForbiddenCode>
+      <code><![CDATA[shell_exec($command)]]></code>
+      <code><![CDATA[shell_exec($command)]]></code>
+      <code><![CDATA[shell_exec($command)]]></code>
+      <code><![CDATA[shell_exec($command)]]></code>
+    </ForbiddenCode>
+  </file>
+  <file src="lib/Service/Local/LocalContactsService.php">
+    <UndefinedClass>
+      <code><![CDATA[Reader]]></code>
+    </UndefinedClass>
+    <UndefinedDocblockClass>
+      <code><![CDATA[$vo]]></code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="lib/Service/Local/LocalEventsService.php">
+    <UndefinedClass>
+      <code><![CDATA[Reader]]></code>
+    </UndefinedClass>
+    <UndefinedDocblockClass>
+      <code><![CDATA[$vo]]></code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="lib/Service/Remote/RemoteClient.php">
+    <InvalidThrow>
+      <code><![CDATA[throw $e]]></code>
+    </InvalidThrow>
+    <UndefinedClass>
+      <code><![CDATA[ParseException]]></code>
+      <code><![CDATA[SabreXmlService]]></code>
+      <code><![CDATA[SabreXmlService]]></code>
+      <code><![CDATA[SabreXmlService]]></code>
+      <code><![CDATA[\GuzzleHttp\Psr7\UriResolver]]></code>
+    </UndefinedClass>
+    <UndefinedDocblockClass>
+      <code><![CDATA[$multistatus]]></code>
+      <code><![CDATA[$multistatus]]></code>
+      <code><![CDATA[$multistatus]]></code>
+      <code><![CDATA[$multistatus]]></code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="lib/Store/Local/BaseStore.php">
+    <UndefinedClass>
+      <code><![CDATA[Literal]]></code>
+      <code><![CDATA[Literal]]></code>
+    </UndefinedClass>
+  </file>
+</files>

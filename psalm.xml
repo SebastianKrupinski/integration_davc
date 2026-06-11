@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!--
+  - SPDX-FileCopyrightText: 2025 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+<psalm
+	errorBaseline="tests/psalm-baseline.xml"
+	errorLevel="4"
+	findUnusedBaselineEntry="true"
+	findUnusedCode="false"
+	resolveFromConfigFile="true"
+	ensureOverrideAttribute="false"
+	phpVersion="8.1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="https://getpsalm.org/schema/config"
+	xsi:schemaLocation="https://getpsalm.org/schema/config"
+>
+	<projectFiles>
+		<directory name="lib" />
+		<ignoreFiles>
+			<directory name="vendor" />
+		</ignoreFiles>
+	</projectFiles>
+	<extraFiles>
+		<directory name="vendor" />
+	</extraFiles>
+	<issueHandlers>
+		<UndefinedClass>
+			<errorLevel type="suppress">
+				<referencedClass name="OC" />
+				<referencedClass name="Doctrine\DBAL\Types\Types" />
+				<referencedClass name="Symfony\Component\Console\Command\Command" />
+			</errorLevel>
+		</UndefinedClass>
+		<UndefinedDocblockClass>
+			<errorLevel type="suppress">
+				<referencedClass name="Doctrine\DBAL\Driver\Statement" />
+				<referencedClass name="Doctrine\DBAL\Schema\Schema" />
+				<referencedClass name="Doctrine\DBAL\Schema\Table" />
+			</errorLevel>
+		</UndefinedDocblockClass>
+	</issueHandlers>
+</psalm>

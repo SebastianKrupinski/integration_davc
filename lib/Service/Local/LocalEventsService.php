@@ -62,7 +62,7 @@ class LocalEventsService {
 	}
 
 	public function collectionDelta(int $id): string {
-		return $this->_Store->chronicleApex($id, true);
+		return (string)$this->_Store->chronicleApex($id, true);
 	}
 
 	public function collectionModify(int $id, Collection $mutation): ?Collection {
@@ -75,7 +75,7 @@ class LocalEventsService {
 				$entry->setLabel($mutation->label);
 			}
 			if (isset($mutation->visible)) {
-				$entry->setVisible($mutation->visible);
+				$entry->setVisible((int)$mutation->visible);
 			}
 			if (isset($mutation->color)) {
 				$entry->setColor($mutation->color);

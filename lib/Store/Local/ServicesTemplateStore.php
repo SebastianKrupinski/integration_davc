@@ -32,10 +32,11 @@ class ServicesTemplateStore {
 			->from($this->_EntityTable)
 			->where($cmd->expr()->eq('id', $cmd->createNamedParameter($id)));
 		// execute command
-		$rs = $cmd->executeQuery()->fetchAll();
-		$cmd->executeQuery()->closeCursor();
+		$result = $cmd->executeQuery();
+		$rs = $result->fetchAll();
+		$result->closeCursor();
 		// return result or null
-		if (is_array($rs) && count($rs) > 0) {
+		if (count($rs) > 0) {
 			return $rs;
 		} else {
 			return [];
@@ -58,10 +59,11 @@ class ServicesTemplateStore {
 			->from($this->_EntityTable)
 			->where($cmd->expr()->eq('domain', $cmd->createNamedParameter($domain)));
 		// execute command
-		$rs = $cmd->executeQuery()->fetchAll();
-		$cmd->executeQuery()->closeCursor();
+		$result = $cmd->executeQuery();
+		$rs = $result->fetchAll();
+		$result->closeCursor();
 		// return result or null
-		if (is_array($rs) && count($rs) > 0) {
+		if (count($rs) > 0) {
 			return $rs;
 		} else {
 			return [];

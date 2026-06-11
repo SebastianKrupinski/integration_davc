@@ -51,7 +51,7 @@ class ContactsService {
 		$this->debug = (bool)$service->getDebug();
 		// initialize service remote and local services
 		$this->remoteContactsService = $this->remoteFactory->contactsService($this->remoteStore);
-		$this->localContactsService = $this->localFactory->contactsService($uid);
+		$this->localContactsService = $this->localFactory->contactsService();
 		$this->localStore = $this->localFactory->contactsStore();
 
 		// retrieve list of collections
@@ -122,7 +122,7 @@ class ContactsService {
 
 		// retrieve a delta of remote entity variations
 		try {
-			$remoteEntityDelta = $this->remoteContactsService->entityDelta($remoteCollectionId, $remoteCollectionSignature, 'B');
+			$remoteEntityDelta = $this->remoteContactsService->entityDelta($remoteCollectionId, $remoteCollectionSignature);
 		} catch (\RuntimeException) {
 			$remoteEntityDelta = $this->determineRemoteDelta($collection);
 		}
@@ -213,17 +213,17 @@ class ContactsService {
 			// if NOT found add entity to added delta
 			if (isset($lList[$entry->remoteEntityId])) {
 				if ($entry->remoteSignature !== $lList[$entry->remoteEntityId]->localSignature) {
-					$delta->modifications[] = $entry->remoteEntityId;
+					$delta->modifications->append($entry->remoteEntityId);
 				}
 				unset($lList[$entry->remoteEntityId]);
 			} else {
-				$delta->additions[] = $entry->remoteEntityId;
+				$delta->additions->append($entry->remoteEntityId);
 			}
 		}
 		// iterate through remaining correlations
 		// if a correlation that was not removed it must have been deleted on the remote system
 		foreach ($lList as $entry) {
-			$delta->deletions[] = $entry->remoteEntityId;
+			$delta->deletions->append($entry->remoteEntityId);
 		}
 
 		return $delta;

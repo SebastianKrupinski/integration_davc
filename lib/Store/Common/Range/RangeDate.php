@@ -14,20 +14,15 @@ use DateTimeInterface;
 
 class RangeDate implements IRangeDate {
 
+	protected DateTimeInterface $start;
+	protected DateTimeInterface $end;
+
 	public function __construct(
-		protected ?DateTimeInterface $start = null,
-		protected ?DateTimeInterface $end = null,
+		?DateTimeInterface $start = null,
+		?DateTimeInterface $end = null,
 	) {
-
-		if ($start === null) {
-			$start = new DateTime();
-		}
-		if ($end === null) {
-			$end = new DateTime();
-		}
-		$this->start = $start;
-		$this->end = $end;
-
+		$this->start = $start ?? new DateTime();
+		$this->end = $end ?? new DateTime();
 	}
 
 	/**

@@ -54,7 +54,7 @@ class RangeTallyAbsolute implements IRangeTally {
 	 * @since 1.0.0
 	 */
 	public function getCount(): int {
-		return $this->count;
+		return (int)$this->count;
 	}
 
 	/**

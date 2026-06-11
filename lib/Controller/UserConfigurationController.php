@@ -124,7 +124,7 @@ class UserConfigurationController extends Controller {
 		}
 		// execute command
 		try {
-			$this->HarmonizationService->performHarmonization($this->userId, $sid, 'M');
+			$this->HarmonizationService->performHarmonization($this->userId, $sid);
 			return new DataResponse('success');
 		} catch (\Throwable $th) {
 			return new DataResponse($th->getMessage(), Http::STATUS_INTERNAL_SERVER_ERROR);
