@@ -30,7 +30,7 @@ const emit = defineEmits<{
 					<template #icon>
 						<AccountAddIcon :size="20" />
 					</template>
-					{{ t('integration_davc', 'Add Service') }}
+					{{ t('integration_davc', 'Add service') }}
 				</NcButton>
 			</template>
 		</NcEmptyContent>

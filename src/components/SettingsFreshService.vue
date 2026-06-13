@@ -44,7 +44,7 @@ function cloneService(service: Service): Service {
 		</div>
 		<div class="parameter">
 			<label for="davc-account-description">
-				{{ t('integration_davc', 'Account Description') }}
+				{{ t('integration_davc', 'Account description') }}
 			</label>
 			<NcTextField
 				id="davc-account-description"
@@ -55,7 +55,7 @@ function cloneService(service: Service): Service {
 				autocapitalize="none"
 				:labelOutside="true"
 				:style="{ width: '48ch' }"
-				:placeholder="t('integration_davc', 'Description for this Account')" />
+				:placeholder="t('integration_davc', 'Description for this account')" />
 		</div>
 		<div v-if="editableService.auth === 'BA'" class="parameter">
 			<label for="davc-account-bauth-id">
@@ -69,11 +69,11 @@ function cloneService(service: Service): Service {
 				autocorrect="off"
 				autocapitalize="none"
 				:style="{ width: '48ch' }"
-				:placeholder="t('integration_davc', 'Authentication ID for your Account')" />
+				:placeholder="t('integration_davc', 'Authentication ID for your account')" />
 		</div>
 		<div v-if="editableService.auth === 'BA'" class="parameter">
 			<label for="davc-account-bauth-secret">
-				{{ t('integration_davc', 'Account Secret') }}
+				{{ t('integration_davc', 'Account secret') }}
 			</label>
 			<NcPasswordField
 				id="davc-account-bauth-secret"
@@ -83,7 +83,7 @@ function cloneService(service: Service): Service {
 				autocorrect="off"
 				autocapitalize="none"
 				:style="{ width: '48ch' }"
-				:placeholder="t('integration_davc', 'Authentication secret for your Account')" />
+				:placeholder="t('integration_davc', 'Authentication secret for your account')" />
 		</div>
 		<div v-if="editableService.auth === 'OA'" class="parameter">
 			<label for="davc-account-oauth-id">
@@ -97,11 +97,11 @@ function cloneService(service: Service): Service {
 				autocorrect="off"
 				autocapitalize="none"
 				:style="{ width: '48ch' }"
-				:placeholder="t('integration_davc', 'Authentication ID for your Account')" />
+				:placeholder="t('integration_davc', 'Authentication ID for your account')" />
 		</div>
 		<div v-if="editableService.auth === 'OA'" class="parameter">
 			<label for="davc-account-oauth-token">
-				{{ t('integration_davc', 'Account Token') }}
+				{{ t('integration_davc', 'Account token') }}
 			</label>
 			<NcPasswordField
 				id="davc-account-oauth-token"
@@ -111,11 +111,11 @@ function cloneService(service: Service): Service {
 				autocorrect="off"
 				autocapitalize="none"
 				:style="{ width: '48ch' }"
-				:placeholder="t('integration_davc', 'Authentication secret for your Account')" />
+				:placeholder="t('integration_davc', 'Authentication secret for your account')" />
 		</div>
 		<div class="parameter">
 			<label for="davc-service-authentication">
-				{{ t('integration_davc', 'Authentication Type') }}
+				{{ t('integration_davc', 'Authentication type') }}
 			</label>
 			<div class="radio-group">
 				<NcCheckboxRadioSwitch
@@ -140,7 +140,7 @@ function cloneService(service: Service): Service {
 		</div>
 		<div v-if="configureManually" class="parameter">
 			<label for="davc-service-address">
-				{{ t('integration_davc', 'Service Address') }}
+				{{ t('integration_davc', 'Service address') }}
 			</label>
 			<NcTextField
 				id="davc-service-address"
@@ -150,11 +150,11 @@ function cloneService(service: Service): Service {
 				autocorrect="off"
 				autocapitalize="none"
 				:style="{ width: '48ch' }"
-				:placeholder="t('integration_davc', 'Domain or IP Address')" />
+				:placeholder="t('integration_davc', 'Domain or IP address')" />
 		</div>
 		<div v-if="configureManually" class="parameter">
 			<label for="davc-service-protocol">
-				{{ t('integration_davc', 'Service Protocol') }}
+				{{ t('integration_davc', 'Service protocol') }}
 			</label>
 			<div class="radio-group">
 				<NcCheckboxRadioSwitch
@@ -184,7 +184,7 @@ function cloneService(service: Service): Service {
 		</div>
 		<div v-if="configureManually" class="parameter">
 			<label for="davc-service-port">
-				{{ t('integration_davc', 'Service Port') }}
+				{{ t('integration_davc', 'Service port') }}
 			</label>
 			<NcTextField
 				id="davc-service-port"
@@ -198,7 +198,7 @@ function cloneService(service: Service): Service {
 		</div>
 		<div v-if="configureManually" class="parameter">
 			<label for="davc-service-path">
-				{{ t('integration_davc', 'Service Path') }}
+				{{ t('integration_davc', 'Service path') }}
 			</label>
 			<NcTextField
 				id="davc-service-path"

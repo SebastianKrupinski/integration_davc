@@ -174,7 +174,7 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 							{{ t('integration_davc', 'Last Harmonized {0}', {0: formatDate(establishedContactCorrelationHarmonized(ritem.id))}) }}
 						</label>
 						<label v-else>
-							{{ t('integration_davc', 'Last Harmonized never') }}
+							{{ t('integration_davc', 'Never harmonized') }}
 						</label>
 					</li>
 				</ul>
@@ -217,7 +217,7 @@ function establishedEventCorrelationHarmonized(ccid: string | null): number {
 							{{ t('integration_davc', 'Last Harmonized {0}', {0: formatDate(establishedEventCorrelationHarmonized(ritem.id))}) }}
 						</label>
 						<label v-else>
-							{{ t('integration_davc', 'Last Harmonized never') }}
+							{{ t('integration_davc', 'Never harmonized') }}
 						</label>
 					</li>
 				</ul>

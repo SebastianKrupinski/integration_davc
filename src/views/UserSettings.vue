@@ -10,7 +10,7 @@ import type { Service } from '../types/Service.ts'
 import axios from '@nextcloud/axios'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { loadState } from '@nextcloud/initial-state'
-import { translate as t } from '@nextcloud/l10n'
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { onMounted, reactive, ref } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
@@ -71,7 +71,7 @@ function getErrorResponseText(error: unknown): string {
 }
 
 function freshService(): void {
-	selectedService.value = { label: 'New Connection' } as Service
+	selectedService.value = { label: t('integration_davc', 'New connection') } as Service
 }
 async function connectService(service: Service): Promise<void> {
 	const uri = generateUrl('/apps/integration_davc/service/connect')
@@ -103,7 +103,7 @@ async function disconnectService(): Promise<void> {
 	}
 	try {
 		await axios.post(uri, data)
-		showSuccess(t('integration_davc', 'Successfully disconnected from account'))
+		showSuccess(t('integration_davc', 'Disconnected from account'))
 		// Reset state
 		selectedService.value = null
 		// contacts
@@ -133,9 +133,9 @@ async function harmonizeService(): Promise<void> {
 	}
 	try {
 		await axios.post(uri, data)
-		showSuccess(t('integration_davc', 'Synchronization Successful'))
+		showSuccess(t('integration_davc', 'Synchronized'))
 	} catch (error: unknown) {
-		showError(t('integration_davc', 'Synchronization Failed')
+		showError(t('integration_davc', 'Synchronization failed')
 			+ ': ' + getErrorResponseText(error))
 	}
 }
@@ -146,7 +146,7 @@ async function serviceList(): Promise<void> {
 		const response = await axios.get(uri)
 		if (response.data) {
 			configuredServices.value = Object.values(response.data)
-			showSuccess(t('integration_davc', 'Found {count} Configured Services', { count: configuredServices.value.length }))
+			showSuccess(n('integration_davc', 'Found {count} configured service', 'Found {count} configured services', configuredServices.value.length, { count: configuredServices.value.length }))
 		}
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to load service list')
@@ -172,12 +172,12 @@ async function remoteCollectionsFetch(): Promise<void> {
 		if (response.data.ContactsSupported) {
 			contactsRemoteSupported.value = response.data.ContactsSupported
 			contactsRemoteCollections.value = response.data.ContactsCollections
-			showSuccess(t('integration_davc', 'Found {count} Remote Contacts Collections', { count: contactsRemoteCollections.value.length }))
+			showSuccess(n('integration_davc', 'Found {count} remote contacts collection', 'Found {count} remote contacts collections', contactsRemoteCollections.value.length, { count: contactsRemoteCollections.value.length }))
 		}
 		if (response.data.EventsSupported) {
 			eventsRemoteSupported.value = response.data.EventsSupported
 			eventsRemoteCollections.value = response.data.EventsCollections
-			showSuccess(t('integration_davc', 'Found {count} Remote Events Collections', { count: eventsRemoteCollections.value.length }))
+			showSuccess(n('integration_davc', 'Found {count} remote events collection', 'Found {count} remote events collections', eventsRemoteCollections.value.length, { count: eventsRemoteCollections.value.length }))
 		}
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to load remote collections')
@@ -194,11 +194,11 @@ async function localCollectionsFetch(): Promise<void> {
 		const response = await axios.get(uri, { params })
 		if (response.data.ContactCollections) {
 			contactsLocalCollections.value = response.data.ContactCollections
-			showSuccess(t('integration_davc', 'Found {count} Local Contact Collections', { count: contactsLocalCollections.value.length }))
+			showSuccess(n('integration_davc', 'Found {count} local contact collection', 'Found {count} local contact collections', contactsLocalCollections.value.length, { count: contactsLocalCollections.value.length }))
 		}
 		if (response.data.EventCollections) {
 			eventsLocalCollections.value = response.data.EventCollections
-			showSuccess(t('integration_davc', 'Found {count} Local Event Collections', { count: eventsLocalCollections.value.length }))
+			showSuccess(n('integration_davc', 'Found {count} local event collection', 'Found {count} local event collections', eventsLocalCollections.value.length, { count: eventsLocalCollections.value.length }))
 		}
 	} catch (error: unknown) {
 		showError(t('integration_davc', 'Failed to load remote collections')
