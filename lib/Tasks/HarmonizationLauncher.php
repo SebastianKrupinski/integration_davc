@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\DAVC\Tasks;
 
 use OCA\DAVC\AppInfo\Application;
+use OCA\DAVC\Service\ConfigurationService;
 use OCA\DAVC\Service\HarmonizationService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -18,15 +19,14 @@ use Throwable;
 
 class HarmonizationLauncher extends TimedJob {
 
-	private const INTERVAL_SECONDS = 15 * 60;
-
 	public function __construct(
 		ITimeFactory $time,
 		private readonly HarmonizationService $harmonizationService,
+		private readonly ConfigurationService $configurationService,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct($time);
-		$this->setInterval(self::INTERVAL_SECONDS);
+		$this->setInterval($this->configurationService->getHarmonizationInterval());
 		$this->setTimeSensitivity(self::TIME_INSENSITIVE);
 	}
 

@@ -27,41 +27,40 @@ import DavIcon from '../icons/DavIcon.vue'
 
 // Types
 interface AdminConfigurationState {
-	harmonization_mode: 'P' | 'A'
-	harmonization_thread_duration: string | number
-	harmonization_thread_pause: string | number
+	harmonization_interval: string | number
 }
 
 interface SelectOption {
 	label: string
-	id: 'P' | 'A'
+	id: number
 }
 
 interface SaveRequest {
 	values: {
-		harmonization_mode: 'P' | 'A'
-		harmonization_thread_duration: string | number
-		harmonization_thread_pause: string | number
+		harmonization_interval: number
 	}
 }
 
 // Reactive data
-const readonly = ref<boolean>(true)
 const state = reactive<AdminConfigurationState>(loadState('integration_davc', 'admin-configuration') as AdminConfigurationState)
+const harmonizationInterval = ref<number>(Number(state.harmonization_interval) || 900)
 
-// Select options for synchronization mode
-const synchronizationModeOptions: SelectOption[] = [
-	{ label: 'Passive', id: 'P' },
-	{ label: 'Active', id: 'A' },
+// Select options for synchronization interval
+const synchronizationIntervalOptions: SelectOption[] = [
+	{ label: t('integration_davc', 'Every 5 minutes'), id: 300 },
+	{ label: t('integration_davc', 'Every 15 minutes'), id: 900 },
+	{ label: t('integration_davc', 'Every 30 minutes'), id: 1800 },
+	{ label: t('integration_davc', 'Every hour'), id: 3600 },
+	{ label: t('integration_davc', 'Every 6 hours'), id: 21600 },
+	{ label: t('integration_davc', 'Every 12 hours'), id: 43200 },
+	{ label: t('integration_davc', 'Once a day'), id: 86400 },
 ]
 
 // Methods
 async function onSaveClick(): Promise<void> {
 	const req: SaveRequest = {
 		values: {
-			harmonization_mode: state.harmonization_mode,
-			harmonization_thread_duration: state.harmonization_thread_duration,
-			harmonization_thread_pause: state.harmonization_thread_pause,
+			harmonization_interval: harmonizationInterval.value,
 		},
 	}
 
@@ -94,42 +93,12 @@ async function onSaveClick(): Promise<void> {
 			<div>
 				<div class="line">
 					<label>
-						{{ t('integration_davc', 'Synchronization Mode') }}
+						{{ t('integration_davc', 'Synchronization interval') }}
 					</label>
 					<NcSelect
-						v-model="state.harmonization_mode"
+						v-model="harmonizationInterval"
 						:reduce="item => item.id"
-						:options="synchronizationModeOptions" />
-				</div>
-				<div v-if="state.harmonization_mode === 'A'" class="line">
-					<label>
-						{{ t('integration_davc', 'Synchronization Thread Duration') }}
-					</label>
-					<input
-						id="davc-thread-duration"
-						v-model="state.harmonization_thread_duration"
-						type="number"
-						autocomplete="off"
-						autocorrect="off"
-						autocapitalize="none">
-					<label>
-						{{ t('integration_davc', 'Seconds') }}
-					</label>
-				</div>
-				<div v-if="state.harmonization_mode === 'A'" class="line">
-					<label>
-						{{ t('integration_davc', 'Synchronization Thread Pause') }}
-					</label>
-					<input
-						id="davc-thread-pause"
-						v-model="state.harmonization_thread_pause"
-						type="number"
-						autocomplete="off"
-						autocorrect="off"
-						autocapitalize="none">
-					<label>
-						{{ t('integration_davc', 'Seconds') }}
-					</label>
+						:options="synchronizationIntervalOptions" />
 				</div>
 			</div>
 			<br>

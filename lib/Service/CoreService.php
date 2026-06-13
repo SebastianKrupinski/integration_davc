@@ -34,7 +34,6 @@ class CoreService {
 		private ServicesTemplateService $ServicesTemplateService,
 		private RemoteFactory $remoteFactory,
 		private LocalFactory $localFactory,
-		private HarmonizationThreadService $HarmonizationThreadService,
 	) {
 	}
 
@@ -238,8 +237,6 @@ class CoreService {
 		}
 		// deregister task
 		$this->TaskService->remove(\OCA\DAVC\Tasks\HarmonizationLauncher::class, ['uid' => $uid, 'sid' => $sid]);
-		// terminate harmonization thread
-		$this->HarmonizationThreadService->terminate($uid);
 		// initialize contacts data store
 		$localStore = $this->localFactory->contactsStore();
 		// delete local entities
@@ -372,8 +369,6 @@ class CoreService {
 	 */
 	public function localCollectionsDeposit(string $uid, int $sid, array $cc, array $ec): void {
 
-		// terminate harmonization thread, in case the user changed any correlations
-		//$this->HarmonizationThreadService->terminate($uid);
 		// retrieve service information
 		$service = $this->ServicesService->fetch($sid);
 		// determine if user is the service owner

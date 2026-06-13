@@ -18,13 +18,21 @@ class ConfigurationService {
 	 * Default System Configuration
 	 * @var array
 	 * */
-	private const _SYSTEM = [];
+	private const _SYSTEM = [
+		'harmonization_interval' => '900',
+	];
 
 	/**
 	 * Default System Secure Parameters
 	 * @var array
 	 * */
 	private const _SYSTEM_SECURE = [];
+
+	/**
+	 * Minimum allowed harmonization interval in seconds
+	 * @var int
+	 * */
+	private const HARMONIZATION_INTERVAL_MINIMUM = 300;
 
 	/**
 	 * Default User Configuration
@@ -341,190 +349,40 @@ class ConfigurationService {
 	}
 
 	/**
-	 * Gets harmonization mode
+	 * Gets harmonization interval
+	 *
+	 * Interval, in seconds, between background harmonization runs.
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @return string harmonization mode (default P - passive)
+	 * @return int harmonization interval in seconds (default 900)
 	 */
-	public function getHarmonizationMode(): string {
-
-		// retrieve harmonization mode
-		$mode = $this->retrieveSystemValue('harmonization_mode');
-		// return harmonization mode or default
-		if (!empty($mode)) {
-			return $mode;
-		} else {
-			return self::_SYSTEM['harmonization_mode'];
-		}
-
-	}
-
-	/**
-	 * Sets harmonization mode
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @param string $mode harmonization mode (A - Active / P - Passive)
-	 *
-	 * @return void
-	 */
-	public function setHarmonizationMode(string $mode): void {
-
-		// set harmonization mode
-		$this->depositSystemValue('harmonization_mode', $mode);
-
-	}
-
-	/**
-	 * Gets harmonization thread run duration interval
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @return string harmonization thread run duration interval (default 3600 seconds)
-	 */
-	public function getHarmonizationThreadDuration(): int {
+	public function getHarmonizationInterval(): int {
 
 		// retrieve value
-		$interval = $this->retrieveSystemValue('harmonization_thread_duration');
-
-		// return value or default
+		$interval = $this->retrieveSystemValue('harmonization_interval');
+		// return value or default, never below the allowed minimum
 		if (is_numeric($interval)) {
-			return intval($interval);
+			return max(self::HARMONIZATION_INTERVAL_MINIMUM, intval($interval));
 		} else {
-			return intval(self::_SYSTEM['harmonization_thread_duration']);
+			return intval(self::_SYSTEM['harmonization_interval']);
 		}
 
 	}
 
 	/**
-	 * Sets harmonization thread pause interval
+	 * Sets harmonization interval
 	 *
 	 * @since Release 1.0.0
 	 *
-	 * @param string $interval harmonization thread pause interval in seconds
+	 * @param int $interval harmonization interval in seconds
 	 *
 	 * @return void
 	 */
-	public function setHarmonizationThreadDuration(int $interval): void {
+	public function setHarmonizationInterval(int $interval): void {
 
-		// set value
-		$this->depositSystemValue('harmonization_thread_duration', $interval);
-
-	}
-
-	/**
-	 * Gets harmonization thread pause interval
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @return string harmonization thread pause interval (default 5 seconds)
-	 */
-	public function getHarmonizationThreadPause(): int {
-
-		// retrieve value
-		$interval = $this->retrieveSystemValue('harmonization_thread_pause');
-
-		// return value or default
-		if (is_numeric($interval)) {
-			return intval($interval);
-		} else {
-			return intval($self::_SYSTEM['harmonization_thread_pause']);
-		}
-
-	}
-
-	/**
-	 * Sets harmonization thread pause interval
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @param string $interval harmonization thread pause interval in seconds
-	 *
-	 * @return void
-	 */
-	public function setHarmonizationThreadPause(int $interval): void {
-
-		// set value
-		$this->depositSystemValue('harmonization_thread_pause', $interval);
-
-	}
-
-	/**
-	 * Gets harmonization thread id
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @param string $uid nextcloud user id
-	 *
-	 * @return string|null thread id if exists | null if does not exist
-	 */
-	public function getHarmonizationThreadId(string $uid): int {
-
-		// retrieve thread id
-		$tid = $this->retrieveUserValue($uid, 'account_harmonization_tid');
-		// return thread id
-		if (is_numeric($tid)) {
-			return intval($tid);
-		} else {
-			return 0;
-		}
-
-	}
-
-	/**
-	 * Sets harmonization thread id
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @param string $uid nextcloud user id
-	 * @param string $tid thread id
-	 *
-	 * @return void
-	 */
-	public function setHarmonizationThreadId(string $uid, int $tid): void {
-
-		// update harmonization thread id
-		$this->depositUserValue($uid, 'account_harmonization_tid', (string)$tid);
-
-	}
-
-	/**
-	 * Gets harmonization thread heart beat
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @param string $uid nextcloud user id
-	 *
-	 * @return int thread heart beat time stamp if exists | null if does not exist
-	 */
-	public function getHarmonizationThreadHeartBeat(string $uid): int {
-
-		// retrieve thread heart beat
-		$thb = $this->retrieveUserValue($uid, 'account_harmonization_thb');
-		// return thread heart beat
-		if (is_numeric($thb)) {
-			return (int)$thb;
-		} else {
-			return 0;
-		}
-
-	}
-
-	/**
-	 * Sets harmonization thread heart beat
-	 *
-	 * @since Release 1.0.0
-	 *
-	 * @param string $uid nextcloud user id
-	 * @param int $thb thread heart beat time stamp
-	 *
-	 * @return void
-	 */
-	public function setHarmonizationThreadHeartBeat(string $uid, int $thb): void {
-
-		// update harmonization thread id
-		$this->depositUserValue($uid, 'account_harmonization_thb', $thb);
+		// set value, never below the allowed minimum
+		$this->depositSystemValue('harmonization_interval', (string)max(self::HARMONIZATION_INTERVAL_MINIMUM, $interval));
 
 	}
 

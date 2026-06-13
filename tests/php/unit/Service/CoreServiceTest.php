@@ -12,7 +12,6 @@ namespace OCA\DAVC\Tests\Unit\Service;
 use OCA\DAVC\Constants;
 use OCA\DAVC\Service\ConfigurationService;
 use OCA\DAVC\Service\CoreService;
-use OCA\DAVC\Service\HarmonizationThreadService;
 use OCA\DAVC\Service\Local\LocalFactory;
 use OCA\DAVC\Service\Remote\RemoteClient;
 use OCA\DAVC\Service\Remote\RemoteFactory;
@@ -43,8 +42,6 @@ class CoreServiceTest extends TestCase {
 
 	private LocalFactory&MockObject $localFactory;
 
-	private HarmonizationThreadService&MockObject $harmonizationThreadService;
-
 	private CoreService $service;
 
 	protected function setUp(): void {
@@ -58,7 +55,6 @@ class CoreServiceTest extends TestCase {
 		$this->servicesTemplateService = $this->createMock(ServicesTemplateService::class);
 		$this->remoteFactory = $this->createMock(RemoteFactory::class);
 		$this->localFactory = $this->createMock(LocalFactory::class);
-		$this->harmonizationThreadService = $this->createMock(HarmonizationThreadService::class);
 
 		$this->service = new CoreService(
 			$this->logger,
@@ -69,7 +65,6 @@ class CoreServiceTest extends TestCase {
 			$this->servicesTemplateService,
 			$this->remoteFactory,
 			$this->localFactory,
-			$this->harmonizationThreadService,
 		);
 	}
 
